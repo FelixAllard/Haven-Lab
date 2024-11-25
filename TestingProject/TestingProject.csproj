@@ -28,7 +28,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Shopify-Api\Shopify-Api.csproj" />
-        <ProjectReference Include="..\Front-End\Front-End.csproj" />
         <ProjectReference Include="..\Api-Gateway\Api-Gateway.csproj" />
     </ItemGroup>
 

@@ -17,10 +17,10 @@
 
 <!-- To Check a box, do : [x]-->
 ## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Refactor
-- [ ] Documentation
+* [ ] Bug fix
+* [ ] New feature
+* [ ] Refactor
+* [ ] Documentation
 
 ---
 ## Checklist:

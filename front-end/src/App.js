@@ -7,6 +7,7 @@ import 'bootstrap/dist/js/bootstrap.js';
 
 import Navbar from "./NavBar/Navbar";
 import Footer from "./Footer/Footer";
+import AboutUs from "./AboutUs/AboutUs";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <div>
           <Routes>
             <Route path="/" element={<Home />} />
+              <Route path="/aboutus" element={<AboutUs />} />
           </Routes>
         </div>
           <Footer />

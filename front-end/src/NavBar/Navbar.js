@@ -46,7 +46,7 @@ const Navbar = () => {
                                 exit={{ opacity: 0, scale: 0.1 }} // Ensure it resets when closing
                                 transition={{ delay: 0.5, duration: 0.7 }} // Animation settings
                             >
-                                <Link className="nav-link" to="/about">About</Link>
+                                <Link className="nav-link" to="/aboutus">About Us</Link>
                             </motion.li>
                             {/* Add more nav links as needed with similar motion */}
                         </ul>

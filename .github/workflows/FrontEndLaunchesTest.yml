@@ -1,0 +1,47 @@
+name: Frontend CI Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Specify your project's Node.js version
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: npm install
+        working-directory: ./front-end # Adjust the directory to where your frontend code resides
+
+      # Lint the project (optional but good practice)
+      - name: Run Linter
+        run: npm run lint
+        working-directory: ./front-end
+
+      # Run the build command
+      - name: Build Frontend
+        run: npm run build
+        working-directory: ./front-end
+
+      # Test if the server runs successfully
+      - name: Test Development Server
+        run: |
+          npm run start & # Run the server in the background
+          sleep 10 # Wait for the server to start
+          curl -I http://localhost:3000 | grep "200 OK" # Check if the server responds with 200 OK
+        working-directory: ./front-end

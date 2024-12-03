@@ -17,7 +17,7 @@
 
 <!-- To Check a box, do : [x]-->
 ## Type of Change
-* [ ] Bug fix
+* Bug fix
 * [ ] New feature
 * [ ] Refactor
 * [ ] Documentation

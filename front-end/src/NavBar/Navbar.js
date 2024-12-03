@@ -13,7 +13,7 @@ const Navbar = () => {
     return (
         <nav className="navbar navbar-dark bg-dark fixed-top">
             <div className="container-fluid">
-                <a className="navbar-brand" href="#">Haven Lab</a>
+                <Link className="navbar-brand" aria-current="page" to="/">Haven Lab</Link>
                 <button className="navbar-toggler" type="button" onClick={handleToggle} data-bs-toggle="offcanvas"
                         data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar"
                         aria-label="Toggle navigation">

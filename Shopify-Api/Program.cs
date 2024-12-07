@@ -16,10 +16,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var shopifyConfig = builder.Configuration.GetSection("ShopifyApiCredentials");
 builder.Services.AddSingleton(sp =>
     new Shopify_Api.ShopifyRestApiCredentials(
-        shopUrl: "vc-shopz.myshopify.com",
-        accessToken: "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"
+        shopUrl: shopifyConfig["ShopUrl"],
+        accessToken: shopifyConfig["AccessToken"]
     )
 );
     

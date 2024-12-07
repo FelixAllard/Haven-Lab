@@ -8,22 +8,20 @@ public class ShopifyService
 {
     private readonly string _shopUrl;
     private readonly string _accessToken;
+    private readonly ProductService _productService;
 
-    public static string shopUrl;
-    public static string accessToken;
-
-    public ShopifyService(string shopUrl, string accessToken)
+    // Constructor for injecting ProductService (useful for testing)
+    public ShopifyService(string shopUrl, string accessToken, ProductService productService = null)
     {
         _shopUrl = shopUrl;
         _accessToken = accessToken;
+        _productService = productService ?? new ProductService(_shopUrl, _accessToken);
     }
 
     public async Task<IEnumerable<Product>> GetAllProductsAsync()
     {
-        var productService = new ProductService(_shopUrl, _accessToken);
-        // Fetch products and access the Items property to return the actual list
-        var products = await productService.ListAsync();
+        var products = await _productService.ListAsync();
         return products.Items;
     }
-
 }
+

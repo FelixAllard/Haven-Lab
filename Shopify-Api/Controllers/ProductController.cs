@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using ShopifySharp;
+using ShopifySharp.Factories;
 
 namespace Shopify_Api.Controllers;
 
@@ -9,15 +11,23 @@ using System.Threading.Tasks;
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
-    private readonly ShopifyService _shopifyService;
+    private readonly IProductService _shopifyService;
 
-    public ProductsController()
+    public ProductsController(
+        IProductServiceFactory productServiceFactory,
+        Shopify_Api.ShopifyRestApiCredentials credentials
+        )
     {
-        // Replace these with your Shopify store credentials
-        string shopUrl = "vc-shopz.myshopify.com";
-        string accessToken = "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";
+
         
-        _shopifyService = new ShopifyService(shopUrl, accessToken);
+        _shopifyService = productServiceFactory.Create(new ShopifySharp.Credentials.ShopifyApiCredentials(
+                credentials.ShopUrl,
+                credentials.AccessToken
+            )
+        );
+        
+        
+        //_shopifyService = new ShopifyService(shopUrl, accessToken);
     }
 
     [HttpGet("get-all-products")]
@@ -25,7 +35,7 @@ public class ProductsController : ControllerBase
     {
         try
         {
-            var products = await _shopifyService.GetAllProductsAsync();
+            var products = await _shopifyService.ListAsync();
             return Ok(products);
         }
         catch (ShopifyException ex)

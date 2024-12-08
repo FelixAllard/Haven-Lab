@@ -1,3 +1,4 @@
+using System.Text;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +18,25 @@ public class ProxyProductController : ControllerBase
     [HttpGet("")]
     public async Task<IActionResult> GetAllProducts()
     {
-        // Call the service to get products
-        var result = await _serviceProductController.GetAllProductsAsync();
-
-        // Return the result from the Shopify API
-        return Content(result, "application/json");
+        try
+        {
+            var result = await _serviceProductController.GetAllProductsAsync();
+            if (result.StartsWith("Error"))
+            {
+                // Return 500 Internal Server Error with error message
+                return StatusCode(500, new { Message = result });
+            }
+    
+            // Return 200 OK with the result as JSON
+            return Ok(result);  // The result will be serialized as JSON automatically
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, new { Message = e.Message });
+        }
+        
     }
+
     
 }

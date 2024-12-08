@@ -2,30 +2,30 @@ namespace Api_Gateway.Services;
 
 public class ServiceProductController
 {
-    private readonly HttpClient _httpClient;
-    private readonly string BASE_URL = "http://localhost:5106";
+    private readonly IHttpClientFactory _httpClientFactory; // Use IHttpClientFactory instead of HttpClient directly
+    private readonly string BASE_URL = "http://localhost:5106"; // Your base URL for Shopify API
 
-    // Constructor that takes in HttpClient via Dependency Injection
-    public ServiceProductController(HttpClient httpClient)
+    // Constructor that takes in IHttpClientFactory via Dependency Injection
+    public ServiceProductController(IHttpClientFactory httpClientFactory)
     {
-        _httpClient = httpClient;
+        _httpClientFactory = httpClientFactory;
     }
 
     // Method to make the API call to Shopify and return the result
-    public async Task<string> GetAllProductsAsync()
+    public virtual async Task<string> GetAllProductsAsync()
     {
         try
         {
-            var requestUrl = $"{BASE_URL+"/api/Products"}"; // Shopify endpoint for products
+            // Create the HttpClient instance using the factory
+            var client = _httpClientFactory.CreateClient(); // Uses default HttpClient configuration
+
+            var requestUrl = $"{BASE_URL}/api/Products"; // Shopify endpoint for products
 
             // Create the request message
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl)
-            {
-                
-            };
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
             // Send the request and get the response
-            var response = await _httpClient.SendAsync(requestMessage);
+            var response = await client.SendAsync(requestMessage);
 
             if (response.IsSuccessStatusCode)
             {
@@ -44,5 +44,4 @@ public class ServiceProductController
             return $"Exception: {ex.Message}";
         }
     }
-    
 }

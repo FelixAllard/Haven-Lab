@@ -30,7 +30,7 @@ public class ProductsController : ControllerBase
         //_shopifyService = new ShopifyService(shopUrl, accessToken);
     }
 
-    [HttpGet("get-all-products")]
+    [HttpGet("")]
     public async Task<IActionResult> GetAllProducts()
     {
         try

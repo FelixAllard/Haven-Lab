@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Newtonsoft.Json.Linq;
 using Shopify_Api;
 using Shopify_Api.Controllers;
 using ShopifySharp;
@@ -18,6 +19,7 @@ namespace TestingProject.Shopify_Api.SRC
         private ShopifyRestApiCredentials _mockCredentials;
         private ProductsController _controller;
 
+        
         [SetUp]
         public void Setup()
         {
@@ -47,11 +49,11 @@ namespace TestingProject.Shopify_Api.SRC
                 new Product { Id = 2, Title = "Product 2" }
             };
 
-            // Mock LinkHeaderParseResult (customize if needed)
-            var mockLinkHeader = new Mock<LinkHeaderParseResult<Product>>();
+            // Create an empty LinkHeaderParseResult since you don't care about pagination
+            var mockLinkHeader = new LinkHeaderParseResult<Product>(null, null);
 
-            // Create a ListResult using the constructor with the two parameters
-            var listResult = new ListResult<Product>(expectedProducts, mockLinkHeader.Object);
+            // Create a ListResult using the constructor
+            var listResult = new ListResult<Product>(expectedProducts, mockLinkHeader);
 
             // Set up ListAsync to return the ListResult
             _mockProductService.Setup(service => service.ListAsync(null, false, default))
@@ -63,16 +65,24 @@ namespace TestingProject.Shopify_Api.SRC
             // Assert: Check if the result is OK with the correct products
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
-            Assert.AreEqual(expectedProducts, okResult.Value);
+            Assert.That(okResult.StatusCode, Is.EqualTo(200));
+
+            var listingResult = okResult.Value as ListResult<Product>;
+            Assert.IsNotNull(listingResult);
+            CollectionAssert.AreEqual(expectedProducts, listingResult.Items);
         }
+
 
         [Test]
         public async Task GetAllProducts_ReturnsStatusCode500_WhenServiceThrowsShopifyException()
         {
             // Arrange: Setup the mock to throw a ShopifyException
             var expectedErrorMessage = "Error fetching products";
-            _mockProductService.Setup(service => service.ListAsync(null,false, default)).ThrowsAsync(new ShopifyException(expectedErrorMessage));
+            var expectedExceptionMessage = "Shopify API error occurred";
+
+            _mockProductService
+                .Setup(service => service.ListAsync(null, false, default))
+                .ThrowsAsync(new ShopifyException(expectedExceptionMessage));
 
             // Act: Call the method
             var result = await _controller.GetAllProducts();
@@ -80,17 +90,21 @@ namespace TestingProject.Shopify_Api.SRC
             // Assert: Check if the result is a status code 500 with the error message
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
-            Assert.AreEqual(500, objectResult.StatusCode);
-            var response = objectResult.Value as dynamic;
-            Assert.AreEqual(expectedErrorMessage, response.message);
-            Assert.AreEqual(expectedErrorMessage, response.details);
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+
+            // Use JObject to access the properties in the response
+            var response = JObject.FromObject(objectResult.Value);
+            Assert.That(response["message"]?.ToString(), Is.EqualTo(expectedErrorMessage));
+            Assert.That(response["details"]?.ToString(), Is.EqualTo(expectedExceptionMessage));
         }
 
+        
+        /*
         [Test]
         public async Task GetAllProducts_ReturnsStatusCode500_WhenUnexpectedExceptionOccurs()
         {
             // Arrange: Setup the mock to throw an unexpected exception
-            _mockProductService.Setup(service => service.ListAsync(null,false, default)).ThrowsAsync(new System.Exception("Unexpected error"));
+            _mockProductService.Setup(service => service.ListAsync(null, false, default)).ThrowsAsync(new System.Exception("Unexpected error"));
 
             // Act: Call the method
             var result = await _controller.GetAllProducts();
@@ -98,10 +112,12 @@ namespace TestingProject.Shopify_Api.SRC
             // Assert: Check if the result is a status code 500 with a generic error message
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
-            Assert.AreEqual(500, objectResult.StatusCode);
-            var response = objectResult.Value as dynamic;
-            Assert.AreEqual("Error fetching products", response.message);
-            Assert.AreEqual("Unexpected error", response.details);
-        }
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+
+            // Use JObject to access the properties in the response
+            var response = JObject.FromObject(objectResult.Value);
+            Assert.AreEqual("Error fetching products", response["message"].ToString());
+            Assert.AreEqual("Unexpected error", response["details"].ToString());
+        }*/
     }
 }

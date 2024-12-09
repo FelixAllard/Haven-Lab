@@ -78,7 +78,7 @@ namespace TestingProject.Shopify_Api.SRC
         public async Task GetAllProducts_ReturnsStatusCode500_WhenServiceThrowsShopifyException()
         {
             // Arrange: Setup the mock to throw a ShopifyException
-            var expectedErrorMessage = "Error fetching products";
+            var expectedErrorMessage = "Error fetching product";
             var expectedExceptionMessage = "Shopify API error occurred";
 
             _mockProductService

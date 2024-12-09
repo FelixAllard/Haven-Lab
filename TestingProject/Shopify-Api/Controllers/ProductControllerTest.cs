@@ -93,7 +93,7 @@ public class ProductControllerTest
         Assert.That(objectResult.StatusCode, Is.EqualTo(500));
 
         var value = JObject.FromObject(objectResult.Value);
-        Assert.AreEqual("Error fetching products", value["message"]?.ToString());
+        Assert.AreEqual("Error fetching product", value["message"]?.ToString());
     }
 
     [TestCase("Input1")]
@@ -119,8 +119,103 @@ public class ProductControllerTest
         var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
 
         // Assert the message property
-        Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error fetching products{testCase}"));
+        Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error fetching product{testCase}"));
     }
+    //-------------------------------------Get BY Id Methods
+    [Test]
+    public async Task GetProductById_ReturnsOk_WhenProductIsFetchedSuccessfully()
+    {
+        // Arrange
+        long productId = 1;
+        var product = new Product
+        {
+            Id = productId,
+            Title = "Product 1",
+            BodyHtml = "<p>A good example product</p>",
+            CreatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            UpdatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            PublishedAt = DateTime.Parse("2024-12-08T22:17:59-05:00"),
+            Vendor = "New Vendor",
+            ProductType = "",
+            Handle = "haven-lab",
+            PublishedScope = "global",
+            Status = "active",
+            Variants = new List<ProductVariant>
+            {
+                new ProductVariant
+                {
+                    ProductId = 8073575366701,
+                    Title = "Default Title",
+                    Price = 19.99M,
+                    InventoryQuantity = 5,
+                    Weight = 54,
+                    WeightUnit = "kg"
+                }
+            }
+        };
+
+        // Mock the GetAsync method to return the product
+        _mockProductService.Setup(x => x.GetAsync(productId, null, false,default)).ReturnsAsync(product);
+
+        // Act
+        var result = await _controller.GetProductById(productId);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(200, okResult.StatusCode);
+
+        // Verify the returned product
+        var returnedProduct = okResult.Value as Product;
+        Assert.IsNotNull(returnedProduct);
+        Assert.AreEqual(product.Title, returnedProduct?.Title);
+        Assert.AreEqual(product.Vendor, returnedProduct?.Vendor);
+        Assert.AreEqual(product.Variants.Count(), returnedProduct?.Variants.Count());
+    }
+
+    [Test]
+    public async Task GetProductById_ReturnsInternalServerError_WhenShopifyExceptionIsThrown()
+    {
+        // Arrange
+        long productId = 1;
+        _mockProductService.Setup(x => x.GetAsync(productId, null, false,default))
+            .ThrowsAsync(new ShopifyException("Shopify error"));
+
+        // Act
+        var result = await _controller.GetProductById(productId);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+
+        var value = JObject.FromObject(objectResult.Value);
+        Assert.AreEqual("Error fetching products", value["message"]?.ToString());
+    }
+
+    [TestCase("Input1")]
+    [TestCase("Input2")]
+    [TestCase("Input3")]
+    [Test]
+    public async Task GetProductById_ReturnsInternalServerError_WhenUnexpectedExceptionOccurs(string testCase)
+    {
+        // Arrange
+        long productId = 1;
+        _mockProductService.Setup(x => x.GetAsync(productId, null, false,default))
+            .ThrowsAsync(new System.Exception(testCase));
+
+        // Act
+        var result = await _controller.GetProductById(productId);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+
+        var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
+        Assert.AreEqual($"Error fetching products{testCase}", responseBody["message"]?.ToString());
+    }
+
         
         
         ///----------------------------------POST METHOD

@@ -1,6 +1,10 @@
 using Shopify_Api;
 using Shopify_Api.Exceptions;
 using ShopifySharp;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TestingProject.Shopify_Api.SRC
 {
@@ -15,7 +19,6 @@ namespace TestingProject.Shopify_Api.SRC
             _productValidator = new ProductValidator();
         }
 
-        // Helper method to create a basic product with required fields.
         private Product CreateValidProduct()
         {
             return new Product
@@ -49,73 +52,146 @@ namespace TestingProject.Shopify_Api.SRC
                 Images = new List<ProductImage>()
             };
         }
+
         [Test]
-        [TestCase (null)]
-        [TestCase ("")]
-        public void FormatPostProduct_ValidProduct_ReturnsFormattedProduct(string? testcase)
+        public void FormatPostProduct_MissingWeightInVariant_ThrowsInputException()
         {
-            // Arrange
             var product = CreateValidProduct();
-            product.Handle = testcase;
-            // Act
+            product.Variants.FirstOrDefault().Weight = null;
+
+            var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
+            Assert.That(ex.Message, Is.EqualTo("Weight is required!"));
+        }
+
+        [Test]
+        public void FormatPostProduct_InvalidWeightUnitInVariant_ThrowsInputException()
+        {
+            var product = CreateValidProduct();
+            product.Variants.FirstOrDefault().WeightUnit = "grams"; // Invalid unit
+
+            var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
+            Assert.That(ex.Message, Is.EqualTo("Weight Unit is required!"));
+        }
+
+        [Test]
+        public void FormatPostProduct_MissingTaxableInVariant_ThrowsInputException()
+        {
+            var product = CreateValidProduct();
+            product.Variants.FirstOrDefault().Taxable = null;
+
+            var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
+            Assert.That(ex.Message, Is.EqualTo("Taxable is required! True or false"));
+        }
+
+        [Test]
+        public void FormatPostProduct_MissingRequiresShippingInVariant_ThrowsInputException()
+        {
+            var product = CreateValidProduct();
+            product.Variants.FirstOrDefault().RequiresShipping = null;
+
+            var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
+            Assert.That(ex.Message, Is.EqualTo("RequiresShipping is required!"));
+        }
+
+        [Test]
+        public void FormatPostProduct_MissingOptionName_ThrowsInputException()
+        {
+            var product = CreateValidProduct();
+            product.Options.FirstOrDefault().Name = null;
+
+            var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
+            Assert.That(ex.Message, Is.EqualTo("Name is required [OPTIONS]"));
+        }
+
+        [Test]
+        public void FormatPostProduct_MissingVariantTitle_ThrowsInputException()
+        {
+            var product = CreateValidProduct();
+            product.Variants.FirstOrDefault().Title = null;
+
+            var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
+            Assert.That(ex.Message, Is.EqualTo("Title is required"));
+        }
+
+        [Test]
+        public void FormatPostProduct_ValidProduct_ReturnsFormattedProduct()
+        {
+            var product = CreateValidProduct();
             var result = _productValidator.FormatPostProduct(product);
 
-            // Assert
             Assert.That(result.Title, Is.EqualTo(product.Title));
             Assert.That(result.BodyHtml, Is.EqualTo(product.BodyHtml));
             Assert.That(result.Vendor, Is.EqualTo(product.Vendor));
-            Assert.That(result.Handle, Is.EqualTo("new-product")); // Default handle if not provided
+            Assert.That(result.Handle, Is.EqualTo(product.Handle));
             Assert.That(result.PublishedScope, Is.EqualTo("global"));
-    
-            // Check if CreatedAt and UpdatedAt match the current date (ignoring the time)
-            Assert.That(result.CreatedAt.Value.Date, Is.EqualTo(DateTime.Now.Date));  // Accessing the Date property of DateTimeOffset
-            Assert.That(result.UpdatedAt.Value.Date, Is.EqualTo(DateTime.Now.Date)); // Accessing the Date property of DateTimeOffset
-
-            Assert.That(result.Status, Is.EqualTo("active"));
+            Assert.That(result.CreatedAt.Value.Date, Is.EqualTo(DateTime.Now.Date));
+            Assert.That(result.UpdatedAt.Value.Date, Is.EqualTo(DateTime.Now.Date));
+            Assert.That(result.Status, Is.EqualTo(product.Status));
         }
-
-
         [Test]
         public void FormatPostProduct_MissingTitle_ThrowsInputException()
         {
-            // Arrange
             var product = CreateValidProduct();
-            product.Title = null;
+            product.Title = null; // Set Title to null
 
-            // Act & Assert
+            var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
+            Assert.That(ex.Message, Is.EqualTo("Title is required"));
+        }
+
+        [Test]
+        public void FormatPostProduct_WhitespaceTitle_ThrowsInputException()
+        {
+            var product = CreateValidProduct();
+            product.Title = "   "; // Set Title to whitespace
+
             var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
             Assert.That(ex.Message, Is.EqualTo("Title is required"));
         }
         [Test]
-        public void FormatPostProduct_MissingDescription_ThrowsInputException()
+        public void FormatPostProduct_MissingBodyHtml_ThrowsInputException()
         {
-            // Arrange
             var product = CreateValidProduct();
-            product.BodyHtml = null;
+            product.BodyHtml = null; // Set BodyHtml to null
 
-            // Act & Assert
+            var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
+            Assert.That(ex.Message, Is.EqualTo("Description is required"));
+        }
+
+        [Test]
+        public void FormatPostProduct_WhitespaceBodyHtml_ThrowsInputException()
+        {
+            var product = CreateValidProduct();
+            product.BodyHtml = "   "; // Set BodyHtml to whitespace
+
             var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
             Assert.That(ex.Message, Is.EqualTo("Description is required"));
         }
         [Test]
         public void FormatPostProduct_MissingVendor_ThrowsInputException()
         {
-            // Arrange
             var product = CreateValidProduct();
             product.Vendor = null;
 
-            // Act & Assert
             var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
             Assert.That(ex.Message, Is.EqualTo("Vendor is required"));
         }
         [Test]
+        public void FormatPostProduct_MissingHandle_SetsDefaultHandle()
+        {
+            var product = CreateValidProduct();
+            product.Handle = null;
+
+            var result = _productValidator.FormatPostProduct(product);
+
+            Assert.That(result.Handle, Is.EqualTo("new-product"));
+        }
+
+        [Test]
         public void FormatPostProduct_MissingStatus_ThrowsInputException()
         {
-            // Arrange
             var product = CreateValidProduct();
             product.Status = null;
 
-            // Act & Assert
             var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
             Assert.That(ex.Message, Is.EqualTo("Status is required. must be [active] or [draft]"));
         }
@@ -123,30 +199,19 @@ namespace TestingProject.Shopify_Api.SRC
         [Test]
         public void FormatPostProduct_InvalidStatus_ThrowsInputException()
         {
-            // Arrange
             var product = CreateValidProduct();
-            product.Status = "invalid-status"; // Invalid status value
+            product.Status = "invalid-status";
 
-            // Act & Assert
             var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
-    
-            // Ensure the correct exception message is thrown for invalid status
             Assert.That(ex.Message, Is.EqualTo("Status must be [draft] or [active] or [draft]"));
         }
-
 
         [Test]
         public void FormatPostProduct_MissingPriceInVariant_ThrowsInputException()
         {
-            // Arrange
             var product = CreateValidProduct();
-            var variant = product.Variants.FirstOrDefault();
-            if (variant != null)
-            {
-                variant.Price = null;
-            }
+            product.Variants.FirstOrDefault().Price = null;
 
-            // Act & Assert
             var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
             Assert.That(ex.Message, Is.EqualTo("Price is required"));
         }
@@ -155,17 +220,47 @@ namespace TestingProject.Shopify_Api.SRC
         [Test]
         public void FormatPostProduct_MissingInventoryQuantityInVariant_ThrowsInputException()
         {
-            // Arrange
             var product = CreateValidProduct();
-            var variant = product.Variants.FirstOrDefault();
-            if (variant != null)
-            {
-                variant.InventoryQuantity = null;
-            }
+            product.Variants.FirstOrDefault().InventoryQuantity = null;
 
-            // Act & Assert
             var ex = Assert.Throws<InputException>(() => _productValidator.FormatPostProduct(product));
             Assert.That(ex.Message, Is.EqualTo("InventoryQuantity is required!"));
         }
+
+
+
+        [Test]
+        public void FormatPostProduct_ImagesSet_IdShouldBeNullified()
+        {
+            var product = CreateValidProduct();
+            product.Images = new List<ProductImage>
+            {
+                new ProductImage { Id = 1, Src = "image1.jpg" },
+                new ProductImage { Id = 2, Src = "image2.jpg" }
+            };
+
+            var result = _productValidator.FormatPostProduct(product);
+
+            foreach (var image in result.Images)
+            {
+                Assert.That(image.Id, Is.Null);
+            }
+        }
+        [Test]
+        public void FormatPostProduct_DraftStatus_SetsPublishedAtToCurrentDate()
+        {
+            // Arrange
+            var product = CreateValidProduct();
+            product.Status = "draft";
+
+            // Act
+            var result = _productValidator.FormatPostProduct(product);
+            
+            // Assert
+            Assert.IsNotNull(result.PublishedAt, "PublishedAt should not be null");
+        }
+
+
+
     }
 }

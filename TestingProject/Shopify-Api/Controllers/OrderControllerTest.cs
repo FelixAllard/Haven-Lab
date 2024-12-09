@@ -40,7 +40,7 @@ public class OrderControllerTest
             var orderList = new List<Order> 
             { 
                 new Order { Id = 1, AppId = 1234567 },
-                new Order { Id = 2, AppId = 1234560 }
+                new Order { Id = 2, AppId = 1234560 } 
             };
 
             // Create a ListResult<Product> containing the product list

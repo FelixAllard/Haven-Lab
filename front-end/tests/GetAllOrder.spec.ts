@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('navigation test', async ({ page }) => {
   // Navigate to the homepage
-  await page.goto('http://localhost:3000/');
+  await page.goto('http://localhost:3000/'); 
 
   // Toggle navigation menu by using aria-label (if button has it)
   await page.locator('[aria-label="Toggle navigation"]').click();

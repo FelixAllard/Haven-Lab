@@ -10,7 +10,7 @@ const Navbar = () => {
         setIsOpen(!isOpen);
     };
 
-    return (
+    return ( 
         <nav className="navbar navbar-dark bg-dark fixed-top">
             <div className="container-fluid">
                 <Link className="navbar-brand" aria-current="page" to="/">Haven Lab</Link>

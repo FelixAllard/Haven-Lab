@@ -18,7 +18,7 @@ public class ProxyOrderController : ControllerBase
     [HttpGet("")]
     public async Task<IActionResult> GetAllOrders()
     {
-        try
+        try 
         {
             var result = await _serviceOrderController.GetAllOrdersAsync();
             if (result.StartsWith("Error"))

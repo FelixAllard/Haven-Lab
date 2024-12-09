@@ -11,7 +11,7 @@ const OrderPage = () => {
     const [error, setError] = useState(null);
 
     // Fetch orders on component mount
-    useEffect(() => {
+    useEffect(() => { 
         const fetchOrders = async () => {
             try {
                 const response = await axios.get('http://localhost:5158/gateway/api/ProxyOrder');

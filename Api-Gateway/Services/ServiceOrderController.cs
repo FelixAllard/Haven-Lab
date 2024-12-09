@@ -42,6 +42,6 @@ public class ServiceOrderController
         {
             // Return error details in case of an exception
             return $"Exception: {ex.Message}";
-        }
+        } 
     }
 }

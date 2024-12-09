@@ -76,7 +76,7 @@ public class ProxyProductControllerTest
         // Act: Call the GetAllProducts method of ProxyProductController
         var result = await _proxyProductController.GetAllProducts();
 
-        // Assert: Check that the result is an ObjectResult
+        // Assert: Check that the result is an ObjectResult 
         var objectResult = result as ObjectResult;
         Assert.IsNotNull(objectResult); // Ensure the result is of type ObjectResult
         Assert.AreEqual(500, objectResult.StatusCode); // Ensure status code is 500

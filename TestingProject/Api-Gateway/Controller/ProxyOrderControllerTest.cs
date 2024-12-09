@@ -22,7 +22,7 @@ namespace TestingProject.Controller;
         }
 
         [Test]
-        public async Task GetAllOrders_ReturnsOkResult_WhenServiceReturnsData()
+        public async Task GetAllOrders_ReturnsOkResult_WhenServiceReturnsData() 
         {
             // Arrange: Mock the service to return a valid result
             var mockResult = "[{\"id\":1,\"name\":\"Order1\"},{\"id\":2,\"name\":\"Order2\"}]";

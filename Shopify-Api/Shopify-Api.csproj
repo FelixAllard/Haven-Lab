@@ -8,8 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="ShopifySharp" Version="6.19.0" />
+        <PackageReference Include="ShopifySharp" Version="6.21.0" />
         <PackageReference Include="ShopifySharp.Extensions.DependencyInjection" Version="1.7.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     </ItemGroup>

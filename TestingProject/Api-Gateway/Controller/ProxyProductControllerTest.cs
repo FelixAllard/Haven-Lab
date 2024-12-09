@@ -1,7 +1,12 @@
+using System.Net;
+using System.Text;
 using Api_Gateway.Controller;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Moq.Protected;
+using Newtonsoft.Json;
+using ShopifySharp;
 
 namespace TestingProject.Api_Gateway.Controller;
 
@@ -81,6 +86,125 @@ public class ProxyProductControllerTest
         Assert.IsNotNull(objectResult); // Ensure the result is of type ObjectResult
         Assert.AreEqual(500, objectResult.StatusCode); // Ensure status code is 500
         Assert.IsNotNull(objectResult.Value); // Ensure there is a message in the response
+    }
+    
+    [Test]
+    public async Task PostProduct_ReturnsCreated_WhenProductIsSuccessfullyCreated()
+    {
+        // Arrange
+        var product = new Product { Title = "New Product" };
+        var expectedResponse = new HttpResponseMessage(HttpStatusCode.Created)
+        {
+            Content = new StringContent("{\"id\": 1, \"title\": \"New Product\"}", Encoding.UTF8, "application/json")
+        };
+        
+        _mockServiceProductController
+            .Setup(controller => controller.CreateProductAsync(product))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _proxyProductController.PostProduct(product);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(201, objectResult.StatusCode);
+        Assert.AreEqual("{\"id\": 1, \"title\": \"New Product\"}", objectResult.Value);
+    }
+    [Test]
+    public async Task PostProduct_ReturnsServiceUnavailable_WhenServiceIsUnavailable()
+    {
+        // Arrange
+        var product = new Product { Title = "New Product" };
+        var expectedResponse = new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
+
+        _mockServiceProductController
+            .Setup(controller => controller.CreateProductAsync(product))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _proxyProductController.PostProduct(product);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(503));
+
+        // Deserialize the value to a dynamic object using Newtonsoft.Json
+        var responseContent = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(objectResult.Value));
+
+        Assert.That((string)responseContent.message, Is.EqualTo("Service is currently unavailable, please try again later."));
+    }
+    [Test]
+    public async Task PostProduct_ReturnsBadRequest_WhenRequestIsInvalid()
+    {
+        // Arrange
+        var product = new Product(); // Invalid product
+        var expectedResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Invalid product data", Encoding.UTF8, "application/json")
+        };
+
+        _mockServiceProductController
+            .Setup(controller => controller.CreateProductAsync(product))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _proxyProductController.PostProduct(product);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(400, objectResult.StatusCode);
+        Assert.AreEqual("Invalid product data", objectResult.Value);
+    }
+
+    [Test]
+    public async Task PostProduct_ReturnsInternalServerError_WhenExceptionOccurs()
+    {
+        // Arrange
+        var product = new Product { Title = "New Product" };
+
+        _mockServiceProductController
+            .Setup(controller => controller.CreateProductAsync(product))
+            .ThrowsAsync(new Exception("Unexpected error"));
+
+        // Act
+        var result = await _proxyProductController.PostProduct(product);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+
+        // Deserialize the value to a dynamic object using Newtonsoft.Json
+        var responseContent = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(objectResult.Value));
+
+        Assert.AreEqual("An error occurred", (string)responseContent.message);
+        Assert.AreEqual("Unexpected error", (string)responseContent.details);
+    }
+    [Test]
+    public async Task PostProduct_ReturnsRequestTimeout_WhenRequestTimesOut()
+    {
+        // Arrange
+        var product = new Product { Title = "New Product" };
+        var expectedResponse = new HttpResponseMessage(HttpStatusCode.RequestTimeout)
+        {
+            Content = new StringContent("Request timed out", Encoding.UTF8, "application/json")
+        };
+
+        _mockServiceProductController
+            .Setup(controller => controller.CreateProductAsync(product))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _proxyProductController.PostProduct(product);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(408, objectResult.StatusCode);
+        Assert.AreEqual("Request timed out", objectResult.Value);
     }
 
 }

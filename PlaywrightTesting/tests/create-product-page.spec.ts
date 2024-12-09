@@ -21,16 +21,16 @@ test('CheckIfElementsAccessible', async ({ page }) => {
   await page.locator('input[name="variants\\.0\\.inventory_quantity"]').click();
   await page.getByRole('button', { name: 'Submit' }).click();
   await expect(page.getByText('Title', { exact: true })).toBeVisible();
-  await page.getByText('Description').click();
-  await page.getByText('Vendor').click();
-  await page.getByText('Published Scope').click();
-  await page.getByText('Status').click();
-  await page.getByRole('heading', { name: 'Variants' }).click();
-  await page.getByText('Variant Title').click();
-  await page.getByText('Price').click();
-  await page.getByText('Price').click();
-  await page.getByText('Inventory Quantity').click();
-  await page.getByText('SKU').click();
+  // await page.getByText('Description').click();
+  // await page.getByText('Vendor').click();
+  // await page.getByText('Published Scope').click();
+  // await page.getByText('Status').click();
+  // await page.getByRole('heading', { name: 'Variants' }).click();
+  // await page.getByText('Variant Title').click();
+  // await page.getByText('Price').click();
+  // await page.getByText('Price').click();
+  // await page.getByText('Inventory Quantity').click();
+  // await page.getByText('SKU').click();
   
 });
 

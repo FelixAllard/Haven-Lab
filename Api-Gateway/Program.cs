@@ -14,7 +14,10 @@ builder.Services.AddHttpClient();
 
 //--- Dependencies From us
 builder.Services.AddHttpClient<ServiceProductController>(); // Makes the Https Client and Inject it in the class chosen
-builder.Services.AddTransient<ServiceProductController>(); // Makes that an instance of ServiceProductCOntroller will be injected whenever nescessary
+builder.Services.AddTransient<ServiceProductController>(); // Makes that an instance of ServiceProductController will be injected whenever nescessary
+
+builder.Services.AddHttpClient<ServiceOrderController>(); // Makes the Https Client and Inject it in the class chosen 
+builder.Services.AddTransient<ServiceOrderController>(); // Makes that an instance of ServiceOrderController will be injected whenever nescessary
 
 
 

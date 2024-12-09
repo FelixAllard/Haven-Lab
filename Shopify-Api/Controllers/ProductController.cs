@@ -117,4 +117,23 @@ public class ProductsController : ControllerBase
             return StatusCode(500, new { message = "Error updating product " + ex.Message });
         }
     }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct([FromRoute]long id)
+    {
+        try
+        {
+            Console.WriteLine(id);
+            await _shopifyService.DeleteAsync(id);
+            return Ok("Product deleted");
+        }
+        catch (ShopifyException ex)
+        {
+            return StatusCode(404, new { message = "No product found", details = ex.Message });
+        }
+        catch (System.Exception ex)
+        {
+            return StatusCode(500, new { message = "Error deleting products" + ex.Message });
+        }
+    }
 }

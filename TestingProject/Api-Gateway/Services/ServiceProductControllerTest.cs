@@ -323,8 +323,125 @@ public class ServiceProductControllerTest
     }
     
     
-    // ------ PUT PutProductAsync
+    // ------ DELETE
 
+    [Test]
+    public async Task DeleteProductByIdAsync_DeletesProduct_WhenApiCallIsSuccessful()
+    {
+        // Arrange
+        long productId = 1;
+        var expectedResponseMessage = "Product deleted successfully.";
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(expectedResponseMessage)
+        };
+
+        // Setup the mock HttpMessageHandler to return a successful response for DELETE
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => 
+                    req.Method == HttpMethod.Delete && 
+                    req.RequestUri.ToString() == $"http://localhost:5106/api/Products/{productId}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.DeleteProductAsync(productId);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedResponseMessage));
+    }
+
+
+    [Test]
+    public async Task DeleteProductByIdAsync_ReturnsError_WhenApiCallFails()
+    {
+        // Arrange
+        long productId = 1;
+        var expectedErrorMessage = "Error deleting product by ID: Bad Request";
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent(expectedErrorMessage)
+        };
+
+        // Setup the mock HttpMessageHandler to return a failure response for DELETE
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => 
+                    req.Method == HttpMethod.Delete && 
+                    req.RequestUri.ToString() == $"http://localhost:5106/api/Products/{productId}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.DeleteProductAsync(productId);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedErrorMessage));
+    }
+
+
+    [Test]
+    public async Task DeleteProductByIdAsync_ReturnsNotFound_WhenProductNotFound()
+    {
+        // Arrange
+        long productId = 999; // Simulate a non-existing product
+        var expectedErrorMessage = "404 Not Found: Product not found";
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
+        {
+            Content = new StringContent(expectedErrorMessage)
+        };
+
+        // Setup the mock HttpMessageHandler to return a NotFound response for DELETE
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => 
+                    req.Method == HttpMethod.Delete && 
+                    req.RequestUri.ToString() == $"http://localhost:5106/api/Products/{productId}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.DeleteProductAsync(productId);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedErrorMessage));
+    }
+
+
+    [Test]
+    public async Task DeleteProductByIdAsync_ReturnsExceptionMessage_WhenExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new System.Exception("Unexpected error"));
+
+        // Act
+        var result = await _serviceProductController.DeleteProductAsync(productId);
+
+        // Assert
+        Assert.That(result, Is.EqualTo("Exception: Unexpected error"));
+    }
+
+
+    // ------ PUT
+    
     [Test]
     public async Task UpdateProductAsync_ReturnsSuccessResponse_WhenApiCallIsSuccessful()
     {

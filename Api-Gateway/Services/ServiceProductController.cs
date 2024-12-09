@@ -129,6 +129,7 @@ public class ServiceProductController
         }
     }
 
+    
     public virtual async Task<HttpResponseMessage> PutProductAsync(long id, Product product)
     {
         try
@@ -167,6 +168,44 @@ public class ServiceProductController
             {
                 Content = new StringContent($"Exception: {ex.Message}")
             };
+        }
+    }
+    
+    
+    public virtual async Task<string> DeleteProductAsync(long id)
+    {
+        try
+        {
+            // Create the HttpClient instance using the factory
+            var client = _httpClientFactory.CreateClient(); // Uses default HttpClient configuration
+
+            var requestUrl = $"{BASE_URL}/api/Products/{id}"; // Shopify endpoint for fetching a single product by ID
+
+            // Create the request message
+            var requestMessage = new HttpRequestMessage(HttpMethod.Delete, requestUrl);
+
+            // Send the request and get the response
+            var response = await client.SendAsync(requestMessage);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Read and return the response content as string
+                return await response.Content.ReadAsStringAsync();
+            }
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return "404 Not Found: Product not found";
+            }
+            else
+            {
+                // If the API call fails, return an error message
+                return $"Error deleting product by ID: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            // Return error details in case of an exception
+            return $"Exception: {ex.Message}";
         }
     }
 }

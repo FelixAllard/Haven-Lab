@@ -49,6 +49,16 @@ const Navbar = () => {
                                 <Link className="nav-link" aria-current="page" to="/products">Products</Link>
                             </motion.li>
                             <motion.li
+                                key={isOpen ? "orders-open" : "orders-closed"} // Use key to reset animation each time it opens
+                                className="nav-item"
+                                initial={{opacity: 0, scale: 0.1}}  // Initial state: invisible and small
+                                animate={{opacity: 1, scale: 1}} // Animate to full opacity and size each time it opens
+                                exit={{opacity: 0, scale: 0.1}} // Ensure it resets when closing
+                                transition={{delay: 0.5, duration: 0.7}} // Animation settings
+                            >
+                                <Link className="nav-link" aria-current="page" to="/orders">Orders</Link>
+                            </motion.li>
+                            <motion.li
                                 key={isOpen ? "about-open" : "about-closed"} // Use key to reset animation each time it opens
                                 className="nav-item"
                                 initial={{opacity: 0, scale: 0.1}}  // Initial state: invisible and small

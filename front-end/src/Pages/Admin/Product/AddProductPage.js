@@ -89,11 +89,17 @@ const ProductForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5158/gateway/api/ProxyProduct', formData);
+            const productId = formData.id;
+            if (!productId) {
+                throw new Error("Product ID is required for updating.");
+            }
+    
+            const response = await axios.put(`http://localhost:5158/gateway/api/ProxyProduct/${productId}`, formData);
+            
             if (response.status === 200) {
                 setShowSuccess(true);
                 setTimeout(() => {
-                    window.location.href = '/another-page'; // Redirect to another page
+                    window.location.href = '/products';
                 }, 2000);
             }
         } catch (error) {
@@ -101,6 +107,7 @@ const ProductForm = () => {
             setErrorMessage(error.response?.data?.message || 'An error occurred. Please try again.');
         }
     };
+    
 
     // Add a new variant
     const addVariant = () => {

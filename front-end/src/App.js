@@ -11,8 +11,9 @@ import AboutUs from "./AboutUs/AboutUs";
 import Products from "./Pages/Products/ProductsPage";
 import Orders from "./Pages/Orders/Orders.js";
 import OrderDetail from './Pages/Orders/OrderDetail';
-import AddProductPage from "./Pages/Admin/Product/AddProductPage";
 import ProductDetailsPage from "./Pages/Products/ProductDetailPage";
+import AddProductPage from "./Pages/Admin/Product/AddProductPage";
+import ProductUpdatePage from "./Pages/Admin/Product/ProductUpdatePage";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/admin/product/create" element={<AddProductPage />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/admin/product/create" element={<AddProductPage />} />
+          <Route path="/admin/product/update/:productId" element={<ProductUpdatePage />} />
           <Route path="/product/:productId" element={<ProductDetailsPage />} />
           <Route path="/orders/:orderId" element={<OrderDetail />} />
           </Routes>

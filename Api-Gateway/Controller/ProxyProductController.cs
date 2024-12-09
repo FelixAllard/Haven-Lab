@@ -84,4 +84,24 @@ public class ProxyProductController : ControllerBase
             return StatusCode(500, new { message = "An error occurred", details = ex.Message });
         }
     }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutProduct([FromRoute]long id, [FromBody] Product product)
+    {
+        try
+        {
+            var response = await _serviceProductController.PutProductAsync(id, product);
+            if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                return StatusCode(503, new { message = "Service is currently unavailable, please try again later." });
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, content); // Ensure status code matches
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred", details = ex.Message });
+        }
+    }
 }

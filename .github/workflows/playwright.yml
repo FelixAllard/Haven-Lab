@@ -27,7 +27,9 @@ jobs:
       # Build all C# projects except TestingProject
       - name: Build C# services (excluding TestingProject)
         run: |
-          dotnet build --no-restore $(find . -name '*.csproj' ! -path './TestingProject/*')
+          for project in $(find . -name '*.csproj' ! -path './TestingProject/*'); do
+            dotnet build --no-restore $project
+          done
       
       # Start C# services in the background (excluding TestingProject)
       - name: Start C# services in the background (excluding TestingProject)

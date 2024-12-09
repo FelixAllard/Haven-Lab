@@ -8,10 +8,11 @@ import 'bootstrap/dist/js/bootstrap.js';
 import Navbar from "./NavBar/Navbar";
 import Footer from "./Footer/Footer";
 import AboutUs from "./AboutUs/AboutUs";
-import Products from "./Pages/Products/Products";
+import Products from "./Pages/Products/ProductsPage";
 import Orders from "./Pages/Orders/Orders.js";
 import OrderDetail from './Pages/Orders/OrderDetail';
 import AddProductPage from "./Pages/Admin/Product/AddProductPage";
+import ProductDetailsPage from "./Pages/Products/ProductDetailPage";
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/admin/product/create" element={<AddProductPage />} />
           <Route path="/orders" element={<Orders />} />
+              <Route path="/admin/product/create" element={<AddProductPage />} />
+              <Route path="/product/:productId" element={<ProductDetailsPage />} />
           <Route path="/orders/:orderId" element={<OrderDetail />} />
           </Routes>
         </div>

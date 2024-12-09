@@ -31,4 +31,18 @@ public class OrderController : ControllerBase
     }
     
     //Add your functions here! Check the ProductController to see how to use the shopify service
+    [HttpGet("")]
+    public async Task<IActionResult> GetAllOrders()
+    {
+        try
+        {
+            var products = await _shopifyService.ListAsync();
+            return Ok(products);
+        }
+        catch (ShopifyException ex)
+        {
+            return StatusCode(500, new { message = "Error fetching orders", details = ex.Message });
+        }
+    }
+    
 }

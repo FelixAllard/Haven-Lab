@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using ShopifySharp;
 using ShopifySharp.Factories;
+using ShopifySharp.Filters;
 
 namespace Shopify_Api.Controllers;
 
@@ -43,5 +44,29 @@ public class OrderController : ControllerBase
         }
     }
     
+    [HttpGet("{orderId}")]
+    public async Task<IActionResult> GetOrderByIdAsync(long orderId)
+    {
+        try
+        {
+            // Retrieve the order using the service
+            var result = await _shopifyService.GetAsync(orderId);
+
+            if (result == null)
+            {
+                // Return 404 Not Found if no order is found
+                return NotFound(new { Message = $"Order with ID {orderId} not found" });
+            }
+
+            // Return 200 OK with the order as JSON
+            return Ok(result);
+        }
+        catch (ShopifyException ex)
+        {
+            // Handle Shopify-specific exceptions
+            throw new Exception($"Failed to retrieve order with ID {orderId}: {ex.Message}", ex);
+        }
+    }
+
     
 }

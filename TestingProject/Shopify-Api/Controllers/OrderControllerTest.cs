@@ -88,6 +88,64 @@ public class OrderControllerTest
             var value = JObject.FromObject(objectResult.Value);
             Assert.AreEqual("Error fetching orders", value["message"]?.ToString());
         }
+        
+        
+        [Test]
+        public async Task GetOrderByIdAsync_ReturnsOk_WhenOrderExists()
+        {
+            // Arrange
+            long orderId = 123;
+            var mockOrder = new Order { Id = orderId, Name = "Sample Order" };
+            _mockOrderService
+                .Setup(service => service.GetAsync(orderId, default, default))
+                .ReturnsAsync(mockOrder);
+
+            // Act
+            var result = await _controller.GetOrderByIdAsync(orderId);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
+            Assert.AreEqual(mockOrder, okResult.Value);
+        }
+
+        [Test]
+        public async Task GetOrderByIdAsync_ReturnsNotFound_WhenOrderDoesNotExist()
+        {
+            // Arrange
+            long orderId = 123;
+            _mockOrderService
+                .Setup(service => service.GetAsync(orderId, default, default))
+                .ReturnsAsync((ShopifySharp.Order)null); // Return null of the expected type
+
+            // Act
+            var result = await _controller.GetOrderByIdAsync(orderId);
+
+            // Assert
+            Assert.IsInstanceOf<NotFoundObjectResult>(result); // Check result type
+            var notFoundResult = result as NotFoundObjectResult;
+
+            Assert.IsNotNull($"Order with ID {orderId} not found", notFoundResult.Value?.ToString());
+        }
+
+
+        [Test]
+        public async Task GetOrderByIdAsync_ThrowsException_WhenServiceThrowsShopifyException()
+        {
+            // Arrange
+            long orderId = 123;
+            var exceptionMessage = "Service error";
+            _mockOrderService
+                .Setup(service => service.GetAsync(orderId, default, default))
+                .ThrowsAsync(new ShopifyException(exceptionMessage));
+
+            // Act & Assert
+            var exception = Assert.ThrowsAsync<Exception>(async () => await _controller.GetOrderByIdAsync(orderId));
+            Assert.IsNotNull(exception);
+            Assert.IsTrue(exception.Message.Contains($"Failed to retrieve order with ID {orderId}"));
+            Assert.IsTrue(exception.InnerException?.Message.Contains(exceptionMessage));
+        }
 
 
 }

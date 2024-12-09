@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Serialization;
 using Shopify_Api;
 using Shopify_Api.Controllers;
 using ShopifySharp;
@@ -11,7 +12,13 @@ DependencyInjection(builder.Services);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+
+    });;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -23,7 +30,12 @@ builder.Services.AddSingleton(sp =>
         accessToken: shopifyConfig["AccessToken"]
     )
 );
-    
+//--- Dependencies From us
+builder.Services.AddTransient<ProductValidator>(); // Makes that an instance of ProductValidator will be injected whenever nescessary
+
+
+
+//---
     
 builder.Services.AddShopifySharp<LeakyBucketExecutionPolicy>();
 

@@ -1,30 +1,87 @@
-name: Playwright Tests
+name: Build and Test C# Services, Frontend, and Playwright
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ "main" ]
+
 jobs:
-  test:
-    timeout-minutes: 60
+  build_and_test:
+
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-      working-directory: ./PlaywrightTesting
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-      working-directory: ./PlaywrightTesting
-    - name: Run Playwright tests
-      run: npx playwright test
-      working-directory: ./PlaywrightTesting
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - uses: actions/checkout@v4
+      
+      # Set up .NET SDK for C# services
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      
+      # Restore dependencies for all C# projects
+      - name: Restore C# dependencies
+        run: dotnet restore
+      
+      # Build all C# projects except TestingProject
+      - name: Build C# services (excluding TestingProject)
+        run: |
+          for project in $(find . -name '*.csproj' ! -path './TestingProject/*'); do
+            dotnet build --no-restore $project
+          done
+      
+      # Start C# services in the background (excluding TestingProject)
+      - name: Start C# services in the background (excluding TestingProject)
+        run: |
+          for project in $(find . -name '*.csproj' ! -path './TestingProject/*'); do
+            nohup dotnet run --project $project & 
+          done
+      
+      # Set up Node.js for frontend build
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      # Install frontend dependencies
+      - name: Install Frontend Dependencies
+        run: npm install
+        working-directory: ./front-end  # Adjust the directory to where your frontend code resides
+      
+      # Build the frontend React app
+      - name: Build Frontend
+        run: npm run build
+        working-directory: ./front-end
+      
+      # Run frontend server in the background and check if it runs correctly
+      - name: Start Frontend Development Server
+        run: |
+          npm run start & # Run the server in the background
+          sleep 10 # Wait for the server to start
+          curl -I http://localhost:3000 | grep "200 OK" # Check if the server responds with 200 OK
+        working-directory: ./front-end
+      
+      # Set up Node.js and install Playwright test dependencies
+      - name: Install Playwright Dependencies
+        run: |
+          npm install @playwright/test
+        working-directory: ./PlaywrightTesting
+
+      # Install Playwright Browsers
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: ./PlaywrightTesting
+      
+      # Run Playwright tests
+      - name: Run Playwright tests
+        run: npx playwright test
+        working-directory: ./PlaywrightTesting
+      
+      # Upload Playwright test results
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

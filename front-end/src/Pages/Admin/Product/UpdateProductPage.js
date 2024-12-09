@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { useParams } from 'react-router-dom'; // Import useParams for route params
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ProductForm = () => {
+    const { productId } = useParams(); // Retrieve productId from URL params
+
     const [formData, setFormData] = useState({
         title: '',
         body_html: '',
@@ -63,6 +66,24 @@ const ProductForm = () => {
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    // Fetch product data if productId exists
+    useEffect(() => {
+        if (productId) {
+            const fetchProduct = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:5158/gateway/api/ProxyProduct/${productId}`);
+                    if (response.status === 200) {
+                        setFormData(response.data);
+                    }
+                } catch (error) {
+                    setShowError(true);
+                    setErrorMessage('Failed to fetch product data. Please try again.');
+                }
+            };
+            fetchProduct();
+        }
+    }, [productId]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         const fieldNames = name.split('.');
@@ -73,23 +94,26 @@ const ProductForm = () => {
             const variantIndex = parseInt(fieldNames[1], 10); // Get index of the variant
             const field = fieldNames[2]; // Get field name within the variant object
 
-            // Ensure we copy the current variant to preserve immutability
             updatedData.variants = [...updatedData.variants];
             updatedData.variants[variantIndex] = {
                 ...updatedData.variants[variantIndex],
-                [field]: value, // Update the specific field in the variant
+                [field]: value,
             };
         } else {
-            updatedData[name] = value; // For other fields, just update the top-level field
+            updatedData[name] = value;
         }
 
-        setFormData(updatedData); // Update the state with the new data
+        setFormData(updatedData);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5158/gateway/api/ProxyProduct', formData);
+            if (!formData.id) {
+                throw new Error('Product ID is required for updating.');
+            }
+
+            const response = await axios.put(`http://localhost:5158/gateway/api/ProxyProduct/${formData.id}`, formData);
             if (response.status === 200) {
                 setShowSuccess(true);
                 setTimeout(() => {
@@ -144,7 +168,7 @@ const ProductForm = () => {
 
     return (
         <div className="container mt-5" style={{ marginBottom: '11%' }}>
-            <h2>Create a New Product</h2>
+            <h2>Edit Product</h2>
 
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
@@ -257,28 +281,23 @@ const ProductForm = () => {
                         </Form.Group>
                         {/* Add other variant fields similarly */}
                         {formData.variants.length > 1 && (
-                            <Button variant="danger" onClick={() => removeVariant(index)}>
-                                Remove Variant
-                            </Button>
+                            <Button variant="danger" onClick={() => removeVariant(index)}>Remove Variant</Button>
                         )}
                     </div>
                 ))}
+                <Button variant="primary" onClick={addVariant}>Add Variant</Button>
 
-                <Button variant="secondary" onClick={addVariant}>
-                    Add Variant
-                </Button>
-
-                <Button variant="primary" type="submit">
-                    Submit
+                <Button variant="success" type="submit" className="mt-3">
+                    Save Changes
                 </Button>
             </Form>
 
-            {/* Success Modal */}
+            {/* Success/Error Modals */}
             <Modal show={showSuccess} onHide={() => setShowSuccess(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Success!</Modal.Title>
+                    <Modal.Title>Success</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Your product has been created successfully!</Modal.Body>
+                <Modal.Body>Product saved successfully!</Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowSuccess(false)}>
                         Close
@@ -286,7 +305,6 @@ const ProductForm = () => {
                 </Modal.Footer>
             </Modal>
 
-            {/* Error Modal */}
             <Modal show={showError} onHide={() => setShowError(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Error</Modal.Title>

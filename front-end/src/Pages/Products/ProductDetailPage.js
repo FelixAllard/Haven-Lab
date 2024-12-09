@@ -148,6 +148,18 @@ const ProductDetailsPage = () => {
                         >
                             <strong>Created At:</strong> {new Date(product.created_at).toLocaleDateString()}
                         </motion.p>
+                        <motion.button
+                                    className="btn btn-secondary"
+                                    whileHover={{ scale: 1.1 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <Link
+                                        to={`/admin/product/update/${product.id}`}
+                                        style={{ color: 'white', textDecoration: 'none' }}
+                                    >
+                                        Update Product
+                                    </Link>
+                        </motion.button>
                     </div>
                 </div>
             </motion.div>

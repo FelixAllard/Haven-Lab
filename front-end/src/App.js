@@ -13,7 +13,7 @@ import Orders from "./Pages/Orders/Orders.js";
 import OrderDetail from './Pages/Orders/OrderDetail';
 import ProductDetailsPage from "./Pages/Products/ProductDetailPage";
 import AddProductPage from "./Pages/Admin/Product/AddProductPage";
-import ProductUpdatePage from "./Pages/Admin/Product/ProductUpdatePage";
+import ProductUpdatePage from "./Pages/Admin/Product/UpdateProductPage.js";
 
 
 function App() {

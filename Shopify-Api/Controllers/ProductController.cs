@@ -42,6 +42,24 @@ public class ProductsController : ControllerBase
         }
         catch (ShopifyException ex)
         {
+            return StatusCode(500, new { message = "Error fetching product", details = ex.Message });
+        }
+        catch (System.Exception ex)
+        {
+            // Log the exception if necessary
+            return StatusCode(500, new { message = "Error fetching product" + ex.Message });
+        }
+    }
+    [HttpGet("/{id}")]
+    public async Task<IActionResult> GetProductById([FromRoute]long id)
+    {
+        try
+        {
+            var products = await _shopifyService.GetAsync(id);
+            return Ok(products);
+        }
+        catch (ShopifyException ex)
+        {
             return StatusCode(500, new { message = "Error fetching products", details = ex.Message });
         }
         catch (System.Exception ex)

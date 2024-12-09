@@ -9,6 +9,7 @@ import Navbar from "./NavBar/Navbar";
 import Footer from "./Footer/Footer";
 import AboutUs from "./AboutUs/AboutUs";
 import Products from "./Pages/Products/Products";
+import Orders from "./Pages/Orders/Orders.js";
 import AddProductPage from "./Pages/Admin/Product/AddProductPage";
 
 function App() {
@@ -17,15 +18,16 @@ function App() {
         <Navbar />
         <div>
           <Routes>
-            <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/aboutus" element={<AboutUs />} />
               <Route path="/admin/product/create" element={<AddProductPage />} />
+          <Route path="/orders" element={<Orders />} />
           </Routes>
         </div>
           <Footer />
       </Router>
-  );
+  ); 
 }
 
 export default App;

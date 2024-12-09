@@ -1,3 +1,9 @@
+using System.Net.Sockets;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using ShopifySharp;
+
 namespace Api_Gateway.Services;
 
 public class ServiceProductController
@@ -44,4 +50,46 @@ public class ServiceProductController
             return $"Exception: {ex.Message}";
         }
     }
+    public virtual async Task<HttpResponseMessage> CreateProductAsync(Product product)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient(); // Uses default HttpClient configuration
+            var requestUrl = $"{BASE_URL}/api/Products"; // Shopify endpoint for product creation
+
+            // Serialize the product to JSON with camelCase using Newtonsoft.Json
+            var jsonSettings = new Newtonsoft.Json.JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(), // Ensures camelCase for property names
+                Formatting = Formatting.None // Optional: Compact JSON without extra spaces
+            };
+
+            // Serialize the product object to JSON with camelCase
+            var jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(product, jsonSettings);
+            
+
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            // Send the POST request to Shopify API
+            var response = await client.PostAsync(requestUrl, content);
+            return response;
+        }
+        catch (System.Net.Http.HttpRequestException ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Exception: {ex.Message}")
+            };
+        }
+        catch (Exception ex)
+        {
+            // Return a response with an exception message if something goes wrong
+            return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent($"Exception: {ex.Message}")
+            };
+        }
+    }
+
+
 }

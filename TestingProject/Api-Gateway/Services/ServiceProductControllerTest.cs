@@ -2,12 +2,13 @@ using System.Net;
 using Api_Gateway.Services;
 using Moq;
 using Moq.Protected;
+using ShopifySharp;
 
 namespace TestingProject.Api_Gateway.Services;
 [TestFixture]
 public class ServiceProductControllerTest
 {
-     private Mock<IHttpClientFactory> _mockHttpClientFactory;
+    private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private Mock<HttpMessageHandler> _mockHttpMessageHandler;
     private ServiceProductController _serviceProductController;
 
@@ -100,4 +101,122 @@ public class ServiceProductControllerTest
         // Assert
         Assert.That(result, Is.EqualTo("Exception: Unexpected error"));
     }
+    [Test]
+    public async Task CreateProductAsync_ReturnsSuccessResponse_WhenApiCallIsSuccessful()
+    {
+        // Arrange
+        var product = new Product
+        {
+            Title = "Test Product",
+            BodyHtml = "Test Description"
+        };
+
+        var expectedResponseMessage = new HttpResponseMessage(HttpStatusCode.Created);
+
+        // Setup the mock HttpMessageHandler to return a successful response
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.Method == HttpMethod.Post &&
+                    req.RequestUri.ToString() == "http://localhost:5106/api/Products" &&
+                    req.Content.Headers.ContentType.MediaType == "application/json"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(expectedResponseMessage);
+
+        // Act
+        var response = await _serviceProductController.CreateProductAsync(product);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
+    }
+    [Test]
+    public async Task CreateProductAsync_ReturnsServiceUnavailable_WhenHttpRequestExceptionOccurs()
+    {
+        // Arrange
+        var product = new Product
+        {
+            Title = "Test Product",
+            BodyHtml = "Test Description"
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new HttpRequestException("Network error"));
+
+        // Act
+        var response = await _serviceProductController.CreateProductAsync(product);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Exception: Network error"));
+    }
+    [Test]
+    public async Task CreateProductAsync_ReturnsInternalServerError_WhenGeneralExceptionOccurs()
+    {
+        // Arrange
+        var product = new Product
+        {
+            Title = "Test Product",
+            BodyHtml = "Test Description"
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new Exception("Unexpected error"));
+
+        // Act
+        var response = await _serviceProductController.CreateProductAsync(product);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Exception: Unexpected error"));
+    }
+    [Test]
+    public async Task CreateProductAsync_ReturnsBadRequest_WhenApiCallFails()
+    {
+        // Arrange
+        var product = new Product
+        {
+            Title = "Test Product",
+            BodyHtml = "Test Description"
+        };
+
+        var expectedResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Invalid product data")
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(expectedResponseMessage);
+
+        // Act
+        var response = await _serviceProductController.CreateProductAsync(product);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Invalid product data"));
+    }
+
+
+
+
 }

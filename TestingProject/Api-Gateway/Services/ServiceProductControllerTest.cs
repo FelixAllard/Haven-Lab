@@ -321,7 +321,134 @@ public class ServiceProductControllerTest
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
         Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Invalid product data"));
     }
+    
+    
+    // ------ PUT PutProductAsync
 
+    [Test]
+    public async Task UpdateProductAsync_ReturnsSuccessResponse_WhenApiCallIsSuccessful()
+    {
+        // Arrange: Create a product with updated details
+        var product = new Product
+        {
+            Id = 1, // Assuming product with ID 1 exists
+            Title = "Updated Product",
+            BodyHtml = "Updated Description"
+        };
+    
+        var expectedResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+    
+        // Setup the mock HttpMessageHandler to return a successful response for a PUT request
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.Method == HttpMethod.Put && // Changed to PUT
+                    req.RequestUri.ToString() == "http://localhost:5106/api/Products/1" && // Assuming you're updating product with ID 1
+                    req.Content.Headers.ContentType.MediaType == "application/json"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(expectedResponseMessage);
+    
+        // Act: Call the controller method to update the product
+        var response = await _serviceProductController.PutProductAsync(1, product); // Assuming the method is named UpdateProductAsync
+    
+        // Assert: Verify the response is OK
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+    }
+
+    [Test]
+    public async Task UpdateProductAsync_ReturnsServiceUnavailable_WhenHttpRequestExceptionOccurs()
+    {
+        // Arrange
+        var product = new Product
+        {
+            Id = 1, // Assuming product with ID 1 exists
+            Title = "Updated Product",
+            BodyHtml = "Updated Description"
+        };
+
+        // Setup the mock HttpMessageHandler to simulate an HttpRequestException during a PUT request
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new HttpRequestException("Network error"));
+
+        // Act: Try updating the product
+        var response = await _serviceProductController.PutProductAsync(1, product);
+
+        // Assert: Verify the response status and message
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Exception: Network error"));
+    }
+    
+    [Test]
+    public async Task UpdateProductAsync_ReturnsInternalServerError_WhenGeneralExceptionOccurs()
+    {
+        // Arrange
+        var product = new Product
+        {
+            Id = 1, // Assuming product with ID 1 exists
+            Title = "Updated Product",
+            BodyHtml = "Updated Description"
+        };
+
+        // Setup the mock HttpMessageHandler to simulate a general exception during a PUT request
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new Exception("Unexpected error"));
+
+        // Act: Try updating the product
+        var response = await _serviceProductController.PutProductAsync(1, product);
+
+        // Assert: Verify the response status and message
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Exception: Unexpected error"));
+    }
+
+    [Test]
+    public async Task UpdateProductAsync_ReturnsBadRequest_WhenApiCallFails()
+    {
+        // Arrange: Create a product with updated details
+        var product = new Product
+        {
+            Id = 1, // Assuming product with ID 1 exists
+            Title = "Updated Product",
+            BodyHtml = "Updated Description"
+        };
+
+        var expectedResponseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Invalid product data")
+        };
+
+        // Setup the mock HttpMessageHandler to simulate a bad request response for a PUT request
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(expectedResponseMessage);
+
+        // Act: Try updating the product
+        var response = await _serviceProductController.PutProductAsync(1, product);
+
+        // Assert: Verify the response status and message
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Invalid product data"));
+    }
 
 
 

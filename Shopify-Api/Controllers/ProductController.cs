@@ -98,9 +98,9 @@ public class ProductsController : ControllerBase
     {
         try
         {
-            Product tempProduct = _productValidator.FormatPostProduct(product);
-            Console.Write("We formatted!");
-            var products = await _shopifyService.UpdateAsync(id, tempProduct);
+            //Product tempProduct = _productValidator.FormatPostProduct(product);
+            //Console.Write("We formatted!");
+            var products = await _shopifyService.UpdateAsync(id, product);
             return Ok(products);
         }
         catch (InputException ex)
@@ -114,7 +114,7 @@ public class ProductsController : ControllerBase
         catch (System.Exception ex)
         {
             // Log the exception if necessary
-            return StatusCode(500, new { message = "Error creating product " + ex.Message });
+            return StatusCode(500, new { message = "Error updating product " + ex.Message });
         }
     }
 }

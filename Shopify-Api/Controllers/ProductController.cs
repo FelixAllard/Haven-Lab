@@ -50,21 +50,21 @@ public class ProductsController : ControllerBase
             return StatusCode(500, new { message = "Error fetching product" + ex.Message });
         }
     }
-    [HttpGet("/{id}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById([FromRoute]long id)
     {
         try
         {
+            Console.WriteLine(id);
             var products = await _shopifyService.GetAsync(id);
             return Ok(products);
         }
         catch (ShopifyException ex)
         {
-            return StatusCode(500, new { message = "Error fetching products", details = ex.Message });
+            return StatusCode(404, new { message = "Error fetching products", details = ex.Message });
         }
         catch (System.Exception ex)
         {
-            // Log the exception if necessary
             return StatusCode(500, new { message = "Error fetching products" + ex.Message });
         }
     }

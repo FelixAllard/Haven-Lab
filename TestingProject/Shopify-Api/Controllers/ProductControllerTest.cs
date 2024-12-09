@@ -187,7 +187,7 @@ public class ProductControllerTest
         // Assert
         var objectResult = result as ObjectResult;
         Assert.IsNotNull(objectResult);
-        Assert.AreEqual(500, objectResult.StatusCode);
+        Assert.AreEqual(404, objectResult.StatusCode);
 
         var value = JObject.FromObject(objectResult.Value);
         Assert.AreEqual("Error fetching products", value["message"]?.ToString());

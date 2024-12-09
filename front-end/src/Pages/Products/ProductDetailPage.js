@@ -103,6 +103,25 @@ const ProductDetailsPage = () => {
                 {/* Right Column: Product Details */}
                 <div className="col-md-6">
                     <div className="card shadow-lg border-light p-4">
+
+                        {/* Delete Button */}
+                        <button type="button" className="btn btn-danger" id="liveToastBtn" onClick={handleDelete}>
+                            Delete Product
+                        </button>
+
+                        {/* Toast Message */}
+                        <div className="toast-container position-fixed bottom-0 end-0 p-3">
+                            <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div className="toast-header">
+                                    <strong className="me-auto">Shopify</strong>
+                                    <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div className="toast-body">
+                                    {toastMessage}
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Product Description */}
                         <motion.p
                             className="lead"
@@ -176,28 +195,11 @@ const ProductDetailsPage = () => {
                         >
                             <strong>Created At:</strong> {new Date(product.created_at).toLocaleDateString()}
                         </motion.p>
-
-                        {/* Delete Button */}
-                        <button type="button" className="btn btn-danger" id="liveToastBtn" onClick={handleDelete}>
-                            Delete Product
-                        </button>
-
-                        {/* Toast Message */}
-                        <div className="toast-container position-fixed bottom-0 end-0 p-3">
-                            <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                                <div className="toast-header">
-                                    <strong className="me-auto">Shopify</strong>
-                                    <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                                </div>
-                                <div className="toast-body">
-                                    {toastMessage}
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </motion.div>
         </div>
+        
     );
 };
 

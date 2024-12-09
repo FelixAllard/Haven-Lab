@@ -62,11 +62,13 @@ jobs:
           curl -I http://localhost:3000 | grep "200 OK" # Check if the server responds with 200 OK
         working-directory: ./front-end
       
-      # Install Playwright dependencies
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
+      # Set up Node.js and install Playwright test dependencies
+      - name: Install Playwright Dependencies
+        run: |
+          npm install @playwright/test
+        working-directory: ./PlaywrightTesting
 
+      # Install Playwright Browsers
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
         working-directory: ./PlaywrightTesting

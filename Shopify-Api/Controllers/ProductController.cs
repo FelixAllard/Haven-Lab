@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Shopify_Api.Exceptions;
 using ShopifySharp;
 using ShopifySharp.Factories;
 
@@ -12,19 +13,20 @@ using System.Threading.Tasks;
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _shopifyService;
+    private readonly ProductValidator _productValidator;
 
     public ProductsController(
         IProductServiceFactory productServiceFactory,
-        Shopify_Api.ShopifyRestApiCredentials credentials
+        Shopify_Api.ShopifyRestApiCredentials credentials,
+        ProductValidator productValidator
         )
     {
-
-        
         _shopifyService = productServiceFactory.Create(new ShopifySharp.Credentials.ShopifyApiCredentials(
                 credentials.ShopUrl,
                 credentials.AccessToken
             )
         );
+        _productValidator = productValidator;
         
         
         //_shopifyService = new ShopifyService(shopUrl, accessToken);
@@ -41,6 +43,35 @@ public class ProductsController : ControllerBase
         catch (ShopifyException ex)
         {
             return StatusCode(500, new { message = "Error fetching products", details = ex.Message });
+        }
+        catch (System.Exception ex)
+        {
+            // Log the exception if necessary
+            return StatusCode(500, new { message = "Error fetching products" + ex.Message });
+        }
+    }
+    [HttpPost("")]
+    public virtual async Task<IActionResult> PostProduct([FromBody] Product product)
+    {
+        try
+        {
+            Product tempProduct = _productValidator.FormatPostProduct(product);
+            Console.Write("We formatted!");
+            var products = await _shopifyService.CreateAsync(tempProduct);
+            return Ok(products);
+        }
+        catch (InputException ex)
+        {
+            return StatusCode(400, new { message = ex.Message });
+        }
+        catch (ShopifyException ex)
+        {
+            return StatusCode(500, new { message = "Error fetching products", details = ex.Message });
+        }
+        catch (System.Exception ex)
+        {
+            // Log the exception if necessary
+            return StatusCode(500, new { message = "Error creating product " + ex.Message });
         }
     }
 }

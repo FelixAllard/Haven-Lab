@@ -12,7 +12,7 @@ Each branch name should follow this structure:
 Where:
 - `<type>`: Describes the type of work being done. For example:
     - `feat`: A new feature.
-    - `fix`: A bug fix.
+    - `bug`: A bug fix.
     - `chore`: Routine tasks or updates.
     - `docs`: Documentation changes.
     - `test`: Unit or integration tests.

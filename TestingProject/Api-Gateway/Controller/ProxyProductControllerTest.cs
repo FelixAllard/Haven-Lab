@@ -87,7 +87,90 @@ public class ProxyProductControllerTest
         Assert.AreEqual(500, objectResult.StatusCode); // Ensure status code is 500
         Assert.IsNotNull(objectResult.Value); // Ensure there is a message in the response
     }
+    // ------------------------- GET BY ID PRODUCT
+    [Test]
+    public async Task GetProductById_ReturnsOk_WhenProductIsFound()
+    {
+        // Arrange
+        var productId = 1L; // The product ID to look for
+        var expectedProduct = "{\"id\": 1, \"name\": \"Product1\"}"; // Example product data
+
+        // Mock the GetProductByIdAsync to return a product as JSON
+        _mockServiceProductController
+            .Setup(controller => controller.GetProductByIdAsync(productId))
+            .ReturnsAsync(expectedProduct);
+
+        // Act: Call the GetProductById method of ProxyProductController
+        var result = await _proxyProductController.GetProductById(productId);
+
+        // Assert: Check that the result is OkObjectResult (200 OK)
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult); // Ensure the result is of type OkObjectResult
+        Assert.That(okResult.Value, Is.EqualTo(expectedProduct)); // The content should match the expected result
+        Assert.That(okResult.StatusCode, Is.EqualTo(200)); // The status code should be 200
+    }
+    [Test]
+    public async Task GetProductById_ReturnsNotFound_WhenProductIsNotFound()
+    {
+        // Arrange: Set up the mock to return a 404 Not Found response
+        var errorMessage = "404 Not Found: Product not found";
+        _mockServiceProductController
+            .Setup(controller => controller.GetProductByIdAsync(It.IsAny<long>()))
+            .ReturnsAsync(errorMessage);
+
+        // Act: Call the GetProductById method of ProxyProductController
+        var result = await _proxyProductController.GetProductById(1);
+
+        // Assert: Check that the result is a NotFoundObjectResult
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult); // Ensure the result is of type NotFoundObjectResult
+
+        // Deserialize the response using Newtonsoft.Json
+        var responseMessage = JsonConvert.SerializeObject(notFoundResult.Value);
+
+        // Now compare the message (make sure to extract the value from JValue)
+        dynamic deserializedResponse = JsonConvert.DeserializeObject(responseMessage);
+        Assert.AreEqual("404 Not Found: Product not found", (string)deserializedResponse.message); // Compare message content
+    }
+    public class ErrorResponse
+    {
+        public string Message { get; set; }
+    }
     
+
+
+
+
+
+
+
+
+
+    [Test]
+    public async Task GetProductById_ReturnsInternalServerError_WhenExceptionOccurs()
+    {
+        // Arrange
+        var productId = 1L; // Example product ID
+        var exceptionMessage = "Unexpected error occurred";
+
+        // Mock the GetProductByIdAsync to throw an exception
+        _mockServiceProductController
+            .Setup(controller => controller.GetProductByIdAsync(productId))
+            .ThrowsAsync(new Exception(exceptionMessage));
+
+        // Act: Call the GetProductById method of ProxyProductController
+        var result = await _proxyProductController.GetProductById(productId);
+
+        // Assert: Check that the result is ObjectResult (500 Internal Server Error)
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult); // Ensure the result is of type ObjectResult
+        Assert.AreEqual(500, objectResult.StatusCode); // Ensure the status code is 500
+        Assert.IsNotNull(objectResult.Value); // Ensure there is an error message in the response
+    }
+
+
+    
+    // ----------------------- POST PRODUCT
     [Test]
     public async Task PostProduct_ReturnsCreated_WhenProductIsSuccessfullyCreated()
     {

@@ -90,7 +90,7 @@ public class ProductValidator
             {
                 option.ProductId = null;
                 if(String.IsNullOrWhiteSpace(option.Name))
-                    throw new InputException("Name is required [OPTIONS] ");
+                    throw new InputException("Name is required [OPTIONS]");
                 option.Position = 1;
                 option.Values = new List<string> { "Default Title" };
                 option.Id = null;

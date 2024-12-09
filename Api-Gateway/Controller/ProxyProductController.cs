@@ -39,6 +39,32 @@ public class ProxyProductController : ControllerBase
         }
         
     }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProductById([FromRoute]long id)
+    {
+        try
+        {
+            var result = await _serviceProductController.GetProductByIdAsync(id);
+            if (result.Contains("404 Not Found"))
+            {
+                return NotFound(new { message = result });
+            }
+            if (result.StartsWith("Error"))
+            {
+                // Return 500 Internal Server Error with error message
+                return StatusCode(500, new { Message = result });
+            }
+    
+            // Return 200 OK with the result as JSON
+            return Ok(result);  // The result will be serialized as JSON automatically
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, new { Message = e.Message });
+        }
+    }
+
     [HttpPost("")]
     public async Task<IActionResult> PostProduct([FromBody] Product product)
     {

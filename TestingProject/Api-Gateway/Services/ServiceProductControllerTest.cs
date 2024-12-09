@@ -101,6 +101,112 @@ public class ServiceProductControllerTest
         // Assert
         Assert.That(result, Is.EqualTo("Exception: Unexpected error"));
     }
+    // ------- GET Get By ID
+    [Test]
+    public async Task GetProductByIdAsync_ReturnsProduct_WhenApiCallIsSuccessful()
+    {
+        // Arrange
+        long productId = 1;
+        var expectedResponse = "{\"id\": 1, \"name\": \"Product1\"}";
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(expectedResponse)
+        };
+
+        // Setup the mock HttpMessageHandler to return a successful response
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get && req.RequestUri.ToString() == $"http://localhost:5106/api/Products/{productId}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.GetProductByIdAsync(productId);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedResponse));
+    }
+
+    [Test]
+    public async Task GetProductByIdAsync_ReturnsError_WhenApiCallFails()
+    {
+        // Arrange
+        long productId = 1;
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Error fetching product by ID: Bad Request")
+        };
+
+        // Setup the mock HttpMessageHandler to return a failure response
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get && req.RequestUri.ToString() == $"http://localhost:5106/api/Products/{productId}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.GetProductByIdAsync(productId);
+
+        // Assert
+        Assert.That(result, Is.EqualTo("Error fetching product by ID: Bad Request"));
+    }
+
+    [Test]
+    public async Task GetProductByIdAsync_ReturnsNotFound_WhenProductNotFound()
+    {
+        // Arrange
+        long productId = 999; // Simulate a non-existing product
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.NotFound)
+        {
+            Content = new StringContent("404 Not Found: Product not found")
+        };
+
+        // Setup the mock HttpMessageHandler to return a NotFound response
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get && req.RequestUri.ToString() == $"http://localhost:5106/api/Products/{productId}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.GetProductByIdAsync(productId);
+
+        // Assert
+        Assert.That(result, Is.EqualTo("404 Not Found: Product not found"));
+    }
+
+    [Test]
+    public async Task GetProductByIdAsync_ReturnsExceptionMessage_WhenExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new System.Exception("Unexpected error"));
+
+        // Act
+        var result = await _serviceProductController.GetProductByIdAsync(productId);
+
+        // Assert
+        Assert.That(result, Is.EqualTo("Exception: Unexpected error"));
+    }
+
+    
+    // ------ POST CreateProductAsync
     [Test]
     public async Task CreateProductAsync_ReturnsSuccessResponse_WhenApiCallIsSuccessful()
     {

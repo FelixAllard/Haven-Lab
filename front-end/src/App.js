@@ -14,6 +14,7 @@ import OrderDetail from './Pages/Orders/OrderDetail';
 import AddProductPage from "./Pages/Admin/Product/AddProductPage";
 import ProductDetailsPage from "./Pages/Products/ProductDetailPage";
 
+
 function App() {
   return (
       <Router>
@@ -25,6 +26,7 @@ function App() {
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/admin/product/create" element={<AddProductPage />} />
           <Route path="/orders" element={<Orders />} />
+              
               <Route path="/admin/product/create" element={<AddProductPage />} />
               <Route path="/product/:productId" element={<ProductDetailsPage />} />
           <Route path="/orders/:orderId" element={<OrderDetail />} />

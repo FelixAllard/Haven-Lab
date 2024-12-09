@@ -39,7 +39,7 @@ public class OrderController : ControllerBase
         }
         catch (ShopifyException ex)
         {
-            return StatusCode(500, new { message = "Error fetching products", details = ex.Message });
+            return StatusCode(500, new { message = "Error fetching orders", details = ex.Message });
         }
     }
     

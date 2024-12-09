@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Newtonsoft.Json;
@@ -286,8 +287,7 @@ public class ProductControllerTest
 
 
 
-
-
+        
 
 
     [Test]
@@ -458,4 +458,101 @@ public class ProductControllerTest
         var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
         Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error creating product {testCase}"));
     }
+    
+    //---------------------------------DELETE PRODUCT-----------------------------------
+    
+    [Test]
+    public async Task DeleteProductById_ReturnsOk_WhenProductIsDeleteSuccessfully()
+    {
+        // Arrange
+        long productId = 1;
+        var product = new Product
+        {
+            Id = productId,
+            Title = "Product 1",
+            BodyHtml = "<p>A good example product</p>",
+            CreatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            UpdatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            PublishedAt = DateTime.Parse("2024-12-08T22:17:59-05:00"),
+            Vendor = "New Vendor",
+            ProductType = "",
+            Handle = "haven-lab",
+            PublishedScope = "global",
+            Status = "active",
+            Variants = new List<ProductVariant>
+            {
+                new ProductVariant
+                {
+                    ProductId = 8073575366701,
+                    Title = "Default Title",
+                    Price = 19.99M,
+                    InventoryQuantity = 5,
+                    Weight = 54,
+                    WeightUnit = "kg"
+                }
+            }
+        };
+
+        // Mock the DeleteAsync method to return the product
+        _mockProductService.Setup(x => x.DeleteAsync(productId, default)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.DeleteProduct(productId);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(200, okResult.StatusCode);
+
+        // Verify the returned product
+        var returnedProduct = okResult.Value as Product;
+        Assert.IsNull(returnedProduct);
+    }
+
+    [Test]
+    public async Task DeleteProductById_ReturnsNotFound_WhenShopifyExceptionIsThrown()
+    {
+        // Arrange
+        long productId = 1;
+        _mockProductService.Setup(x => x.DeleteAsync(productId, default))
+            .ThrowsAsync(new ShopifyException("Shopify error"));
+
+        // Act
+        var result = await _controller.DeleteProduct(productId);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult, "Expected ObjectResult but got null.");
+        Assert.AreEqual(404, objectResult.StatusCode, "Expected status code 404 but got a different code.");
+
+        // Assert message
+        var value = JObject.FromObject(objectResult.Value);
+        Assert.AreEqual("No product found", value["message"]?.ToString(), "Expected 'No product found' but got a different message.");
+    }
+
+
+    [TestCase("Input1")]
+    [TestCase("Input2")]
+    [TestCase("Input3")]
+    [Test]
+    public async Task DeleteProductById_ReturnsInternalServerError_WhenUnexpectedExceptionOccurs(string testCase)
+    {
+        // Arrange
+        long productId = 1;
+        _mockProductService.Setup(x => x.DeleteAsync(productId, default))
+            .ThrowsAsync(new System.Exception(testCase));
+
+        // Act
+        var result = await _controller.DeleteProduct(productId);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult, "Expected ObjectResult but got null.");
+        Assert.AreEqual(500, objectResult.StatusCode, "Expected status code 500 but got a different code.");
+
+        var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
+        Assert.AreEqual($"Error deleting products{testCase}", responseBody["message"]?.ToString(), "Error message mismatch.");
+    }
+
+
 }

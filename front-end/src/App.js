@@ -10,6 +10,7 @@ import Footer from "./Footer/Footer";
 import AboutUs from "./AboutUs/AboutUs";
 import Products from "./Pages/Products/Products";
 import Orders from "./Pages/Orders/Orders.js";
+import OrderDetail from './Pages/Orders/OrderDetail';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/:orderId" element={<OrderDetail />} />
           </Routes>
         </div>
           <Footer />

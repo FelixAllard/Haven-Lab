@@ -44,4 +44,38 @@ public class ServiceOrderController
             return $"Exception: {ex.Message}";
         } 
     }
+    
+    public virtual async Task<string> GetOrderByIdAsync(long orderId)
+    {
+        try
+        {
+            // Create the HttpClient instance using the factory
+            var client = _httpClientFactory.CreateClient(); // Uses default HttpClient configuration
+
+            var requestUrl = $"{BASE_URL}/api/Order/{orderId}"; // Shopify endpoint for a specific order
+
+            // Create the request message
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+
+            // Send the request and get the response
+            var response = await client.SendAsync(requestMessage);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Read and return the response content as string
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                // If the API call fails, return an error message
+                return $"Error fetching order with ID {orderId}: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            // Return error details in case of an exception
+            return $"Exception: {ex.Message}";
+        }
+    }
+
 }

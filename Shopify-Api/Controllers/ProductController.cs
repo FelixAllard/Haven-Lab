@@ -93,6 +93,31 @@ public class ProductsController : ControllerBase
         }
     }
     
+    [HttpPut("{id}")]
+    public virtual async Task<IActionResult> PutProduct([FromRoute] long id,[FromBody] Product product)
+    {
+        try
+        {
+            //Product tempProduct = _productValidator.FormatPostProduct(product);
+            //Console.Write("We formatted!");
+            var products = await _shopifyService.UpdateAsync(id, product);
+            return Ok(products);
+        }
+        catch (InputException ex)
+        {
+            return StatusCode(400, new { message = ex.Message });
+        }
+        catch (ShopifyException ex)
+        {
+            return StatusCode(500, new { message = "Error fetching products", details = ex.Message });
+        }
+        catch (System.Exception ex)
+        {
+            // Log the exception if necessary
+            return StatusCode(500, new { message = "Error updating product " + ex.Message });
+        }
+    }
+    
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProduct([FromRoute]long id)
     {

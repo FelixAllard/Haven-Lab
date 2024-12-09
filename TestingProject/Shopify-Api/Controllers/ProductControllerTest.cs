@@ -459,6 +459,229 @@ public class ProductControllerTest
         Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error creating product {testCase}"));
     }
     
+    ///----------------------------------PUT METHOD
+    ///
+    
+    [Test]
+public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
+{
+    // Arrange: Create a valid product
+    var validProduct = new Product
+    {
+        Id = 1,
+        Title = "Updated Product",
+        BodyHtml = "<p>Updated product details</p>",
+        CreatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+        UpdatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+        PublishedAt = DateTime.Parse("2024-12-08T22:17:59-05:00"),
+        Vendor = "Updated Vendor",
+        ProductType = "",
+        Handle = "updated-handle",
+        PublishedScope = "global",
+        Status = "active",
+        Variants = new List<ProductVariant>
+        {
+            new ProductVariant
+            {
+                ProductId = 8073575366701,
+                Title = "Updated Title",
+                SKU = null,
+                Position = 1,
+                Grams = 0,
+                InventoryPolicy = "deny",
+                FulfillmentService = "manual",
+                Taxable = true,
+                Weight = 0,
+                InventoryQuantity = 5,
+                WeightUnit = "kg"
+            }
+        }
+    };
+
+    // Mock the service method UpdateAsync to return the updated product
+    _mockProductService.Setup(x => x.UpdateAsync(It.IsAny<long>(), It.IsAny<Product>(), default))
+        .ReturnsAsync(validProduct);
+    
+    // Act: Call the controller method to update the product
+    var result = await _controller.PutProduct(1, validProduct);
+
+    // Assert: Verify the result
+    Assert.IsNotNull(result);
+    var okResult = result as OkObjectResult;
+    Assert.IsNotNull(okResult, "Expected OkObjectResult but got null.");
+    Assert.AreEqual(200, okResult.StatusCode, "Status code should be 200 OK.");
+
+    // Verify that the returned product matches the updated product
+    var updatedProduct = okResult.Value as Product;
+    Assert.IsNotNull(updatedProduct, "Updated product should not be null.");
+    Assert.AreEqual(validProduct.Title, updatedProduct?.Title, "Product titles should match.");
+    Assert.AreEqual(validProduct.Vendor, updatedProduct?.Vendor, "Product vendors should match.");
+    Assert.AreEqual(validProduct.Variants.Count(), updatedProduct?.Variants.Count(), "Product variants count should match.");
+
+    // Verify that UpdateAsync was called exactly once
+    _mockProductService.Verify(x => x.UpdateAsync(It.IsAny<long>(), It.IsAny<Product>(), default), Times.Once, "UpdateAsync was not called exactly once.");
+}
+
+    [Test]
+    public async Task PutProduct_ReturnsBadRequest_WhenInputExceptionIsThrown()
+    {
+        // Arrange
+        var product = new Product
+        {
+            Id = 1,
+            Title = "Updated Product",
+            BodyHtml = "<p>Updated product details</p>",
+            CreatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            UpdatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            PublishedAt = DateTime.Parse("2024-12-08T22:17:59-05:00"),
+            Vendor = "Updated Vendor",
+            ProductType = "",
+            Handle = "updated-handle",
+            PublishedScope = "global",
+            Status = "active",
+            Variants = new List<ProductVariant>
+            {
+                new ProductVariant
+                {
+                    ProductId = 8073575366701,
+                    Title = "Updated Title",
+                    SKU = null,
+                    Position = 1,
+                    Grams = 0,
+                    InventoryPolicy = "deny",
+                    FulfillmentService = "manual",
+                    Taxable = true,
+                    Weight = 0,
+                    InventoryQuantity = 5,
+                    WeightUnit = "kg"
+                }
+            }
+        };
+
+        _mockProductService.Setup(x => x.UpdateAsync(It.IsAny<long>(), It.IsAny<Product>(), default))
+            .ThrowsAsync(new InputException("Invalid input"));
+
+        // Act
+        var result = await _controller.PutProduct(1, product);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(400));
+
+        var value = JObject.FromObject(objectResult.Value);
+        Assert.AreEqual("Invalid input", value["message"]?.ToString());
+    }
+
+    [Test]
+    public async Task PutProduct_ReturnsInternalServerError_WhenShopifyExceptionIsThrown()
+    {
+        // Arrange
+        var product = new Product
+        {
+            Id = 1,
+            Title = "Updated Product",
+            BodyHtml = "<p>Updated product details</p>",
+            CreatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            UpdatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            PublishedAt = DateTime.Parse("2024-12-08T22:17:59-05:00"),
+            Vendor = "Updated Vendor",
+            ProductType = "",
+            Handle = "updated-handle",
+            PublishedScope = "global",
+            Status = "active",
+            Variants = new List<ProductVariant>
+            {
+                new ProductVariant
+                {
+                    ProductId = 8073575366701,
+                    Title = "Updated Title",
+                    SKU = null,
+                    Position = 1,
+                    Grams = 0,
+                    InventoryPolicy = "deny",
+                    FulfillmentService = "manual",
+                    Taxable = true,
+                    Weight = 0,
+                    InventoryQuantity = 5,
+                    WeightUnit = "kg"
+                }
+            }
+        };
+
+        _mockProductService.Setup(x => x.UpdateAsync(It.IsAny<long>(), It.IsAny<Product>(), default))
+            .ThrowsAsync(new ShopifyException("Shopify error"));
+
+        // Act
+        var result = await _controller.PutProduct(1, product);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+
+        var value = JObject.FromObject(objectResult.Value);
+        Assert.AreEqual("Error fetching products", value["message"]?.ToString());
+    }
+
+    [TestCase("Unexpected error 1")]
+    [TestCase("Unexpected error 2")]
+    [TestCase("Unexpected error 3")]
+    [Test]
+    public async Task PutProduct_ReturnsInternalServerError_WhenUnexpectedExceptionOccurs(string testCase)
+    {
+        // Arrange
+        var product = new Product
+        {
+            Id = 1,
+            Title = "Updated Product",
+            BodyHtml = "<p>Updated product details</p>",
+            CreatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            UpdatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            PublishedAt = DateTime.Parse("2024-12-08T22:17:59-05:00"),
+            Vendor = "Updated Vendor",
+            ProductType = "",
+            Handle = "updated-handle",
+            PublishedScope = "global",
+            Status = "active",
+            Variants = new List<ProductVariant>
+            {
+                new ProductVariant
+                {
+                    ProductId = 8073575366701,
+                    Title = "Updated Title",
+                    SKU = null,
+                    Position = 1,
+                    Grams = 0,
+                    InventoryPolicy = "deny",
+                    FulfillmentService = "manual",
+                    Taxable = true,
+                    Weight = 0,
+                    InventoryQuantity = 5,
+                    WeightUnit = "kg"
+                }
+            }
+        };
+
+        _mockProductService.Setup(
+                x => x.UpdateAsync(It.IsAny<long>(), It.IsAny<Product>(), default)
+            )
+            .ThrowsAsync(new Exception(testCase));
+
+        // Act
+        var result = await _controller.PutProduct(1, product);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+
+        var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
+        Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error updating product {testCase}"));
+    }
+
+    
+    
     //---------------------------------DELETE PRODUCT-----------------------------------
     
     [Test]

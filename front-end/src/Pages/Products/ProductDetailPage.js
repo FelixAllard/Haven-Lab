@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom'; // Hook to get URL params
-import { motion } from 'motion/react'; // Motion for animation effects
+import { useParams, Link, useNavigate } from 'react-router-dom'; // Add useNavigate for navigation
+import { motion } from 'motion/react';
+import bootstrap from 'bootstrap/dist/js/bootstrap.min.js';
 
 // Bootstrap CSS for card styling
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -12,6 +13,17 @@ const ProductDetailsPage = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [toastMessage, setToastMessage] = useState(''); // Store toast message
+    const navigate = useNavigate(); // Hook to programmatically navigate
+    const toastTrigger = document.getElementById('liveToastBtn');
+    const toastLiveExample = document.getElementById('liveToast');
+
+    if (toastTrigger) {
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+        toastTrigger.addEventListener('click', () => {
+            toastBootstrap.show();
+        });
+    }
 
     // Fetch product details when the component mounts
     useEffect(() => {
@@ -28,6 +40,22 @@ const ProductDetailsPage = () => {
 
         fetchProductDetails();
     }, [productId]);
+
+    const handleDelete = async () => {
+        try {
+            const response = await axios.delete(`http://localhost:5158/gateway/api/ProxyProduct/${productId}`);
+            if (response.status === 200) {
+                setToastMessage('Product successfully deleted.');
+                setTimeout(() => {
+                    navigate('/products'); // Redirect to products page after success
+                }, 1000); // Wait for toast to show before redirect
+            } else {
+                setToastMessage('Failed to delete product.');
+            }
+        } catch (err) {
+            setToastMessage('Error: ' + err.message);
+        }
+    };
 
     // Render loading or error states
     if (loading) {
@@ -148,6 +176,24 @@ const ProductDetailsPage = () => {
                         >
                             <strong>Created At:</strong> {new Date(product.created_at).toLocaleDateString()}
                         </motion.p>
+
+                        {/* Delete Button */}
+                        <button type="button" className="btn btn-danger" id="liveToastBtn" onClick={handleDelete}>
+                            Delete Product
+                        </button>
+
+                        {/* Toast Message */}
+                        <div className="toast-container position-fixed bottom-0 end-0 p-3">
+                            <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div className="toast-header">
+                                    <strong className="me-auto">Shopify</strong>
+                                    <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div className="toast-body">
+                                    {toastMessage}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </motion.div>

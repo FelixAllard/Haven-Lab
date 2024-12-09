@@ -77,17 +77,17 @@ const ProductDetailsPage = () => {
                     <div className="card shadow-lg border-light p-4">
                         {/* Product Description */}
                         <motion.p
-                            className="lead"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 1 }}
+                        className="lead"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1 }}
                         >
-                            <strong>Description:</strong>
-                            <div
-                                className="card-text mt-2"
-                                dangerouslySetInnerHTML={{ __html: product.body_html }}
-                            />
+                        <strong>Description:</strong>
                         </motion.p>
+                        <div
+                        className="card-text mt-2"
+                        dangerouslySetInnerHTML={{ __html: product.body_html }}
+                        />
 
                         {/* Vendor */}
                         <motion.p
@@ -148,6 +148,18 @@ const ProductDetailsPage = () => {
                         >
                             <strong>Created At:</strong> {new Date(product.created_at).toLocaleDateString()}
                         </motion.p>
+                        <motion.button
+                                    className="btn btn-secondary"
+                                    whileHover={{ scale: 1.1 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <Link
+                                        to={`/admin/product/update/${product.id}`}
+                                        style={{ color: 'white', textDecoration: 'none' }}
+                                    >
+                                        Update Product
+                                    </Link>
+                        </motion.button>
                     </div>
                 </div>
             </motion.div>

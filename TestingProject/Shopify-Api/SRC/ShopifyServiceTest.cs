@@ -18,6 +18,7 @@ namespace TestingProject.Shopify_Api.SRC
         private Mock<IProductServiceFactory> _mockProductServiceFactory;
         private ShopifyRestApiCredentials _mockCredentials;
         private ProductsController _controller;
+        private ProductValidator _productValidator;
 
         
         [SetUp]
@@ -27,7 +28,7 @@ namespace TestingProject.Shopify_Api.SRC
             _mockProductService = new Mock<IProductService>();
             _mockProductServiceFactory = new Mock<IProductServiceFactory>();
             _mockCredentials = new ShopifyRestApiCredentials("https://my-shop.myshopify.com", "valid-access-token");
-
+            _productValidator = new ProductValidator();
             // Set up the factory to return the mocked service
             _mockProductServiceFactory
                 .Setup(factory => factory.Create(It.IsAny<ShopifyApiCredentials>()))
@@ -36,7 +37,7 @@ namespace TestingProject.Shopify_Api.SRC
             // Set up the credentials mock
 
             // Create the controller with the mocks
-            _controller = new ProductsController(_mockProductServiceFactory.Object, _mockCredentials);
+            _controller = new ProductsController(_mockProductServiceFactory.Object, _mockCredentials, _productValidator);
         }
 
         [Test]

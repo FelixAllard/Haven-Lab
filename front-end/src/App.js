@@ -11,6 +11,7 @@ import AboutUs from "./AboutUs/AboutUs";
 import Products from "./Pages/Products/Products";
 import Orders from "./Pages/Orders/Orders.js";
 import OrderDetail from './Pages/Orders/OrderDetail';
+import AddProductPage from "./Pages/Admin/Product/AddProductPage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/aboutus" element={<AboutUs />} />
+          <Route path="/admin/product/create" element={<AddProductPage />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:orderId" element={<OrderDetail />} />
           </Routes>

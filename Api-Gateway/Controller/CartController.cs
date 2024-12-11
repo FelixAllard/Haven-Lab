@@ -94,7 +94,7 @@ public class CartController : ControllerBase
     }
 
     
-    private async Task<bool> IsValidProductId(long productId)
+    public async Task<bool> IsValidProductId(long productId)
     {
         try
         {

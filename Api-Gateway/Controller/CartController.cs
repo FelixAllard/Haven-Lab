@@ -10,8 +10,16 @@ public class CartController : ControllerBase
     
     [HttpGet]
     public IActionResult GetCart()
-    {
+    {     
         var cart = GetCartFromCookies();
+        
+        foreach (var item in cart)
+        {
+            long productId = item.Key;
+            int quantity = item.Value;
+            Console.WriteLine($"Product ID: {productId}, Quantity: {quantity}");
+        }
+                            
         return Ok(cart);
     }
     
@@ -27,22 +35,25 @@ public class CartController : ControllerBase
         {
             return NotFound(new { Message = "Invalid product ID." });
         }
-
+    
         var cart = GetCartFromCookies();
-
+        Console.WriteLine("Current Cart: " + JsonConvert.SerializeObject(cart));
+    
         if (cart.ContainsKey(productId))
         {
-            cart[productId] += 1; //add one quantity if product is already in cart
+            cart[productId] += 1; // Add one quantity if product is already in cart
+            Console.WriteLine($"Product ID {productId} quantity increased. New quantity: {cart[productId]}");
         }
         else
         {
             cart[productId] = 1; 
+            Console.WriteLine($"Product ID {productId} added to cart with quantity 1.");
         }
-
+    
         SaveCartToCookies(cart);
+        Console.WriteLine("Updated Cart: " + JsonConvert.SerializeObject(cart));
         return Ok(cart);
     }
-
     
     [HttpPost("remove/{productId}")]
     public IActionResult RemoveFromCart(long productId) 
@@ -73,7 +84,6 @@ public class CartController : ControllerBase
     private void SaveCartToCookies(Dictionary<long, int> cart) 
     {
         var cartJson = JsonConvert.SerializeObject(cart);
-
         Response.Cookies.Append(CartCookieName, cartJson, new CookieOptions
         {
             HttpOnly = true,
@@ -82,6 +92,7 @@ public class CartController : ControllerBase
             Expires = DateTime.UtcNow.AddDays(7) 
         });
     }
+
     
     private async Task<bool> IsValidProductId(long productId)
     {

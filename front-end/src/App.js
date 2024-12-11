@@ -14,6 +14,7 @@ import OrderDetail from './Pages/Orders/OrderDetail';
 import ProductDetailsPage from "./Pages/Products/ProductDetailPage";
 import AddProductPage from "./Pages/Admin/Product/AddProductPage";
 import ProductUpdatePage from "./Pages/Admin/Product/UpdateProductPage.js";
+import Cart from "./Pages/Cart/Cart.js"
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/admin/product/create" element={<AddProductPage />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/admin/product/create" element={<AddProductPage />} />
           <Route path="/admin/product/update/:productId" element={<ProductUpdatePage />} />
           <Route path="/product/:productId" element={<ProductDetailsPage />} />

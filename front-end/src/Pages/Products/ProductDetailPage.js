@@ -57,6 +57,27 @@ const ProductDetailsPage = () => {
         }
     };
 
+    const addToCart = async () => {
+        try {
+            console.log('Adding product to cart...');
+            const response = await axios.post(`http://localhost:5158/gateway/api/Cart/add/${productId}`, null, { withCredentials: true });
+            if (response.status === 200) {
+
+                const updatedCartResponse = await axios.get('http://localhost:5158/gateway/api/Cart', null, { withCredentials: true });
+                if (updatedCartResponse.status === 200) {
+                    console.log('Updated cart:', updatedCartResponse.data);
+                }
+            } else {
+                setToastMessage('Failed to add product to cart.');
+            }
+        } catch (err) {
+            console.error('Error adding product to cart:', err);
+            setToastMessage('Error: ' + err.message);
+        }
+    };
+    
+    
+
     // Render loading or error states
     if (loading) {
         return <div className="text-center">Loading product details...</div>;
@@ -195,6 +216,18 @@ const ProductDetailsPage = () => {
                         >
                             <strong>Created At:</strong> {new Date(product.created_at).toLocaleDateString()}
                         </motion.p>
+
+                        {/* Add to Cart Button */}
+                        <motion.button
+                            className="btn btn-success mb-3"
+                            whileHover={{ scale: 1.1 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={addToCart}
+                        >
+                            Add to Cart
+                        </motion.button>
+
+                        {/* Edit product Button */}
                         <motion.button
                                     className="btn btn-secondary"
                                     whileHover={{ scale: 1.1 }}

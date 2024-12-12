@@ -117,7 +117,7 @@ const Footer = () => {
                 <div className="row mt-3">
                     <div className="col text-center">
                         <button
-                            className="btn btn-primary owner-login-button"
+                            className="btn btn-outline-light"
                             onClick={handleLoginClick}
                         >
                             Owner Login

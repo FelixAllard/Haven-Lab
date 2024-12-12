@@ -2,18 +2,20 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useAuth } from "../../../AXIOS/AuthentificationContext";
 
 const OwnerLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth(); // Use the login function from useAuth hook
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5158/gateway/api/ProxyAuth/login", 
+        "http://localhost:5158/gateway/api/ProxyAuth/login",
         {
           username,
           password,
@@ -21,9 +23,8 @@ const OwnerLogin = () => {
       );
 
       const { token } = response.data;
-      localStorage.setItem("authToken", token);
+      login(token);
       navigate("/");
-      window.location.reload();
     } catch (error) {
       console.error("Login failed:", error.response?.data || error.message);
       setError("Invalid credentials! Please try again.");

@@ -1,5 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './AXIOS/AuthentificationContext';
 
 import Home from "./Pages/Home/Home";
 import 'bootstrap/dist/css/bootstrap.css';
@@ -20,6 +21,7 @@ import OwnerLogin from "./Pages/Admin/Authentification/OwnerLogin.js"
 
 function App() {
   return (
+    <AuthProvider>
       <Router>
         <Navbar />
         <div>
@@ -39,6 +41,7 @@ function App() {
         </div>
           <Footer />
       </Router>
+      </AuthProvider>
   ); 
 }
 

@@ -32,5 +32,8 @@
         <ProjectReference Include="..\Shopify-Api\Shopify-Api.csproj" />
         <ProjectReference Include="..\Api-Gateway\Api-Gateway.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Content Include="ApiWebAuth\ApiWebAuth.csproj" />
+    </ItemGroup>
 
 </Project>

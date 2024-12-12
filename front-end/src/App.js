@@ -15,6 +15,7 @@ import ProductDetailsPage from "./Pages/Products/ProductDetailPage";
 import AddProductPage from "./Pages/Admin/Product/AddProductPage";
 import ProductUpdatePage from "./Pages/Admin/Product/UpdateProductPage.js";
 import Cart from "./Pages/Cart/Cart.js"
+import OwnerLogin from "./Pages/Admin/Authentification/OwnerLogin.js"
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
           <Route path="/admin/product/update/:productId" element={<ProductUpdatePage />} />
           <Route path="/product/:productId" element={<ProductDetailsPage />} />
           <Route path="/orders/:orderId" element={<OrderDetail />} />
+          <Route path="/admin/login" element={<OwnerLogin />} />
           </Routes>
         </div>
           <Footer />

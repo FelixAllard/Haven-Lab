@@ -25,6 +25,8 @@ builder.Services.AddTransient<ServiceProductController>(); // Makes that an inst
 builder.Services.AddHttpClient<ServiceOrderController>(); // Makes the Https Client and Inject it in the class chosen 
 builder.Services.AddTransient<ServiceOrderController>(); // Makes that an instance of ServiceOrderController will be injected whenever nescessary
 
+builder.Services.AddHttpClient<ServiceAuthController>(); // Makes the Https Client and Inject it in the class chosen 
+builder.Services.AddTransient<ServiceAuthController>(); // Makes that an instance of ServiceOrderController will be injected whenever nescessary
 
 
 //---

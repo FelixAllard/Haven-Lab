@@ -1,4 +1,4 @@
-namespace ApiWebAuth.Models;
+namespace Api_Gateway.Models;
 
 public class Login
 {

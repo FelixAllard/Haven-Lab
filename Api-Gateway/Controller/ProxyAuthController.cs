@@ -1,4 +1,4 @@
-using ApiWebAuth.Models;
+using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 

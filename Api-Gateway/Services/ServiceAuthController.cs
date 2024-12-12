@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using ApiWebAuth.Models;
+using Api_Gateway.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ShopifySharp;

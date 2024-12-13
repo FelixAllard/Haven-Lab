@@ -32,7 +32,7 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            return Ok(new {message = "Registration successful"});
+            return Ok("Registration successful");
         }
         return BadRequest(result.Errors);
     }
@@ -73,7 +73,7 @@ public class AccountController : Controller
             var result = await _roleManager.CreateAsync(new IdentityRole(role));
             if (result.Succeeded)
             {
-                return Ok(new { message = "Role added successfully!"});
+                return Ok("Role added successfully!");
             }
             return BadRequest(result.Errors);
         }
@@ -86,12 +86,12 @@ public class AccountController : Controller
         var user = await _userManager.FindByNameAsync(model.Username);
         if (user == null)
         {
-            return BadRequest(new { message = "User Not Found" });
+            return BadRequest("User Not Found");
         }
         var result = await _userManager.AddToRoleAsync(user, model.Role);
         if (result.Succeeded)
         {
-            return Ok(new { message = "Role assigned successfully!"});
+            return Ok("Role assigned successfully!");
         }
         return BadRequest(result.Errors);
     }

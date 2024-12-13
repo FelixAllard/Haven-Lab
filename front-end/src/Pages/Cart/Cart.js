@@ -14,7 +14,7 @@ const CartPage = () => {
             const response = await axios.get('http://localhost:5158/gateway/api/Cart', null, { withCredentials: true });
             if (response.status === 200) {
                 console.log('200');
-                console.log(response.data); 
+                console.log(response.data);
                 setCart(response.data);
             } else {
                 console.log('failed');
@@ -57,6 +57,38 @@ const CartPage = () => {
         }
     };
 
+    // Hardcoded Draft Order data
+    const handleCreateDraftOrder = async () => {
+        const draftOrderData = {
+            line_items: [
+                {
+                    variant_id: 43165007478829,
+                    quantity: 2
+                }
+            ]
+        };
+
+        try {
+            const response = await axios.post('http://localhost:5158/gateway/api/ProxyDraftOrder', draftOrderData, { withCredentials: true });
+            if (response.status === 200) {
+                console.log('Draft order created successfully:', response.data);
+
+                // Assuming the response contains an "InvoiceUrl" field with the URL to redirect to
+                const invoiceUrl = response.data;  // Modify this if necessary to extract the URL correctly from the response data
+                if (invoiceUrl) {
+                    window.location.href = invoiceUrl;  // Redirect the user to the invoice URL
+                } else {
+                    console.error('No invoice URL received');
+                }
+            } else {
+                console.error('Failed to create draft order.');
+            }
+        } catch (err) {
+            console.error('Error creating draft order:', err);
+        }
+    };
+
+
     return (
         <div className="cart-page">
             <h1>Your Cart</h1>
@@ -96,6 +128,8 @@ const CartPage = () => {
                     <span>Price: $30.00</span>
                 </li>
             </ul>
+
+            <button onClick={handleCreateDraftOrder} className="btn btn-primary">Create Draft Order</button>
         </div>
     );
 };

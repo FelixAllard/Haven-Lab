@@ -6,44 +6,36 @@ using Newtonsoft.Json;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//For Remote API calls
+
+// For Remote API calls
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<ServiceProductController>();
+builder.Services.AddTransient<ServiceProductController>();
+builder.Services.AddTransient<ServiceOrderController>();
+builder.Services.AddTransient<ServiceDraftOrderController>();
+builder.Services.AddHttpClient<ServiceAuthController>();
+builder.Services.AddTransient<ServiceAuthController>();
 
-
-//--- Dependencies From us
-builder.Services.AddHttpClient<ServiceProductController>(); // Makes the Https Client and Inject it in the class chosen
-builder.Services.AddTransient<ServiceProductController>(); // Makes that an instance of ServiceProductController will be injected whenever nescessary
-
-builder.Services.AddHttpClient<ServiceOrderController>(); // Makes the Https Client and Inject it in the class chosen 
-builder.Services.AddTransient<ServiceOrderController>(); // Makes that an instance of ServiceOrderController will be injected whenever nescessary
-
-builder.Services.AddHttpClient<ServiceAuthController>(); // Makes the Https Client and Inject it in the class chosen 
-builder.Services.AddTransient<ServiceAuthController>(); // Makes that an instance of ServiceOrderController will be injected whenever nescessary
-
-
-//---
-
-// ENABLES CORES V V V 
+// ENABLE CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowSpecificOrigin", builder =>
     {
         builder
-            .AllowAnyOrigin() // Allow requests from any origin
-            .AllowAnyHeader() // Allow any header
-            .AllowAnyMethod(); // Allow any HTTP method (GET, POST, etc.)
+            .WithOrigins("http://localhost:3000")  // Allow only your frontend origin
+            .AllowAnyHeader()  // Allow any header
+            .AllowAnyMethod()  // Allow any HTTP method (GET, POST, etc.)
+            .AllowCredentials();  // Allow credentials (cookies, HTTP authentication)
     });
 });
-
-
 
 var app = builder.Build();
 
@@ -54,14 +46,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Enable CORS with the defined policy
-app.UseCors("AllowAll");
+// Apply CORS policy before other middleware
+app.UseCors("AllowSpecificOrigin");
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
-

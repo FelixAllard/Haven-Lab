@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shopify-Api", "Shopify-Api\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingProject", "TestingProject\TestingProject.csproj", "{4F9B749D-0BC2-47DF-AE1E-48B8370D5C7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiWebAuth", "ApiWebAuth\ApiWebAuth.csproj", "{4F9B749D-0BC2-47DF-AE1E-48B8370D5C7A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiWebAuth", "ApiWebAuth\ApiWebAuth.csproj", "{A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

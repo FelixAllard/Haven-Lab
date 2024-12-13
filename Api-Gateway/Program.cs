@@ -21,6 +21,8 @@ builder.Services.AddHttpClient<ServiceProductController>();
 builder.Services.AddTransient<ServiceProductController>();
 builder.Services.AddTransient<ServiceOrderController>();
 builder.Services.AddTransient<ServiceDraftOrderController>();
+builder.Services.AddHttpClient<ServiceAuthController>();
+builder.Services.AddTransient<ServiceAuthController>();
 
 // ENABLE CORS
 builder.Services.AddCors(options =>

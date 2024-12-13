@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useScroll, motion, useTransform, useSpring } from "framer-motion";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import "./Footer.css"; // For custom styles
 
 const Footer = () => {
     const [showFooter, setShowFooter] = useState(false);
     const { scrollYProgress } = useScroll(); // Track the vertical scroll progress
     const [isBottom, setIsBottom] = useState(false);
+    const navigate = useNavigate();
 
     // Motion value for scaling the footer's panel
     const footerScale = useTransform(scrollYProgress, [0, 0.8], [0, 1]);
@@ -36,6 +38,10 @@ const Footer = () => {
             setShowFooter(false);
         }
     }, [isBottom]);
+
+    const handleLoginClick = () => {
+        navigate("/admin/login"); // Redirect to the login page
+    };
 
     return (
         <motion.div
@@ -106,6 +112,17 @@ const Footer = () => {
                             </a>
                         </div>
                     </motion.div>
+                </div>
+                {/* Add "Owner Login" button */}
+                <div className="row mt-3">
+                    <div className="col text-center">
+                        <button
+                            className="btn btn-outline-light"
+                            onClick={handleLoginClick}
+                        >
+                            Owner Login
+                        </button>
+                    </div>
                 </div>
             </motion.div>
         </motion.div>

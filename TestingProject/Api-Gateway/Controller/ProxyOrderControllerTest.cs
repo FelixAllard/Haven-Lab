@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Newtonsoft.Json.Linq;
 
-namespace TestingProject.Controller;
+namespace TestingProject.Api_Gateway.Controller;
 
 [TestFixture]
     public class ProxyOrderControllerTests

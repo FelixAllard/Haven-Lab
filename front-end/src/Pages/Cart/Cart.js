@@ -15,6 +15,7 @@ const CartPage = () => {
             if (response.status === 200) {
                 console.log('Cart fetched successfully:', response.data);
                 setCart(response.data);
+                return response.data; 
             } else {
                 console.error('Failed to fetch cart.');
             }
@@ -23,10 +24,10 @@ const CartPage = () => {
         }
     };
 
-    const removeByOne = async (productId) => {
+    const removeByOne = async (variantId) => {
         try {
             const response = await axios.post(
-                `http://localhost:5158/gateway/api/Cart/removebyone/${productId}`, 
+                `http://localhost:5158/gateway/api/Cart/removebyone/${variantId}`, 
                 null, 
                 { withCredentials: true }
             );
@@ -41,19 +42,19 @@ const CartPage = () => {
         }
     };
 
-    const updateQuantity = async (productId, newQuantity) => {
+    const updateQuantity = async (variantId, newQuantity) => {
         if (newQuantity < 0) {
             console.warn('Invalid quantity. Skipping update.');
             return;
         }
         if (newQuantity === 0) {
-            await removeFromCart(productId);
-        } else if (newQuantity < cart[productId]) {
-            await removeByOne(productId);
+            await removeFromCart(variantId);
+        } else if (newQuantity < cart[variantId]) {
+            await removeByOne(variantId);
         } else {
             try {
                 const response = await axios.post(
-                    `http://localhost:5158/gateway/api/Cart/add/${productId}`,
+                    `http://localhost:5158/gateway/api/Cart/addbyone/${variantId}`,
                     null,
                     { withCredentials: true }
                 );
@@ -69,10 +70,10 @@ const CartPage = () => {
         }
     };
 
-    const removeFromCart = async (productId) => {
+    const removeFromCart = async (variantId) => {
         try {
             const response = await axios.post(
-                `http://localhost:5158/gateway/api/Cart/remove/${productId}`, 
+                `http://localhost:5158/gateway/api/Cart/remove/${variantId}`, 
                 null, 
                 { withCredentials: true }
             );
@@ -88,21 +89,36 @@ const CartPage = () => {
     };
 
     const handleCreateDraftOrder = async () => {
-        const draftOrderData = {
-            line_items: [
-                {
-                    variant_id: 43165007478829,
-                    quantity: 2
-                }
-            ]
-        };
-
         try {
+            // Fetch the cart data
+            const cartResponse = await fetchCart();
+            console.log('Cart Response:', cartResponse); 
+    
+            // Check if the cart is not empty
+            if (!cartResponse || Object.keys(cartResponse).length === 0) {
+                console.log('Cart is empty, no draft order to create.');
+                return;
+            }
+    
+            // Map the cart items to the draft order format with individual objects
+            const lineItems = Object.keys(cartResponse).map(variantId => ({
+                variant_id: parseInt(variantId), // Ensure variant_id is a number
+                quantity: cartResponse[variantId]
+            }));
+    
+            const draftOrderData = {
+                line_items: lineItems
+            };
+    
+            console.log('Draft Order Data:', JSON.stringify(draftOrderData)); // Print the JSON to console for debugging
+    
+            // Send the request to create a draft order
             const response = await axios.post(
                 'http://localhost:5158/gateway/api/ProxyDraftOrder',
                 draftOrderData,
                 { withCredentials: true }
             );
+    
             if (response.status === 200) {
                 console.log('Draft order created successfully:', response.data);
                 const invoiceUrl = response.data; // Adjust if necessary
@@ -118,6 +134,8 @@ const CartPage = () => {
             console.error('Error creating draft order:', err);
         }
     };
+    
+    
 
     return (
         <div className="cart-page">

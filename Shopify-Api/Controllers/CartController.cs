@@ -3,6 +3,7 @@ using ShopifySharp;
 using ShopifySharp.Factories;
 
 namespace Shopify_Api.Controllers;
+
 [ApiController]
 [Route("api/[controller]")]
 public class CartController : Controller

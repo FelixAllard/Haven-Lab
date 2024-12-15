@@ -212,7 +212,7 @@ public class ServiceOrderControllerTest
 
         _serviceOrderController = new ServiceOrderController(_mockHttpClientFactory.Object);
 
-        var order = new Order { /* Set necessary properties for order */ };
+        var order = new Order { Id = 1, Name = "Order1" };
 
         // Act: Call the method
         var result = await _serviceOrderController.PutOrderAsync(1, order);
@@ -240,7 +240,7 @@ public class ServiceOrderControllerTest
 
         _serviceOrderController = new ServiceOrderController(_mockHttpClientFactory.Object);
 
-        var order = new Order { /* Set necessary properties for order */ };
+        var order = new Order { Id = 1, Name = "Order1" };
 
         // Act: Call the method
         var result = await _serviceOrderController.PutOrderAsync(1, order);
@@ -271,7 +271,7 @@ public class ServiceOrderControllerTest
 
         _serviceOrderController = new ServiceOrderController(_mockHttpClientFactory.Object);
 
-        var order = new Order { /* Set necessary properties for order */ };
+        var order = new Order { Id = 1, Name = "Order1" };
 
         // Act: Call the method
         var result = await _serviceOrderController.PutOrderAsync(1, order);

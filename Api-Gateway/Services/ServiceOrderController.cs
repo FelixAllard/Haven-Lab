@@ -1,3 +1,8 @@
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using ShopifySharp;
+
 namespace Api_Gateway.Services;
 
 public class ServiceOrderController
@@ -75,6 +80,43 @@ public class ServiceOrderController
         {
             // Return error details in case of an exception
             return $"Exception: {ex.Message}";
+        }
+    }
+    
+    public virtual async Task<HttpResponseMessage> PutOrderAsync(long id, Order order)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Order/{id}"; 
+            
+            var jsonSettings = new Newtonsoft.Json.JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(), 
+                Formatting = Formatting.None 
+            };
+            
+            var jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(order, jsonSettings);
+            
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            
+            var response = await client.PutAsync(requestUrl, content);
+            return response;
+        }
+        catch (System.Net.Http.HttpRequestException ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Exception: {ex.Message}")
+            };
+        }
+        catch (Exception ex)
+        {
+            // Return a response with an exception message if something goes wrong
+            return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent($"Exception: {ex.Message}")
+            };
         }
     }
 

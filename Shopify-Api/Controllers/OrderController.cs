@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Shopify_Api.Exceptions;
 using ShopifySharp;
 using ShopifySharp.Factories;
 using ShopifySharp.Filters;
@@ -68,5 +69,32 @@ public class OrderController : ControllerBase
         }
     }
 
-    
+    [HttpPut("{orderId}")]
+    public virtual async Task<IActionResult> PutProduct([FromRoute] long orderId,[FromBody] Order order)
+    {
+        try
+        {
+            // Serialize the order object to JSON for better readability in the console
+            string orderJson = System.Text.Json.JsonSerializer.Serialize(order);
+            Console.WriteLine($"Order being updated: {orderJson}");
+            var returnedOrder = await _shopifyService.UpdateAsync(orderId, order);
+            
+            string returnedOrderJson = System.Text.Json.JsonSerializer.Serialize(returnedOrder);
+            Console.WriteLine($"Order being updated: {returnedOrderJson}");
+            
+            return Ok(returnedOrder);
+        }
+        catch (InputException ex)
+        {
+            return StatusCode(400, new { message = ex.Message });
+        }
+        catch (ShopifyException ex)
+        {
+            return StatusCode(500, new { message = "Error updating order", details = ex.Message });
+        }
+        catch (System.Exception ex)
+        {
+            return StatusCode(500, new { message = "Error updating order " + ex.Message });
+        }
+    }
 }

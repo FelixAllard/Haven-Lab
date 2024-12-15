@@ -66,7 +66,7 @@ const OrderPage = () => {
               <div className="card shadow-sm border-light">
                 <div className="card-body">
                   <p>
-                    <strong>Apple ID:</strong> {order.app_id || 'N/A'}
+                    <strong>Order ID:</strong> {order.id || 'N/A'}
                   </p>
                   <p>
                     <strong>Timestamp:</strong>{' '}

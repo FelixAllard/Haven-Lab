@@ -41,7 +41,7 @@ public class CartController : ControllerBase
     
         if (cart.ContainsKey(productId))
         {
-            cart[productId] += 1; // Add one quantity if product is already in cart
+            cart[productId] += 1; 
             Console.WriteLine($"Product ID {productId} quantity increased. New quantity: {cart[productId]}");
         }
         else
@@ -69,6 +69,28 @@ public class CartController : ControllerBase
 
         return NotFound(new { Message = "Product not found in cart." });
     }
+    
+    [HttpPost("removebyone/{productId}")]
+    public IActionResult RemoveByOne(long productId)
+    {
+        var cart = GetCartFromCookies();
+
+        if (cart.ContainsKey(productId))
+        {
+            cart[productId] -= 1;
+            
+            if (cart[productId] <= 0)
+            {
+                cart.Remove(productId);
+            }
+            
+            SaveCartToCookies(cart);
+            return Ok(cart);
+        }
+
+        return NotFound(new { Message = "Product not found in cart." });
+    }
+
     
     private Dictionary<long, int> GetCartFromCookies() 
     {

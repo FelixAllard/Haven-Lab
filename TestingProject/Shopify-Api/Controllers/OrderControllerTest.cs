@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Shopify_Api;
 using Shopify_Api.Controllers;
+using Shopify_Api.Exceptions;
 using ShopifySharp;
 using ShopifySharp.Credentials;
 using ShopifySharp.Factories;
@@ -147,5 +148,106 @@ public class OrderControllerTest
             Assert.IsTrue(exception.InnerException?.Message.Contains(exceptionMessage));
         }
 
+[Test]
+    public async Task PutProduct_ReturnsOk_WhenOrderIsUpdatedSuccessfully()
+    {
+        // Arrange
+        long orderId = 123;
+        var order = new Order
+        {
+            Id = 1,
+            AppId = 1234567,
+            Name = "John Doe",
+            ShippingAddress = new Address
+            {
+                FirstName = "John",
+                LastName = "Doe",
+                Address1 = "123 Main Street",
+                City = "Springfield",
+                Province = "IL",
+                Zip = "62704",
+                Country = "USA"
+            },
+            TotalPrice = 219.97m
+        };
 
+        var updatedOrder = new Order
+        {
+            Id = 1,
+            AppId = 1234567,
+            Name = "Regine Wang",
+            ShippingAddress = order.ShippingAddress,
+            TotalPrice = 219.97m 
+        };
+
+        _mockOrderService
+            .Setup(service => service.UpdateAsync(orderId, order, default))
+            .ReturnsAsync(updatedOrder);
+
+        // Act
+        var result = await _controller.PutProduct(orderId, order);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(200, okResult.StatusCode);
+        Assert.AreEqual(updatedOrder, okResult.Value);
+    }
+
+    [Test]
+    public async Task PutProduct_ReturnsBadRequest_WhenInputExceptionIsThrown()
+    {
+        // Arrange
+        long orderId = 123;
+        var order = new Order
+        {
+            Id = 1,
+            AppId = 1234567,
+            Name = "John Doe",
+            ShippingAddress = new Address { FirstName = "John", LastName = "Doe" }
+        };
+
+        _mockOrderService
+            .Setup(service => service.UpdateAsync(orderId, order, default))
+            .ThrowsAsync(new InputException("Invalid input"));
+
+        // Act
+        var result = await _controller.PutProduct(orderId, order);
+
+        // Assert
+        var objectResult = result as ObjectResult; 
+        Assert.IsNotNull(objectResult); 
+        Assert.That(objectResult.StatusCode, Is.EqualTo(400)); 
+        
+        var value = JObject.FromObject(objectResult.Value); 
+        Assert.AreEqual("Invalid input", value["message"]?.ToString());
+    }
+
+    [Test]
+    public async Task PutProduct_ReturnsServerError_WhenShopifyExceptionIsThrown()
+    {
+        // Arrange
+        long orderId = 123;
+        var order = new Order
+        {
+            Id = 1,
+            AppId = 1234567,
+            Name = "John Doe"
+        };
+
+        _mockOrderService
+            .Setup(service => service.UpdateAsync(orderId, order, default))
+            .ThrowsAsync(new ShopifyException("Shopify service error"));
+
+        // Act
+        var result = await _controller.PutProduct(orderId, order);
+
+        // Assert
+        var objectResult = result as ObjectResult; 
+        Assert.IsNotNull(objectResult); 
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500)); 
+        
+        var value = JObject.FromObject(objectResult.Value); 
+        Assert.AreEqual("Error updating order", value["message"]?.ToString());
+    }
 }

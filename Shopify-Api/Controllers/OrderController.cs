@@ -75,12 +75,12 @@ public class OrderController : ControllerBase
         try
         {
             // Serialize the order object to JSON for better readability in the console
-            string orderJson = System.Text.Json.JsonSerializer.Serialize(order);
-            Console.WriteLine($"Order being updated: {orderJson}");
+            //string orderJson = System.Text.Json.JsonSerializer.Serialize(order);
+            //Console.WriteLine($"Order being updated: {orderJson}");
             var returnedOrder = await _shopifyService.UpdateAsync(orderId, order);
             
-            string returnedOrderJson = System.Text.Json.JsonSerializer.Serialize(returnedOrder);
-            Console.WriteLine($"Order being updated: {returnedOrderJson}");
+            //string returnedOrderJson = System.Text.Json.JsonSerializer.Serialize(returnedOrder);
+           // Console.WriteLine($"Order being updated: {returnedOrderJson}");
             
             return Ok(returnedOrder);
         }

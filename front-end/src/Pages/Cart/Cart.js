@@ -62,7 +62,7 @@ const CartPage = () => {
         const draftOrderData = {
             line_items: [
                 {
-                    variant_id: 43165007478829,
+                    variant_id: 43173936758829,
                     quantity: 2
                 }
             ]

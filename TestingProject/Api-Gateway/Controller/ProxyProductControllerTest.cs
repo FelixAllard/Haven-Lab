@@ -38,7 +38,7 @@ public class ProxyProductControllerTest
 
         // Set up the mock to return the expected result for GetAllProductsAsync
         _mockServiceProductController
-            .Setup(controller => controller.GetAllProductsAsync())
+            .Setup(controller => controller.GetAllProductsAsync(null))
             .ReturnsAsync(expectedResult);
 
         // Act: Call the GetAllProducts method of ProxyProductController
@@ -57,7 +57,7 @@ public class ProxyProductControllerTest
     {
         // Arrange: Set up ServiceProductController to throw an exception
         _mockServiceProductController
-            .Setup(controller => controller.GetAllProductsAsync())
+            .Setup(controller => controller.GetAllProductsAsync(null))
             .ThrowsAsync(new System.Exception("Unexpected error"));
 
         // Act: Call the GetAllProducts method of ProxyProductController
@@ -75,7 +75,7 @@ public class ProxyProductControllerTest
         // Arrange: Set up the ServiceProductController to return a string starting with "Error"
         var errorMessage = "Error: Unable to fetch products";
         _mockServiceProductController
-            .Setup(controller => controller.GetAllProductsAsync())
+            .Setup(controller => controller.GetAllProductsAsync(null))
             .ReturnsAsync(errorMessage);
 
         // Act: Call the GetAllProducts method of ProxyProductController

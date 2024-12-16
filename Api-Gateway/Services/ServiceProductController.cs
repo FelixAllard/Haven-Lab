@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Api_Gateway.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ShopifySharp;
@@ -19,14 +20,16 @@ public class ServiceProductController
     }
 
     // Method to make the API call to Shopify and return the result
-    public virtual async Task<string> GetAllProductsAsync()
+    public virtual async Task<string> GetAllProductsAsync(SearchArguments searchArguments = null)
     {
         try
         {
             // Create the HttpClient instance using the factory
             var client = _httpClientFactory.CreateClient(); // Uses default HttpClient configuration
 
-            var requestUrl = $"{BASE_URL}/api/Products"; // Shopify endpoint for products
+            // Build the request URL with optional query parameters
+            var queryString = searchArguments != null ? SearchArguments.BuildQueryString(searchArguments) : string.Empty;
+            var requestUrl = $"{BASE_URL}/api/Products{queryString}";
 
             // Create the request message
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
@@ -51,6 +54,7 @@ public class ServiceProductController
             return $"Exception: {ex.Message}";
         }
     }
+
     public virtual async Task<string> GetProductByIdAsync(long id)
     {
         try

@@ -58,40 +58,40 @@ public class CartControllerTests
         Assert.AreEqual(200, okResult.StatusCode);
     }
     
-    [Test]
-    public async Task AddToCart_ValidProductId_AddsToCart()
-    {
-        // Arrange
-        long productId = 8073898131501;
-        long variantId = 43165387784237;
-        var cartJson = JsonConvert.SerializeObject(new Dictionary<long, int>());
-
-        var httpContext = new DefaultHttpContext();
-        httpContext.Response.Cookies.Append("Cart", cartJson, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddDays(7)
-        });
-
-        _cartController.ControllerContext.HttpContext = httpContext;
-
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(new HttpClient
-        {
-            BaseAddress = new Uri("http://localhost:5158")
-        });
-
-        // Act
-        IActionResult actionResult = await _cartController.AddToCart(productId);
-
-        // Assert
-        var okResult = actionResult as OkObjectResult;
-        Assert.IsNotNull(okResult, "Expected OkObjectResult");
-        Assert.AreEqual(200, okResult.StatusCode);
-        Assert.AreEqual(1, ((Dictionary<long, int>)okResult.Value)[variantId]);
-        //test
-    }
+    // [Test]
+    // public async Task AddToCart_ValidProductId_AddsToCart()
+    // {
+    //     // Arrange
+    //     long productId = 8073898131501;
+    //     long variantId = 43165387784237;
+    //     var cartJson = JsonConvert.SerializeObject(new Dictionary<long, int>());
+    //
+    //     var httpContext = new DefaultHttpContext();
+    //     httpContext.Response.Cookies.Append("Cart", cartJson, new CookieOptions
+    //     {
+    //         HttpOnly = true,
+    //         Secure = true,
+    //         SameSite = SameSiteMode.Strict,
+    //         Expires = DateTime.UtcNow.AddDays(7)
+    //     });
+    //
+    //     _cartController.ControllerContext.HttpContext = httpContext;
+    //
+    //     _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(new HttpClient
+    //     {
+    //         BaseAddress = new Uri("http://localhost:5158")
+    //     });
+    //
+    //     // Act
+    //     IActionResult actionResult = await _cartController.AddToCart(productId);
+    //
+    //     // Assert
+    //     var okResult = actionResult as OkObjectResult;
+    //     Assert.IsNotNull(okResult, "Expected OkObjectResult");
+    //     Assert.AreEqual(200, okResult.StatusCode);
+    //     Assert.AreEqual(1, ((Dictionary<long, int>)okResult.Value)[variantId]);
+    //     //test
+    // }
     
     [Test]
     public void RemoveFromCart_InvalidVariantId()

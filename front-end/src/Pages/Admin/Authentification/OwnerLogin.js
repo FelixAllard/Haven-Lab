@@ -28,7 +28,6 @@ const OwnerLogin = () => {
         navigate("/");
       }
       else if (response.status === 503) {
-        const { token } = response.data;
         setError("service unavailable. Please try again later.");
       } else {
         setError("Invalid credentials or service unavailable. Please try again.");

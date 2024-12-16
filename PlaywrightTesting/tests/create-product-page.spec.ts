@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+const waitFor = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 test('CheckIfElementsAccessible', async ({ page }) => {
+  await page.goto('http://localhost:3000/admin/login');
+  await page.getByLabel('Username').click();
+  await page.getByLabel('Username').fill('Andrei');
+  await page.getByLabel('Password').click();
+  await page.getByLabel('Password').fill('Password1!');
+  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await waitFor(1000);
   await page.goto('http://localhost:3000/admin/product/create');
   await expect(page.locator('h2')).toContainText('Create a New Product');
   await expect(page.getByRole('heading', { name: 'Create a New Product' })).toBeVisible();
@@ -21,6 +30,7 @@ test('CheckIfElementsAccessible', async ({ page }) => {
   await page.locator('input[name="variants\\.0\\.inventory_quantity"]').click();
   await page.getByRole('button', { name: 'Submit' }).click();
   await expect(page.getByText('Title', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Logout' }).click();
   // await page.getByText('Description').click();
   // await page.getByText('Vendor').click();
   // await page.getByText('Published Scope').click();
@@ -35,6 +45,13 @@ test('CheckIfElementsAccessible', async ({ page }) => {
 });
 
 test('CheckIfCanAddProduct', async ({ page }) => {
+  await page.goto('http://localhost:3000/admin/login');
+  await page.getByLabel('Username').click();
+  await page.getByLabel('Username').fill('Andrei');
+  await page.getByLabel('Password').click();
+  await page.getByLabel('Password').fill('Password1!');
+  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await waitFor(1000);
   await page.goto('http://localhost:3000/admin/product/create');
   await page.locator('input[name="title"]').click();
   await page.locator('input[name="title"]').fill('P');
@@ -48,6 +65,7 @@ test('CheckIfCanAddProduct', async ({ page }) => {
   await page.getByRole('button', { name: 'Submit' }).click();
 
   await expect(page.getByRole('heading', { name: 'Create a New Product' })).toBeHidden();
+  await page.getByRole('button', { name: 'Logout' }).click();
 
   
 });

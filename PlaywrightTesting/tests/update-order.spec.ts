@@ -1,12 +1,22 @@
 import { test, expect } from '@playwright/test';
 
+const waitFor = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 test('test', async ({ page }) => {
+  await page.goto('http://localhost:3000/admin/login');
+  await page.getByLabel('Username').click();
+  await page.getByLabel('Username').fill('Andrei');
+  await page.getByLabel('Password').click();
+  await page.getByLabel('Password').fill('Password1!');
+  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await waitFor(1000);
+
   await page.goto('http://localhost:3000/');
   await page.getByLabel('Toggle navigation').click();
   await page.getByRole('link', { name: 'Orders' }).click();
   await page.getByLabel('Close').click();
   await expect(page.locator('.btn').first()).toBeVisible();
-  await page.locator('.btn').first().click();
+  await page.locator('.card-body > .btn').first().click();
   await expect(page.getByRole('link', { name: 'Edit' })).toBeVisible();
   await page.getByRole('link', { name: 'Edit' }).click();
   await page.getByLabel('Note').click();
@@ -34,4 +44,6 @@ test('test', async ({ page }) => {
   await page.getByLabel('Company').fill('company1');
   await expect(page.getByRole('button', { name: 'Update Order' })).toBeVisible();
   await page.getByRole('button', { name: 'Update Order' }).click();
+
+  await page.getByRole('button', { name: 'Logout' }).click();
 });

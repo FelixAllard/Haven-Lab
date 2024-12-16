@@ -9,7 +9,7 @@ test('CheckIfElementsAccessible', async ({ page }) => {
   await page.getByLabel('Password').click();
   await page.getByLabel('Password').fill('Password1!');
   await page.getByRole('button', { name: 'Login', exact: true }).click();
-  await waitFor(1000);
+  await waitFor(3000);
   await page.goto('http://localhost:3000/admin/product/create');
   await expect(page.locator('h2')).toContainText('Create a New Product');
   await expect(page.getByRole('heading', { name: 'Create a New Product' })).toBeVisible();

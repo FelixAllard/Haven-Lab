@@ -9,16 +9,15 @@ const Home = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Product IDs to fetch
-    const bestsellerIds = [
-        8073898131501,
-        8073775972397,
-        8073518088237,
-    ];
-
     // Fetch product details for bestsellers
     useEffect(() => {
         const fetchBestsellers = async () => {
+            // Product IDs to fetch
+            const bestsellerIds = [
+                8073898131501,
+                8073775972397,
+                8073518088237,
+            ];
             try {
                 const requests = bestsellerIds.map((productId) =>
                     axios.get(`http://localhost:5158/gateway/api/ProxyProduct/${productId}`)

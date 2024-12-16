@@ -6,15 +6,7 @@ test('testIfCanAccessPaymentPage', async ({ page }) => {
   await page.getByRole('link', { name: 'Cart' }).click();
   await page.getByLabel('Close').click();
   await page.getByRole('button', { name: 'Create Draft Order' }).click();
-  //await expect(page.locator('span').filter({ hasText: 'Haven Lab' }).first()).toBeVisible();
-  await page.getByRole('button', { name: 'Create Draft Order' }).click();
-  await page.getByRole('button', { name: 'Create Draft Order' }).click();
-  await page.getByRole('button', { name: 'Create Draft Order' }).click();
-  await page.getByText('Haven LabWelcome to Haven LabHomeProductsCartOrdersAbout UsYour CartRecommended').click({
-    button: 'right'
-  });
-  await page.getByText('Haven LabWelcome to Haven LabHomeProductsCartOrdersAbout UsYour CartRecommended').click();
-  await page.getByRole('button', { name: 'Create Draft Order' }).click();
+  await expect(page.locator('span').filter({ hasText: 'Haven Lab' }).first()).toBeVisible();
   await page.getByPlaceholder('Email or mobile phone number').click();
   await page.getByPlaceholder('Email or mobile phone number').fill('xilef992@gmail.com');
   await page.getByPlaceholder('First name').click();

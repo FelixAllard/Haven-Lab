@@ -18,6 +18,7 @@ import ProductUpdatePage from "./Pages/Admin/Product/UpdateProductPage.js";
 import Cart from "./Pages/Cart/Cart.js"
 import OwnerLogin from "./Pages/Admin/Authentification/OwnerLogin.js"
 import OrderUpdatePage from './Pages/Orders/OrderUpdatePage.js';
+import ProtectedRoute from './AXIOS/ProtectedRoute.js';
 
 
 function App() {
@@ -27,18 +28,47 @@ function App() {
         <Navbar />
         <div>
           <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/aboutus" element={<AboutUs />} />
-          <Route path="/admin/product/create" element={<AddProductPage />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/admin/product/update/:productId" element={<ProductUpdatePage />} />
-          <Route path="/product/:productId" element={<ProductDetailsPage />} />
-          <Route path="/orders/:orderId" element={<OrderDetail />} />
-          <Route path="/admin/login" element={<OwnerLogin />} />
-          <Route path="/admin/order/update/:orderId" element={<OrderUpdatePage />} />
-          </Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/aboutus" element={<AboutUs />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/product/:productId" element={<ProductDetailsPage />} />
+            <Route path="/admin/login" element={<OwnerLogin />} />
+
+            {/* Protected routes - Owner access*/}
+
+            {/* Products */}
+            <Route path="/admin/product/update/:productId" element={
+              <ProtectedRoute>
+                <ProductUpdatePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/product/create" element={
+              <ProtectedRoute>
+                <AddProductPage />
+              </ProtectedRoute>
+            } />
+
+            {/* Orders */}
+            <Route path="/orders" element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/orders/:orderId" element={
+              <ProtectedRoute>
+                <OrderDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/order/update/:orderId" element={
+              <ProtectedRoute>
+                <OrderUpdatePage />
+              </ProtectedRoute>
+            } />
+        </Routes>
+
         </div>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <Footer />

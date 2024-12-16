@@ -1,28 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Api_Gateway.Services;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace Api_Gateway.Controller;
+
 [Route("gateway/api/[controller]")]
 [ApiController]
 public class CartController : ControllerBase
 {
     private const string CartCookieName = "Cart";
-    
+
     [HttpGet]
     public IActionResult GetCart()
-    {     
+    {
         var cart = GetCartFromCookies();
         
-        foreach (var item in cart)
-        {
-            long productId = item.Key;
-            int quantity = item.Value;
-            Console.WriteLine($"Product ID: {productId}, Quantity: {quantity}");
-        }
-                            
         return Ok(cart);
     }
-    
+
     [HttpPost("add/{productId}")]
     public async Task<IActionResult> AddToCart(long productId)
     {
@@ -30,47 +25,86 @@ public class CartController : ControllerBase
         {
             return BadRequest(new { Message = "Invalid product ID format." });
         }
-        
-        if (!await IsValidProductId(productId))
+
+        // Fetch the first variant ID for the given product ID
+        long? variantId = await GetFirstVariantId(productId);
+        if (variantId == null)
         {
-            return NotFound(new { Message = "Invalid product ID." });
+            return NotFound(new { Message = "Variant not found for the specified product ID." });
         }
-    
+
         var cart = GetCartFromCookies();
         Console.WriteLine("Current Cart: " + JsonConvert.SerializeObject(cart));
-    
-        if (cart.ContainsKey(productId))
+
+        if (cart.ContainsKey(variantId.Value))
         {
-            cart[productId] += 1; // Add one quantity if product is already in cart
-            Console.WriteLine($"Product ID {productId} quantity increased. New quantity: {cart[productId]}");
+            cart[variantId.Value] += 1;
+            Console.WriteLine($"Variant ID {variantId} quantity increased. New quantity: {cart[variantId.Value]}");
         }
         else
         {
-            cart[productId] = 1; 
-            Console.WriteLine($"Product ID {productId} added to cart with quantity 1.");
+            cart[variantId.Value] = 1;
+            Console.WriteLine($"Variant ID {variantId} added to cart with quantity 1.");
         }
-    
+
         SaveCartToCookies(cart);
         Console.WriteLine("Updated Cart: " + JsonConvert.SerializeObject(cart));
         return Ok(cart);
     }
-    
-    [HttpPost("remove/{productId}")]
-    public IActionResult RemoveFromCart(long productId) 
+
+    [HttpPost("remove/{variantId}")]
+    public IActionResult RemoveFromCart(long variantId)
     {
         var cart = GetCartFromCookies();
 
-        if (cart.ContainsKey(productId))
+        if (cart.ContainsKey(variantId))
         {
-            cart.Remove(productId);
+            cart.Remove(variantId);
             SaveCartToCookies(cart);
             return Ok(cart);
         }
 
-        return NotFound(new { Message = "Product not found in cart." });
+        return NotFound(new { Message = "Variant not found in cart." });
     }
-    
-    private Dictionary<long, int> GetCartFromCookies() 
+
+    [HttpPost("addbyone/{variantId}")]
+    public IActionResult AddByOne(long variantId)
+    {
+        var cart = GetCartFromCookies();
+
+        if (cart.ContainsKey(variantId))
+        {
+            cart[variantId] += 1;
+            SaveCartToCookies(cart);
+            Console.WriteLine($"Variant ID {variantId} quantity increased. New quantity: {cart[variantId]}");
+            return Ok(cart);
+        }
+
+        return NotFound(new { Message = "Variant not found in cart." });
+    }
+
+    [HttpPost("removebyone/{variantId}")]
+    public IActionResult RemoveByOne(long variantId)
+    {
+        var cart = GetCartFromCookies();
+
+        if (cart.ContainsKey(variantId))
+        {
+            cart[variantId] -= 1;
+
+            if (cart[variantId] <= 0)
+            {
+                cart.Remove(variantId);
+            }
+
+            SaveCartToCookies(cart);
+            return Ok(cart);
+        }
+
+        return NotFound(new { Message = "Variant not found in cart." });
+    }
+
+    private Dictionary<long, int> GetCartFromCookies()
     {
         if (Request.Cookies.ContainsKey(CartCookieName))
         {
@@ -80,8 +114,8 @@ public class CartController : ControllerBase
 
         return new Dictionary<long, int>();
     }
-    
-    private void SaveCartToCookies(Dictionary<long, int> cart) 
+
+    private void SaveCartToCookies(Dictionary<long, int> cart)
     {
         var cartJson = JsonConvert.SerializeObject(cart);
         Response.Cookies.Append(CartCookieName, cartJson, new CookieOptions
@@ -89,33 +123,46 @@ public class CartController : ControllerBase
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddDays(7) 
+            Expires = DateTime.UtcNow.AddDays(7)
         });
     }
 
-    
-    private async Task<bool> IsValidProductId(long productId)
+    private async Task<long?> GetFirstVariantId(long productId)
     {
         try
         {
-            var productControllerUrl = $"http://localhost:5158/gateway/api/proxyproduct/{productId}";
+            var productControllerUrl = $"http://localhost:5158/gateway/api/proxyproduct/variant/{productId}";
 
             using var httpClient = new HttpClient();
             var response = await httpClient.GetAsync(productControllerUrl);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return true;
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error fetching product data for product ID {productId}: {errorContent}");
+                return null;
             }
 
-            var errorContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"Validation error: {errorContent}");
-            return false;
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response content: {content}");
+
+            var variantData = JsonConvert.DeserializeObject<dynamic>(content);
+
+            if (variantData == null || variantData.variantId == null)
+            {
+                Console.WriteLine($"Variant ID not found for product ID {productId}");
+                return null;
+            }
+
+            long variantId = variantData.variantId;
+            Console.WriteLine($"First variant ID for product ID {productId}: {variantId}");
+            return variantId;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error validating product ID: {ex.Message}");
-            return false;
+            Console.WriteLine($"Error fetching first variant ID: {ex.Message}");
+            return null;
         }
     }
+
 }

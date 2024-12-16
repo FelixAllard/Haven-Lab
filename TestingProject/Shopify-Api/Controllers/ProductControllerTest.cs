@@ -1034,6 +1034,169 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
         var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
         Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error deleting products{testCase}"), "Error message mismatch.");
     }
+    
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsOk_WhenProductWithVariantsIsFetchedSuccessfully()
+    {
+        // Arrange
+        long productId = 1;
+        long variantId = 45205286223917;
+        var product = new Product
+        {
+            Id = productId,
+            Title = "Product 1",
+            BodyHtml = "<p>A good example product</p>",
+            CreatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            UpdatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            PublishedAt = DateTime.Parse("2024-12-08T22:17:59-05:00"),
+            Vendor = "New Vendor",
+            ProductType = "",
+            Handle = "haven-lab",
+            PublishedScope = "global",
+            Status = "active",
+            Variants = new List<ProductVariant>
+            {
+                new ProductVariant
+                {
+                    ProductId = productId,
+                    Title = "Default Title",
+                    Price = 19.99M,
+                    InventoryQuantity = 5,
+                    Weight = 54,
+                    WeightUnit = "kg",
+                    Id = variantId
+                }
+            }
+        };
 
+        _mockProductService.Setup(x => x.GetAsync(productId, null, false, default))
+            .ReturnsAsync(product);
+
+        // Act
+        var result = await _controller.GetFirstVariantByProductId(productId);
+        // Print result to console
+        Console.WriteLine($"Result: {result}");
+
+        // Assert
+        Assert.IsNotNull(result, "Expected result to be not null.");
+
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult, "Expected OkObjectResult.");
+        Assert.AreEqual(200, okResult.StatusCode);
+
+        var jsonResponse = JsonConvert.SerializeObject(okResult.Value);
+        Console.WriteLine($"Json: {jsonResponse}");
+        Assert.IsNotNull(jsonResponse, "Expected variant data to be not null.");
+
+        
+    }
+    
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsNotFound_WhenProductIsNotFound()
+    {
+        // Arrange
+        long productId = 9999; // Non-existing product ID
+        _mockProductService.Setup(x => x.GetAsync(productId, null, false,default))
+            .ReturnsAsync((Product)null);
+
+        // Act
+        var result = await _controller.GetFirstVariantByProductId(productId);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult);
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+
+        var jsonResponse = JsonConvert.SerializeObject(notFoundResult.Value);
+        Assert.IsNotNull(jsonResponse);
+        Assert.That(jsonResponse, Is.EqualTo("{\"message\":\"Product not found or no variants available.\"}"));
+
+    }
+
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsNotFound_WhenNoVariantsAvailable()
+    {
+        // Arrange
+        long productId = 2;
+        var product = new Product
+        {
+            Id = productId,
+            Title = "Product 2",
+            Variants = new List<ProductVariant>()
+        };
+
+        _mockProductService.Setup(x => x.GetAsync(productId, null, false,default))
+            .ReturnsAsync(product);
+
+        // Act
+        var result = await _controller.GetFirstVariantByProductId(productId);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult);
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+
+        var jsonResponse = JsonConvert.SerializeObject(notFoundResult.Value);
+        Assert.IsNotNull(jsonResponse);
+        Assert.That(jsonResponse, Is.EqualTo("{\"message\":\"Product not found or no variants available.\"}"));
+    }
+
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsInternalServerError_WhenUnexpectedExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        _mockProductService.Setup(x => x.GetAsync(productId, null, false,default))
+            .ThrowsAsync(new Exception("Unexpected error"));
+
+        // Act
+        var result = await _controller.GetFirstVariantByProductId(productId);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+
+        var response = JObject.FromObject(objectResult.Value);
+        Assert.AreEqual("Error fetching product variants", response["message"]?.ToString());
+    }
+    
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsNotFound_WhenFirstVariantIdIsNull()
+    {
+        // Arrange
+        long productId = 1;
+        var product = new Product
+        {
+            Id = productId,
+            Title = "Product 1",
+            BodyHtml = "<p>A good example product</p>",
+            CreatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            UpdatedAt = DateTime.Parse("2024-12-08T23:40:19-05:00"),
+            PublishedAt = DateTime.Parse("2024-12-08T22:17:59-05:00"),
+            Vendor = "New Vendor",
+            ProductType = "",
+            Handle = "haven-lab",
+            PublishedScope = "global",
+            Status = "active",
+            Variants = new List<ProductVariant>{} // No variants added here to simulate the null condition.
+        };
+
+        _mockProductService.Setup(x => x.GetAsync(productId, null, false, default))
+            .ReturnsAsync(product);
+
+        // Act
+        var result = await _controller.GetFirstVariantByProductId(productId);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult, "Expected NotFoundObjectResult.");
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+
+        var response = JObject.FromObject(notFoundResult.Value);
+        Assert.IsNotNull(response, "Expected message object.");
+        Assert.AreEqual("Product not found or no variants available.", (string)response["message"]);
+    }
 
 }
+    

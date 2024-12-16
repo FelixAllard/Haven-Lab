@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ShopifySharp;
 
 namespace TestingProject.Api_Gateway.Controller;
@@ -481,5 +482,127 @@ public class ProxyProductControllerTest
         Assert.AreEqual(500, objectResult.StatusCode); // Ensure the status code is 500
         Assert.IsNotNull(objectResult.Value); // Ensure there is an error message in the response
     }
+    
+    //---------------GET VARIANT---------------
+
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsOk_WhenProductWithVariantsIsFetchedSuccessfully()
+    {
+        // Arrange
+        long productId = 1;
+        long variantId = 45205286223917;
+        var productJson = "{\"id\": " + productId + ", \"variants\": [{\"id\": " + variantId + "}]}";
+
+        _mockServiceProductController.Setup(controller => controller.GetProductByIdAsync(productId))
+            .ReturnsAsync(productJson);
+
+        // Act
+        var result = await _proxyProductController.GetFirstVariantByProductId(productId);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult, "Expected OkObjectResult.");
+        Assert.AreEqual(200, okResult.StatusCode);
+        
+        var variantData = JsonConvert.SerializeObject(okResult.Value);
+
+        Assert.IsNotNull(variantData, "Expected variant data to be not null.");
+    }
+
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsNotFound_WhenProductNotFound()
+    {
+        // Arrange
+        long productId = 1;
+        _mockServiceProductController.Setup(controller => controller.GetProductByIdAsync(productId))
+            .ReturnsAsync("404 Not Found: Product not found");
+
+        // Act
+        var result = await _proxyProductController.GetFirstVariantByProductId(productId);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult, "Expected NotFoundObjectResult.");
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+
+        var responseMessage = JsonConvert.SerializeObject(notFoundResult.Value);
+        dynamic deserializedResponse = JsonConvert.DeserializeObject(responseMessage);
+        Assert.AreEqual("Product not found.", (string)deserializedResponse.message);
+    }
+
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsNotFound_WhenNoVariantsAvailable()
+    {
+        // Arrange
+        long productId = 1;
+        var productJson = "{\"id\": " + productId + ", \"variants\": []}";
+
+        _mockServiceProductController.Setup(controller => controller.GetProductByIdAsync(productId))
+            .ReturnsAsync(productJson);
+
+        // Act
+        var result = await _proxyProductController.GetFirstVariantByProductId(productId);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult, "Expected NotFoundObjectResult.");
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+
+        var responseMessage = JsonConvert.SerializeObject(notFoundResult.Value);
+        dynamic deserializedResponse = JsonConvert.DeserializeObject(responseMessage);
+        Assert.AreEqual("No variants available for the specified product.", (string)deserializedResponse.message);
+    }
+
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsNotFound_WhenFirstVariantIdIsNull()
+    {
+        // Arrange
+        long productId = 1;
+        var productJson = "{\"id\": " + productId + ", \"variants\": [{}]}"; // Variant with no ID
+
+        _mockServiceProductController.Setup(controller => controller.GetProductByIdAsync(productId))
+            .ReturnsAsync(productJson);
+
+        // Act
+        var result = await _proxyProductController.GetFirstVariantByProductId(productId);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult, "Expected NotFoundObjectResult.");
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+
+        var responseMessage = JsonConvert.SerializeObject(notFoundResult.Value);
+        dynamic deserializedResponse = JsonConvert.DeserializeObject(responseMessage);
+        Assert.AreEqual("First variant ID is null or unavailable.", (string)deserializedResponse.message);
+    }
+    
+    [Test]
+    public async Task GetFirstVariantByProductId_ReturnsInternalServerError_WhenExceptionOccurs()
+    {
+        // Arrange
+        var productId = 1L; // Example product ID
+        var exceptionMessage = "Unexpected error occurred";
+
+        // Mock the GetProductByIdAsync to throw an exception
+        _mockServiceProductController
+            .Setup(controller => controller.GetProductByIdAsync(productId))
+            .ThrowsAsync(new Exception(exceptionMessage));
+
+        // Act: Call the GetFirstVariantByProductId method of ProxyProductController
+        var result = await _proxyProductController.GetFirstVariantByProductId(productId);
+
+        // Assert: Check that the result is ObjectResult (500 Internal Server Error)
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult); // Ensure the result is of type ObjectResult
+        Assert.AreEqual(500, objectResult.StatusCode); // Ensure the status code is 500
+        Assert.IsNotNull(objectResult.Value); // Ensure there is an error message in the response
+
+        // Deserialize the error message using Newtonsoft.Json
+        var responseMessage = JsonConvert.SerializeObject(objectResult.Value);
+        dynamic deserializedResponse = JsonConvert.DeserializeObject(responseMessage);
+        Assert.AreEqual("Error fetching product variants", (string)deserializedResponse.message); // Compare message content
+        Assert.AreEqual(exceptionMessage, (string)deserializedResponse.details); // Compare details content
+    }
+
 
 }

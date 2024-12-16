@@ -567,6 +567,7 @@ public class ServiceProductControllerTest
         Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Invalid product data"));
     }
 
+    // ------ GET VARIANT 
 
 
 }

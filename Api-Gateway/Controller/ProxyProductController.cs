@@ -3,6 +3,7 @@ using System.Text;
 using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ShopifySharp;
 
 namespace Api_Gateway.Controller;
@@ -44,6 +45,7 @@ public class ProxyProductController : ControllerBase
         }
     }
 
+    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById([FromRoute]long id)
     {
@@ -136,4 +138,43 @@ public class ProxyProductController : ControllerBase
         }
     }
     
+    [HttpGet("variant/{productId}")]
+    public async Task<IActionResult> GetFirstVariantByProductId([FromRoute] long productId)
+    {
+        try
+        {
+            // Fetch product data using the service
+            var productJson = await _serviceProductController.GetProductByIdAsync(productId);
+
+            if (string.IsNullOrEmpty(productJson) || productJson.Contains("404 Not Found"))
+            {
+                return NotFound(new { message = "Product not found." });
+            }
+
+            // Deserialize the product JSON to a dynamic object
+            var product = JsonConvert.DeserializeObject<dynamic>(productJson);
+
+            // Check if Variants exist
+            if (product?.variants == null || product.variants.Count == 0)
+            {
+                return NotFound(new { message = "No variants available for the specified product." });
+            }
+
+            // Get the first variant ID
+            long? firstVariantId = product.variants[0].id;
+
+            if (firstVariantId == null)
+            {
+                return NotFound(new { message = "First variant ID is null or unavailable." });
+            }
+
+            // Return the first variant ID
+            return Ok(new { VariantId = firstVariantId.Value });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return StatusCode(500, new { message = "Error fetching product variants", details = ex.Message });
+        }
+    }
 }

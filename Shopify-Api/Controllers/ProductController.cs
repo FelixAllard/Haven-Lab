@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Newtonsoft.Json;
 using Shopify_Api.Exceptions;
 using Shopify_Api.Model;
 using ShopifySharp;
@@ -85,8 +86,7 @@ public class ProductsController : ControllerBase
         }
     }
 
-
-
+    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById([FromRoute]long id)
     {
@@ -105,6 +105,7 @@ public class ProductsController : ControllerBase
             return StatusCode(500, new { message = "Error fetching products" + ex.Message });
         }
     }
+    
     [HttpPost("")]
     public virtual async Task<IActionResult> PostProduct([FromBody] Product product)
     {
@@ -173,4 +174,31 @@ public class ProductsController : ControllerBase
             return StatusCode(500, new { message = "Error deleting products" + ex.Message });
         }
     }
+    
+    [HttpGet("variant/{productId}")]
+    public async Task<IActionResult> GetFirstVariantByProductId([FromRoute] long productId)
+    {
+        try
+        {
+            //fetch product using the Shopify service
+            var product = await _shopifyService.GetAsync(productId);
+
+            if (product == null || product.Variants == null || !product.Variants.Any())
+            {
+                return NotFound(new { message = "Product not found or no variants available." });
+            }
+            
+            var firstVariant = product.Variants.FirstOrDefault();
+
+            long firstVariantId = firstVariant.Id.Value;
+            
+            return Ok(new { VariantId = firstVariantId });
+        }
+
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error fetching product variants", details = ex.Message });
+        }
+    }
+
 }

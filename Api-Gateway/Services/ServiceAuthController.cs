@@ -54,6 +54,11 @@ public class ServiceAuthController
             {
                 return "404 Not Found: Login endpoint not found";
             }
+            else if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+            {
+                // If the API call fails, return an error message
+                return $"Error 503: Service Unavailable - {response.ReasonPhrase}";
+            }
             else
             {
                 // If the API call fails, return an error message
@@ -63,7 +68,7 @@ public class ServiceAuthController
         catch (Exception ex)
         {
             // Return error details in case of an exception
-            return $"Exception: {ex.Message}";
+            return $"Error 500: Internal Server Error - {ex.Message}";
         }
     }
 

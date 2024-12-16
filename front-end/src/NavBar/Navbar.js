@@ -108,6 +108,7 @@ const Navbar = () => {
                                 >
                                     <Link className="nav-link" aria-current="page" to="/cart">Cart</Link>
                                 </motion.li>
+                                {isLoggedIn && (
                                 <motion.li
                                     key={isOpen ? "orders-open" : "orders-closed"}
                                     className="nav-item"
@@ -115,9 +116,10 @@ const Navbar = () => {
                                     animate={{opacity: 1, scale: 1}}
                                     exit={{opacity: 0, scale: 0.1}}
                                     transition={{delay: 0.5, duration: 0.7}}
-                                >
-                                    <Link className="nav-link" aria-current="page" to="/orders">Orders</Link>
+                                    >
+                                        <Link className="nav-link" aria-current="page" to="/orders">Orders</Link>
                                 </motion.li>
+                                )}
                                 <motion.li
                                     key={isOpen ? "about-open" : "about-closed"}
                                     className="nav-item"

@@ -125,7 +125,7 @@ public class ServiceAuthControllerTest
             var result = await _serviceAuthController.LoginAsync(loginModel);
 
             // Assert
-            Assert.AreEqual("Exception: Some error occurred", result);
+            Assert.AreEqual("Error 500: Internal Server Error - Some error occurred", result);
         }
         
         [Test]

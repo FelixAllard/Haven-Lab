@@ -3,6 +3,7 @@ using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Newtonsoft.Json.Linq;
+using ShopifySharp;
 
 namespace TestingProject.Api_Gateway.Controller;
 
@@ -149,6 +150,94 @@ namespace TestingProject.Api_Gateway.Controller;
             Assert.IsNotNull(objectResult); // Ensure the result is of type ObjectResult
             Assert.AreEqual(500, objectResult.StatusCode); // Ensure status code is 500
             Assert.IsNotNull(objectResult.Value); // Ensure there is a message in the response
+        }
+        
+        [Test]
+        public async Task PutProduct_ReturnsOkResult_WhenUpdateIsSuccessful()
+        {
+            // Arrange
+            long orderId = 1;
+            var order = new Order
+            {
+                Id = 1,
+                AppId = 1234567,
+                Name = "Test Order"
+            };
+            var mockResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"id\":1,\"name\":\"Test Order\"}")
+            };
+
+            _mockServiceOrderController
+                .Setup(service => service.PutOrderAsync(orderId, order))
+                .ReturnsAsync(mockResponse);
+
+            // Act
+            var result = await _controller.PutProduct(orderId, order);
+
+            // Assert
+            var okResult = result as ObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.That(okResult.StatusCode, Is.EqualTo(200));
+            Assert.That(okResult.Value.ToString(), Does.Contain("Test Order"));
+        }
+
+        [Test]
+        public async Task PutProduct_ReturnsServiceUnavailable_WhenServiceIsUnavailable()
+        {
+            // Arrange
+            long orderId = 1;
+            var order = new Order
+            {
+                Id = 1,
+                AppId = 1234567,
+                Name = "Test Order"
+            };
+            var mockResponse = new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable);
+
+            _mockServiceOrderController
+                .Setup(service => service.PutOrderAsync(orderId, order))
+                .ReturnsAsync(mockResponse);
+
+            // Act
+            var result = await _controller.PutProduct(orderId, order);
+
+            // Assert
+            var objectResult = result as ObjectResult; 
+            Assert.IsNotNull(objectResult); 
+            Assert.That(objectResult.StatusCode, Is.EqualTo(503)); 
+        
+            var value = JObject.FromObject(objectResult.Value); 
+            Assert.AreEqual("Service is currently unavailable, please try again later.", value["message"]?.ToString());
+        }
+        
+        [Test]
+        public async Task PutProduct_ReturnsServerError_WhenUnexpectedExceptionIsThrown()
+        {
+            // Arrange
+            long orderId = 1;
+            var order = new Order
+            {
+                Id = 1,
+                AppId = 1234567,
+                Name = "Test Order"
+            };
+
+            _mockServiceOrderController
+                .Setup(service => service.PutOrderAsync(orderId, order))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            // Act
+            var result = await _controller.PutProduct(orderId, order);
+
+            // Assert
+            var objectResult = result as ObjectResult; 
+            Assert.IsNotNull(objectResult); 
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500)); 
+        
+            var value = JObject.FromObject(objectResult.Value); 
+            Assert.AreEqual("An error occurred", value["message"]?.ToString());
+        
         }
 
     }

@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using System.Text;
+using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -19,27 +20,31 @@ public class ProxyProductController : ControllerBase
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> GetAllProducts()
+    public async Task<IActionResult> GetAllProducts([FromQuery] SearchArguments searchArguments = null)
     {
         try
         {
-            var result = await _serviceProductController.GetAllProductsAsync();
+            // Call the GetAllProductsAsync method with searchArguments
+            var result = await _serviceProductController.GetAllProductsAsync(searchArguments);
+
+            // Check if the result starts with "Error", meaning there was an issue
             if (result.StartsWith("Error"))
             {
-                // Return 500 Internal Server Error with error message
+                // Return a 500 Internal Server Error with the error message
                 return StatusCode(500, new { Message = result });
             }
-    
-            // Return 200 OK with the result as JSON
-            return Ok(result);  // The result will be serialized as JSON automatically
+
+            // Return a 200 OK response with the result as JSON
+            return Ok(result); // The result will be automatically serialized as JSON
         }
         catch (Exception e)
         {
+            // Log the exception and return a 500 error with the exception message
             Console.WriteLine(e);
             return StatusCode(500, new { Message = e.Message });
         }
-        
     }
+
     
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById([FromRoute]long id)

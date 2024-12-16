@@ -1,6 +1,7 @@
 using System.Text;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
+using ShopifySharp;
 
 namespace Api_Gateway.Controller;
 [Route("gateway/api/[controller]")]
@@ -64,6 +65,26 @@ public class ProxyOrderController : ControllerBase
             // Log the exception and return 500 Internal Server Error
             Console.WriteLine(e);
             return StatusCode(500, new { Message = e.Message });
+        }
+    }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutProduct([FromRoute]long id, [FromBody] Order order)
+    {
+        try
+        {
+            var response = await _serviceOrderController.PutOrderAsync(id, order);
+            if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                return StatusCode(503, new { message = "Service is currently unavailable, please try again later." });
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, content);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred", details = ex.Message });
         }
     }
 

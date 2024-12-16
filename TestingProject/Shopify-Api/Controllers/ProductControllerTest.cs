@@ -1,3 +1,4 @@
+using System.Collections;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -9,6 +10,8 @@ using ShopifySharp.Credentials;
 using ShopifySharp.Factories;
 using Newtonsoft.Json.Linq;
 using Shopify_Api.Exceptions;
+using Shopify_Api.Model;
+using ShopifySharp.Lists;
 using TestingProject.Utility;
 
 namespace TestingProject.Shopify_Api.Controllers;
@@ -91,22 +94,20 @@ public class ProductControllerTest
         // Assert
         var objectResult = result as ObjectResult;
         Assert.IsNotNull(objectResult);
-        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+        Assert.That(objectResult.StatusCode, Is.EqualTo(404));
 
         var value = JObject.FromObject(objectResult.Value);
-        Assert.AreEqual("Error fetching product", value["message"]?.ToString());
+        Assert.That(value["message"]?.ToString(), Is.EqualTo("Error fetching product"));
     }
 
-    [TestCase("Input1")]
-    [TestCase("Input2")]
-    [TestCase("Input3")]
+
     [Test]
     
-    public async Task GetAllProducts_ReturnsInternalServerError_WhenUnexpectedExceptionOccurs(string testCase)
+    public async Task GetAllProducts_ReturnsInternalServerError_WhenUnexpectedExceptionOccurs()
     {
         
         // Arrange
-        _mockProductService.Setup(x => x.ListAsync(null, false, default)).ThrowsAsync(new System.Exception(testCase));
+        _mockProductService.Setup(x => x.ListAsync(null, false, default)).ThrowsAsync(new System.Exception("ExampleException"));
 
         // Act
         var result = await _controller.GetAllProducts();
@@ -120,7 +121,264 @@ public class ProductControllerTest
         var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
 
         // Assert the message property
-        Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error fetching product{testCase}"));
+        Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error fetching product"));
+    }
+    
+    
+    
+    [TestCase("I")]
+    [TestCase("In")]
+    [TestCase("IN")]
+    [TestCase("STOCK")]
+    [TestCase("stock")]
+    [TestCase("In Stock")]
+    
+    [Test]
+    public async Task GetAllProducts_FiltersByName_ReturnsMatchingProducts(string searchTerm)
+    {
+        // Arrange
+        // Arrange
+        IEnumerable<Product> products = new List<Product>
+        {
+            new Product
+            {
+                Title = "In Stock", Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 200,
+                        Title = "Laptop",
+                        InventoryQuantity = 100
+                    }
+                }
+            },
+            new Product
+            {
+                Title = "In Stock2",
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 500,
+                        Title = "Phone",
+                        InventoryQuantity = 0
+
+                    }
+                }
+            },
+            new Product
+            {
+                Title = "What",
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 0,
+                        Title = "Phone",
+                        InventoryQuantity = 0
+
+                    }
+                }
+            }
+        };
+        var finalProduct = new ShopifySharp.Lists.ListResult<Product>(products, default);
+
+        _mockProductService.Setup(s => s.ListAsync(null,false, default))
+            .ReturnsAsync(finalProduct);
+
+
+        var searchArguments = new SearchArguments { Name = searchTerm };
+
+        // Act
+        var result = await _controller.GetAllProducts(searchArguments) as OkObjectResult;
+        var filteredProducts = (result.Value as ListResult<Product>).Items;
+
+        // Assert
+        Assert.That(filteredProducts.Count, Is.EqualTo(2));
+        Assert.That(filteredProducts.First().Title, Is.EqualTo("In Stock"));
+        Assert.That(filteredProducts.Last().Title, Is.EqualTo("In Stock2"));
+    }
+
+    [Test]
+    public async Task GetAllProducts_FiltersByMinimumPrice_ReturnsMatchingProducts()
+    {
+        // Arrange
+        IEnumerable<Product> products = new List<Product>
+        {
+            new Product
+            {
+                Title = "In Stock", Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 200,
+                        Title = "Laptop",
+                        InventoryQuantity = 100
+                    }
+                }
+            },
+            new Product
+            {
+                Title = "In Stock2",
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 500,
+                        Title = "Phone",
+                        InventoryQuantity = 0
+
+                    }
+                }
+            },
+            new Product
+            {
+                Title = "Not In Stock",
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 0,
+                        Title = "Phone",
+                        InventoryQuantity = 0
+
+                    }
+                }
+            }
+        };
+        var finalProduct = new ShopifySharp.Lists.ListResult<Product>(products, default);
+
+        _mockProductService.Setup(s => s.ListAsync(null,false, default))
+            .ReturnsAsync(finalProduct);
+
+        var searchArguments = new SearchArguments { MinimumPrice = 100 };
+
+        // Act
+        var result = await _controller.GetAllProducts(searchArguments) as OkObjectResult;
+        var filteredProducts = (result.Value as ListResult<Product>).Items;
+
+        // Assert
+        Assert.That(filteredProducts.Count, Is.EqualTo(2));
+        Assert.That(filteredProducts.First().Title, Is.EqualTo("In Stock"));
+        Assert.That(filteredProducts.Last().Title, Is.EqualTo("In Stock2"));
+    }
+
+    [Test]
+    public async Task GetAllProducts_FiltersByMaximumPrice_ReturnsMatchingProducts()
+    {
+        IEnumerable<Product> products = new List<Product>
+        {
+            new Product
+            {
+                Title = "In Stock", Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 200,
+                        Title = "Laptop",
+                        InventoryQuantity = 100
+                    }
+                }
+            },
+            new Product
+            {
+                Title = "In Stock2",
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 500,
+                        Title = "Phone",
+                        InventoryQuantity = 0
+
+                    }
+                }
+            },
+            new Product
+            {
+                Title = "Not In Stock",
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 700,
+                        Title = "Phone",
+                        InventoryQuantity = 0
+
+                    }
+                }
+            }
+        };
+        var finalProduct = new ShopifySharp.Lists.ListResult<Product>(products, default);
+        // Arrange
+        _mockProductService.Setup(s => s.ListAsync(null, false, default))
+            .ReturnsAsync(finalProduct);
+
+        var searchArguments = new SearchArguments { MaximumPrice = 500 };
+
+        // Act
+        var result = await _controller.GetAllProducts(searchArguments) as OkObjectResult;
+        
+        var filteredProducts = (result.Value as ListResult<Product>).Items;
+
+        // Assert
+        Assert.That(filteredProducts.Count, Is.EqualTo(2));
+        Assert.That(filteredProducts.First().Title, Is.EqualTo("In Stock"));
+        Assert.That(filteredProducts.Last().Title, Is.EqualTo("In Stock2"));
+    }
+
+    [Test]
+    public async Task GetAllProducts_FiltersByAvailability_ReturnsInStockProducts()
+    {
+
+        IEnumerable<Product> products = new List<Product>
+        {
+            new Product
+            {
+                Title = "In Stock", Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 100023,
+                        Title = "Laptop",
+                        InventoryQuantity = 100
+                    }
+                }
+            },
+            new Product
+            {
+                Title = "Not In Stock",
+                Variants = new List<ProductVariant>
+                {
+                    new ProductVariant
+                    {
+                        Price = 500,
+                        Title = "Phone",
+                        InventoryQuantity = 0
+
+                    }
+                }
+            }
+        };
+        var finalProduct = new ShopifySharp.Lists.ListResult<Product>(products, default);
+
+
+    // Arrange
+
+        //ListResult<Product>
+
+        _mockProductService.Setup(s => s.ListAsync(null,false,default))
+            .ReturnsAsync(finalProduct);
+
+        var searchArguments = new SearchArguments { Available = true };
+
+        // Act
+        var result = await _controller.GetAllProducts(searchArguments) as OkObjectResult;
+        var filteredProducts = (result.Value as ListResult<Product>).Items;
+
+        // Assert
+        Assert.That(filteredProducts.Count, Is.EqualTo(1));
+        Assert.That(filteredProducts.First().Title, Is.EqualTo("In Stock"));
     }
     //-------------------------------------Get BY Id Methods
     [Test]
@@ -164,14 +422,14 @@ public class ProductControllerTest
         // Assert
         var okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
-        Assert.AreEqual(200, okResult.StatusCode);
+        Assert.That(okResult.StatusCode, Is.EqualTo(200));
 
         // Verify the returned product
         var returnedProduct = okResult.Value as Product;
         Assert.IsNotNull(returnedProduct);
-        Assert.AreEqual(product.Title, returnedProduct?.Title);
-        Assert.AreEqual(product.Vendor, returnedProduct?.Vendor);
-        Assert.AreEqual(product.Variants.Count(), returnedProduct?.Variants.Count());
+        Assert.That(returnedProduct?.Title, Is.EqualTo(product.Title));
+        Assert.That(returnedProduct?.Vendor, Is.EqualTo(product.Vendor));
+        Assert.That(returnedProduct?.Variants.Count(), Is.EqualTo(product.Variants.Count()));
     }
 
     [Test]
@@ -188,10 +446,10 @@ public class ProductControllerTest
         // Assert
         var objectResult = result as ObjectResult;
         Assert.IsNotNull(objectResult);
-        Assert.AreEqual(404, objectResult.StatusCode);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(404));
 
         var value = JObject.FromObject(objectResult.Value);
-        Assert.AreEqual("Error fetching products", value["message"]?.ToString());
+        Assert.That(value["message"]?.ToString(), Is.EqualTo("Error fetching products"));
     }
 
     [TestCase("Input1")]
@@ -211,10 +469,10 @@ public class ProductControllerTest
         // Assert
         var objectResult = result as ObjectResult;
         Assert.IsNotNull(objectResult);
-        Assert.AreEqual(500, objectResult.StatusCode);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
 
         var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
-        Assert.AreEqual($"Error fetching products{testCase}", responseBody["message"]?.ToString());
+        Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error fetching products{testCase}"));
     }
 
         
@@ -271,14 +529,14 @@ public class ProductControllerTest
         Assert.IsNotNull(result);
         var okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult, "Expected OkObjectResult but got null.");
-        Assert.AreEqual(200, okResult.StatusCode, "Status code should be 200 OK.");
+        Assert.That(okResult.StatusCode, Is.EqualTo(200), "Status code should be 200 OK.");
 
         // Verify that the returned product matches the created product
         var createdProduct = okResult.Value as Product;
         Assert.IsNotNull(createdProduct, "Created product should not be null.");
-        Assert.AreEqual(validProduct.Title, createdProduct?.Title, "Product titles should match.");
-        Assert.AreEqual(validProduct.Vendor, createdProduct?.Vendor, "Product vendors should match.");
-        Assert.AreEqual(validProduct.Variants.Count(), createdProduct?.Variants.Count(), "Product variants count should match.");
+        Assert.That(createdProduct?.Title, Is.EqualTo(validProduct.Title), "Product titles should match.");
+        Assert.That(createdProduct?.Vendor, Is.EqualTo(validProduct.Vendor), "Product vendors should match.");
+        Assert.That(createdProduct?.Variants.Count(), Is.EqualTo(validProduct.Variants.Count()), "Product variants count should match.");
 
         // Verify that CreateAsync was called exactly once
         _mockProductService.Verify(x => x.CreateAsync(It.IsAny<Product>(), default, default), Times.Once, "CreateAsync was not called exactly once.");
@@ -341,7 +599,7 @@ public class ProductControllerTest
         Assert.That(objectResult.StatusCode, Is.EqualTo(400));
 
         var value = JObject.FromObject(objectResult.Value);
-        Assert.AreEqual("Invalid input", value["message"]?.ToString());
+        Assert.That(value["message"]?.ToString(), Is.EqualTo("Invalid input"));
     }
 
     [Test]
@@ -394,7 +652,7 @@ public class ProductControllerTest
         Assert.That(objectResult.StatusCode, Is.EqualTo(500));
 
         var value = JObject.FromObject(objectResult.Value);
-        Assert.AreEqual("Error fetching products", value["message"]?.ToString());
+        Assert.That(value["message"]?.ToString(), Is.EqualTo("Error fetching products"));
     }
 
     [TestCase("Unexpected error 1")]
@@ -509,14 +767,14 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
     Assert.IsNotNull(result);
     var okResult = result as OkObjectResult;
     Assert.IsNotNull(okResult, "Expected OkObjectResult but got null.");
-    Assert.AreEqual(200, okResult.StatusCode, "Status code should be 200 OK.");
+    Assert.That(okResult.StatusCode, Is.EqualTo(200), "Status code should be 200 OK.");
 
     // Verify that the returned product matches the updated product
     var updatedProduct = okResult.Value as Product;
     Assert.IsNotNull(updatedProduct, "Updated product should not be null.");
-    Assert.AreEqual(validProduct.Title, updatedProduct?.Title, "Product titles should match.");
-    Assert.AreEqual(validProduct.Vendor, updatedProduct?.Vendor, "Product vendors should match.");
-    Assert.AreEqual(validProduct.Variants.Count(), updatedProduct?.Variants.Count(), "Product variants count should match.");
+    Assert.That(updatedProduct?.Title, Is.EqualTo(validProduct.Title), "Product titles should match.");
+    Assert.That(updatedProduct?.Vendor, Is.EqualTo(validProduct.Vendor), "Product vendors should match.");
+    Assert.That(updatedProduct?.Variants.Count(), Is.EqualTo(validProduct.Variants.Count()), "Product variants count should match.");
 
     // Verify that UpdateAsync was called exactly once
     _mockProductService.Verify(x => x.UpdateAsync(It.IsAny<long>(), It.IsAny<Product>(), default), Times.Once, "UpdateAsync was not called exactly once.");
@@ -570,7 +828,7 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
         Assert.That(objectResult.StatusCode, Is.EqualTo(400));
 
         var value = JObject.FromObject(objectResult.Value);
-        Assert.AreEqual("Invalid input", value["message"]?.ToString());
+        Assert.That(value["message"]?.ToString(), Is.EqualTo("Invalid input"));
     }
 
     [Test]
@@ -621,7 +879,7 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
         Assert.That(objectResult.StatusCode, Is.EqualTo(500));
 
         var value = JObject.FromObject(objectResult.Value);
-        Assert.AreEqual("Error fetching products", value["message"]?.ToString());
+        Assert.That(value["message"]?.ToString(), Is.EqualTo("Error fetching products"));
     }
 
     [TestCase("Unexpected error 1")]
@@ -725,7 +983,7 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
         // Assert
         var okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
-        Assert.AreEqual(200, okResult.StatusCode);
+        Assert.That(okResult.StatusCode, Is.EqualTo(200));
 
         // Verify the returned product
         var returnedProduct = okResult.Value as Product;
@@ -746,11 +1004,11 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
         // Assert
         var objectResult = result as ObjectResult;
         Assert.IsNotNull(objectResult, "Expected ObjectResult but got null.");
-        Assert.AreEqual(404, objectResult.StatusCode, "Expected status code 404 but got a different code.");
+        Assert.That(objectResult.StatusCode, Is.EqualTo(404), "Expected status code 404 but got a different code.");
 
         // Assert message
         var value = JObject.FromObject(objectResult.Value);
-        Assert.AreEqual("No product found", value["message"]?.ToString(), "Expected 'No product found' but got a different message.");
+        Assert.That(value["message"]?.ToString(), Is.EqualTo("No product found"), "Expected 'No product found' but got a different message.");
     }
 
 
@@ -771,10 +1029,10 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
         // Assert
         var objectResult = result as ObjectResult;
         Assert.IsNotNull(objectResult, "Expected ObjectResult but got null.");
-        Assert.AreEqual(500, objectResult.StatusCode, "Expected status code 500 but got a different code.");
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500), "Expected status code 500 but got a different code.");
 
         var responseBody = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(objectResult.Value));
-        Assert.AreEqual($"Error deleting products{testCase}", responseBody["message"]?.ToString(), "Error message mismatch.");
+        Assert.That(responseBody["message"]?.ToString(), Is.EqualTo($"Error deleting products{testCase}"), "Error message mismatch.");
     }
     
     [Test]

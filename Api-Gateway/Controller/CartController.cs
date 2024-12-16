@@ -9,26 +9,12 @@ namespace Api_Gateway.Controller;
 public class CartController : ControllerBase
 {
     private const string CartCookieName = "Cart";
-    
-    private readonly ServiceProductController _serviceProductController;
-
-    public CartController(ServiceProductController serviceProductController)
-    {
-        _serviceProductController = serviceProductController;
-    }
 
     [HttpGet]
     public IActionResult GetCart()
     {
         var cart = GetCartFromCookies();
-
-        foreach (var item in cart)
-        {
-            long variantId = item.Key;
-            int quantity = item.Value;
-            Console.WriteLine($"Variant ID: {variantId}, Quantity: {quantity}");
-        }
-
+        
         return Ok(cart);
     }
 

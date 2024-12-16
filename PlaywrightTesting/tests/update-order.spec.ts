@@ -17,7 +17,7 @@ test('test', async ({ page }) => {
   await page.getByLabel('Name').click();
   await page.getByLabel('Name').fill('Regine Wang');
   await page.getByLabel('Address 1').click();
-  await page.getByLabel('Name').fill('2095 Place Nobel');
+  await page.getByLabel('Address 1').fill('2095 Place Nobel');
   await page.getByLabel('Address 2').click();
   await page.getByLabel('Address 2').fill('2111 Place Nobel');
   await page.getByLabel('City').click();

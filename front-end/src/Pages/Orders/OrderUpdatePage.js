@@ -175,6 +175,20 @@ const OrderUpdatePage = () => {
       <small>Max 200 characters</small>
     </div>
     <div className="mb-3">
+      <label htmlFor="shipping_address.address2" className="form-label">Address 2</label>
+      <input
+        type="text"
+        id="shipping_address.address2"
+        name="shipping_address.address2"
+        className="form-control"
+        value={order.shipping_address.address2 || ''}
+        onChange={handleChange}
+        maxLength="200"
+        required  // Required field
+      />
+      <small>Max 200 characters</small>
+    </div>
+    <div className="mb-3">
       <label htmlFor="shipping_address.city" className="form-label">City</label>
       <input
         type="text"

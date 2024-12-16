@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useScroll, motion, useTransform, useSpring } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./Footer.css"; // For custom styles

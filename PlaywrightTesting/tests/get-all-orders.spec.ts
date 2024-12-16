@@ -4,6 +4,7 @@ const waitFor = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 test('navigation test', async ({ page }) => {
   // Navigate to the homepage
+  await page.setViewportSize({ width: 1920, height: 1080 });
 
   await page.goto('http://localhost:3000/admin/login');
   await page.getByLabel('Username').click();

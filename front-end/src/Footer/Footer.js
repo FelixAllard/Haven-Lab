@@ -5,39 +5,39 @@ import { useNavigate } from "react-router-dom";
 import "./Footer.css"; // For custom styles
 
 const Footer = () => {
-    const [showFooter, setShowFooter] = useState(false);
-    const { scrollYProgress } = useScroll(); // Track the vertical scroll progress
-    const [isBottom, setIsBottom] = useState(false);
+    // const [showFooter, setShowFooter] = useState(false);
+    // const { scrollYProgress } = useScroll(); // Track the vertical scroll progress
+    // const [isBottom, setIsBottom] = useState(false);
     const navigate = useNavigate();
 
-    // Motion value for scaling the footer's panel
-    const footerScale = useTransform(scrollYProgress, [0, 0.8], [0, 1]);
-    const fadeInDelay = useSpring(useTransform(scrollYProgress, [0.85, 1], [0, 1]));
+    // // Motion value for scaling the footer's panel
+    // const footerScale = useTransform(scrollYProgress, [0, 0.8], [0, 1]);
+    // const fadeInDelay = useSpring(useTransform(scrollYProgress, [0.85, 1], [0, 1]));
 
-    useEffect(() => {
-        const checkBottom = () => {
-            const scrollPosition = window.scrollY + window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-            if (scrollPosition >= documentHeight - 10) { // Check if we are near the bottom
-                setIsBottom(true);
-            } else {
-                setIsBottom(false);
-            }
-        };
+    // useEffect(() => {
+    //     const checkBottom = () => {
+    //         const scrollPosition = window.scrollY + window.innerHeight;
+    //         const documentHeight = document.documentElement.scrollHeight;
+    //         if (scrollPosition >= documentHeight - 10) { // Check if we are near the bottom
+    //             setIsBottom(true);
+    //         } else {
+    //             setIsBottom(false);
+    //         }
+    //     };
 
-        window.addEventListener("scroll", checkBottom);
-        checkBottom(); // Check immediately on mount
+    //     window.addEventListener("scroll", checkBottom);
+    //     checkBottom(); // Check immediately on mount
 
-        return () => window.removeEventListener("scroll", checkBottom);
-    }, []);
-
-    useEffect(() => {
-        if (isBottom) {
-            setShowFooter(true);
-        } else {
-            setShowFooter(false);
-        }
-    }, [isBottom]);
+    //     return () => window.removeEventListener("scroll", checkBottom);
+//    }, []);
+//
+//    useEffect(() => {
+//        if (isBottom) {
+//            setShowFooter(true);
+//        } else {
+//            setShowFooter(false);
+//        }
+//    }, [isBottom]);
 
     const handleLoginClick = () => {
         navigate("/admin/login"); // Redirect to the login page
@@ -45,8 +45,9 @@ const Footer = () => {
 
     return (
         <motion.div
-            className={`footer-container ${showFooter ? "show-footer" : ""}`}
-            style={{ scaleY: footerScale }}
+            className={`footer-container show-footer`}
+            // WAS: className={`footer-container ${showFooter ? "show-footer" : ""}`}
+            // style={{ scaleY: footerScale }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{
@@ -58,7 +59,7 @@ const Footer = () => {
                 <div className="row">
                     <motion.div
                         className="col-md-4"
-                        style={{ opacity: fadeInDelay }}
+                        // style={{ opacity: fadeInDelay }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{
@@ -72,7 +73,7 @@ const Footer = () => {
                     </motion.div>
                     <motion.div
                         className="col-md-4"
-                        style={{ opacity: fadeInDelay }}
+                        // style={{ opacity: fadeInDelay }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{
@@ -87,7 +88,7 @@ const Footer = () => {
                     </motion.div>
                     <motion.div
                         className="col-md-4"
-                        style={{ opacity: fadeInDelay }}
+                        // style={{ opacity: fadeInDelay }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{

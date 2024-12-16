@@ -1,7 +1,10 @@
 using System.Diagnostics;
 using Shopify_Api.Exceptions;
+using Shopify_Api.Model;
 using ShopifySharp;
 using ShopifySharp.Factories;
+using ShopifySharp.Filters;
+using ShopifySharp.Lists;
 
 namespace Shopify_Api.Controllers;
 
@@ -33,23 +36,57 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> GetAllProducts()
+    public async Task<IActionResult> GetAllProducts([FromQuery] SearchArguments searchArguments = null)
     {
         try
         {
             var products = await _shopifyService.ListAsync();
-            return Ok(products);
+
+            if (searchArguments == null)
+            {
+                return Ok(products);
+            }
+
+            var filteredItems = products.Items.AsQueryable();
+
+            // Filter by name if provided
+            if (!string.IsNullOrWhiteSpace(searchArguments.Name))
+            {
+                filteredItems = filteredItems.Where(x => x.Title.ToLower().Contains(searchArguments.Name.ToLower()));
+            }
+
+            // Filter by minimum price if provided
+            if (searchArguments.MinimumPrice > 0)
+            {
+                filteredItems = filteredItems.Where(x => x.Variants.FirstOrDefault().Price >= searchArguments.MinimumPrice);
+            }
+
+            // Filter by maximum price if provided
+            if (searchArguments.MaximumPrice > 0)
+            {
+                filteredItems = filteredItems.Where(x => x.Variants.FirstOrDefault().Price <= searchArguments.MaximumPrice);
+            }
+
+            // Filter by availability if specified
+            if (searchArguments.Available)
+            {
+                filteredItems = filteredItems.Where(x => x.Variants.FirstOrDefault().InventoryQuantity > 0);
+            }
+
+            return Ok(new ListResult<Product>(filteredItems.ToList(), null));
         }
         catch (ShopifyException ex)
         {
-            return StatusCode(500, new { message = "Error fetching product", details = ex.Message });
+            return StatusCode(404, new { message = "Error fetching product", details = ex.Message });
         }
         catch (System.Exception ex)
         {
-            // Log the exception if necessary
-            return StatusCode(500, new { message = "Error fetching product" + ex.Message });
+            return StatusCode(500, new { message = "Error fetching product", details = ex.Message });
         }
     }
+
+
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductById([FromRoute]long id)
     {

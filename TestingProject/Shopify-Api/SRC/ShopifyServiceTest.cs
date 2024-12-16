@@ -91,7 +91,7 @@ namespace TestingProject.Shopify_Api.SRC
             // Assert: Check if the result is a status code 500 with the error message
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
-            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+            Assert.That(objectResult.StatusCode, Is.EqualTo(404));
 
             // Use JObject to access the properties in the response
             var response = JObject.FromObject(objectResult.Value);

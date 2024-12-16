@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom'; // Add useNavigate for navigation
 import { motion } from 'motion/react';
 import bootstrap from 'bootstrap/dist/js/bootstrap.min.js';
+import { useAuth } from "../../AXIOS/AuthentificationContext";
 
 // Bootstrap CSS for card styling
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,6 +18,9 @@ const ProductDetailsPage = () => {
     const navigate = useNavigate(); // Hook to programmatically navigate
     const toastTrigger = document.getElementById('liveToastBtn');
     const toastLiveExample = document.getElementById('liveToast');
+
+    const { authToken } = useAuth();
+    const isLoggedIn = !!authToken;
 
     if (toastTrigger) {
         const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
@@ -125,11 +129,6 @@ const ProductDetailsPage = () => {
                 <div className="col-md-6">
                     <div className="card shadow-lg border-light p-4">
 
-                        {/* Delete Button */}
-                        <button type="button" className="btn btn-danger" id="liveToastBtn" onClick={handleDelete}>
-                            Delete Product
-                        </button>
-
                         {/* Toast Message */}
                         <div className="toast-container position-fixed bottom-0 end-0 p-3">
                             <div id="liveToast" className="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -217,29 +216,46 @@ const ProductDetailsPage = () => {
                             <strong>Created At:</strong> {new Date(product.created_at).toLocaleDateString()}
                         </motion.p>
 
-                        {/* Add to Cart Button */}
-                        <motion.button
-                            className="btn btn-success mb-3"
-                            whileHover={{ scale: 1.1 }}
-                            transition={{ duration: 0.2 }}
-                            onClick={addToCart}
-                        >
-                            Add to Cart
-                        </motion.button>
+                        {/* Add to Cart Button (Only for users) */}
+                        {!isLoggedIn && (
+                            <motion.button
+                                className="btn btn-success mb-3"
+                                whileHover={{ scale: 1.1 }}
+                                transition={{ duration: 0.2 }}
+                                onClick={addToCart}
+                            >
+                                Add to Cart
+                            </motion.button>
+                        )}
 
-                        {/* Edit product Button */}
-                        <motion.button
-                                    className="btn btn-secondary"
-                                    whileHover={{ scale: 1.1 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    <Link
-                                        to={`/admin/product/update/${product.id}`}
-                                        style={{ color: 'white', textDecoration: 'none' }}
+                        {/* Delete Button - Owner */}
+                        {isLoggedIn && (
+                            <motion.button
+                                className="btn btn-danger mb-3"
+                                id="liveToastBtn"
+                                whileHover={{ scale: 1.1 }}
+                                transition={{ duration: 0.2 }}
+                                onClick={handleDelete}
+                            >
+                            Delete Product
+                            </motion.button>
+                        )}
+
+                        {/* Edit product Button - Owner */}
+                        {isLoggedIn && (
+                            <motion.button
+                                        className="btn btn-secondary"
+                                        whileHover={{ scale: 1.1 }}
+                                        transition={{ duration: 0.2 }}
                                     >
-                                        Update Product
-                                    </Link>
-                        </motion.button>
+                                        <Link
+                                            to={`/admin/product/update/${product.id}`}
+                                            style={{ color: 'white', textDecoration: 'none' }}
+                                        >
+                                            Update Product
+                                        </Link>
+                            </motion.button>
+                        )}
                     </div>
                 </div>
             </motion.div>

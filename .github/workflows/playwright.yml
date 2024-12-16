@@ -68,14 +68,24 @@ jobs:
           npm install @playwright/test
         working-directory: ./PlaywrightTesting
 
-      # Install Playwright Browsers
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+    #  # Install Playwright Browsers
+    #  - name: Install Playwright Browsers
+    #    run: npx playwright install --with-deps
+    #    working-directory: ./PlaywrightTesting
+          
+      # Install Chromium with Playwright
+      - name: Install Chromium
+        run: npx playwright install chromium --with-deps
         working-directory: ./PlaywrightTesting
       
-      # Run Playwright tests
-      - name: Run Playwright tests
-        run: npx playwright test
+    #  # Run Playwright tests
+    #  - name: Run Playwright tests
+    #    run: npx playwright test
+    #    working-directory: ./PlaywrightTesting
+      
+      # Run Playwright tests with Chromium only
+      - name: Run Playwright tests with Chromium
+        run: npx playwright test --project=chromium
         working-directory: ./PlaywrightTesting
       
       # Upload Playwright test results

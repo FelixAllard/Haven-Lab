@@ -92,9 +92,6 @@ public class OrderController : ControllerBase
         {
             return StatusCode(500, new { message = "Error updating order", details = ex.Message });
         }
-        catch (System.Exception ex)
-        {
-            return StatusCode(500, new { message = "Error updating order " + ex.Message });
-        }
+        
     }
 }

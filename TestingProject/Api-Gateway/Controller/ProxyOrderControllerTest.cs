@@ -173,7 +173,7 @@ namespace TestingProject.Api_Gateway.Controller;
                 .ReturnsAsync(mockResponse);
 
             // Act
-            var result = await _controller.PutProduct(orderId, order);
+            var result = await _controller.PutOrder(orderId, order);
 
             // Assert
             var okResult = result as ObjectResult;
@@ -200,7 +200,7 @@ namespace TestingProject.Api_Gateway.Controller;
                 .ReturnsAsync(mockResponse);
 
             // Act
-            var result = await _controller.PutProduct(orderId, order);
+            var result = await _controller.PutOrder(orderId, order);
 
             // Assert
             var objectResult = result as ObjectResult; 
@@ -228,7 +228,7 @@ namespace TestingProject.Api_Gateway.Controller;
                 .ThrowsAsync(new Exception("Unexpected error"));
 
             // Act
-            var result = await _controller.PutProduct(orderId, order);
+            var result = await _controller.PutOrder(orderId, order);
 
             // Assert
             var objectResult = result as ObjectResult; 

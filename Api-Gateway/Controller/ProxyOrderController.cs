@@ -69,7 +69,7 @@ public class ProxyOrderController : ControllerBase
     }
     
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutProduct([FromRoute]long id, [FromBody] Order order)
+    public async Task<IActionResult> PutOrder([FromRoute]long id, [FromBody] Order order)
     {
         try
         {

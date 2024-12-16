@@ -30,10 +30,10 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Products />} />
             <Route path="/aboutus" element={<AboutUs />} />
-            <Route path="/cart" element={<Cart />} />
+            <Route path="/products" element={<Products />} />
             <Route path="/product/:productId" element={<ProductDetailsPage />} />
+            <Route path="/cart" element={<Cart />} />
             <Route path="/admin/login" element={<OwnerLogin />} />
 
             {/* Protected routes - Owner access*/}

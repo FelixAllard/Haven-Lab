@@ -5,7 +5,7 @@ using Moq;
 using Newtonsoft.Json.Linq;
 using ShopifySharp;
 
-namespace TestingProject.Controller;
+namespace TestingProject.Api_Gateway.Controller;
 
 [TestFixture]
     public class ProxyOrderControllerTests

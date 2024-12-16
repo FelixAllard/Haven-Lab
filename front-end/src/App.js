@@ -1,5 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './AXIOS/AuthentificationContext';
 
 import Home from "./Pages/Home/Home";
 import 'bootstrap/dist/css/bootstrap.css';
@@ -15,11 +16,13 @@ import ProductDetailsPage from "./Pages/Products/ProductDetailPage";
 import AddProductPage from "./Pages/Admin/Product/AddProductPage";
 import ProductUpdatePage from "./Pages/Admin/Product/UpdateProductPage.js";
 import Cart from "./Pages/Cart/Cart.js"
+import OwnerLogin from "./Pages/Admin/Authentification/OwnerLogin.js"
 import OrderUpdatePage from './Pages/Orders/OrderUpdatePage.js';
 
 
 function App() {
   return (
+    <AuthProvider>
       <Router>
         <Navbar />
         <div>
@@ -33,12 +36,14 @@ function App() {
           <Route path="/admin/product/update/:productId" element={<ProductUpdatePage />} />
           <Route path="/product/:productId" element={<ProductDetailsPage />} />
           <Route path="/orders/:orderId" element={<OrderDetail />} />
+          <Route path="/admin/login" element={<OwnerLogin />} />
           <Route path="/admin/order/update/:orderId" element={<OrderUpdatePage />} />
           </Routes>
         </div>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
           <Footer />
       </Router>
+    </AuthProvider>
   ); 
 }
 

@@ -41,6 +41,11 @@ builder.Services.AddAuthentication(options =>
 
     };
 });
+//Allows Docker to connect to it directly
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5113);
+});
 
 var app = builder.Build();
 
@@ -56,5 +61,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
-
+app.Urls.Add("http://0.0.0.0:5113");
 app.Run();

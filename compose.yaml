@@ -1,0 +1,41 @@
+﻿version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: ./front-end  # Set build context to "front-end"
+      dockerfile: Dockerfile  # Use Dockerfile in that folder
+    ports:
+      - "3000:80"  # Map host port 3000 to container port 80
+    restart: always
+    depends_on:
+      - api-gateway
+
+  api-gateway:
+    image: api-gateway
+    build:
+      context: .
+      dockerfile: Api-Gateway/Dockerfile
+    ports:
+      - "5158:5158"
+    environment:
+      - BASE_URL_SHOPIFY_API=http://shopify-api:5106
+      - BASE_URL_APIWEBAUTH_API=http://apiwebauth:5113
+    depends_on:
+      - apiwebauth
+      - shopify-api
+
+
+  apiwebauth:
+    image: apiwebauth
+    build:
+      context: .
+      dockerfile: ApiWebAuth/Dockerfile
+
+  shopify-api:
+    image: shopify-api
+    build:
+      context: .
+      dockerfile: Shopify-Api/Dockerfile
+      
+  

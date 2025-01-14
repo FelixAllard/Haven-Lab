@@ -7,7 +7,6 @@ using ShopifySharp.Extensions.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 
 
-DependencyInjection(builder.Services);
 
 
 // Add services to the container.
@@ -18,7 +17,7 @@ builder.Services.AddControllers()
         options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
 
-    });;
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -40,6 +39,12 @@ builder.Services.AddTransient<ProductValidator>(); // Makes that an instance of 
 builder.Services.AddShopifySharp<LeakyBucketExecutionPolicy>();
 
 
+//Allows Docker to connect to it directly
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5106);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -54,11 +59,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
+app.Urls.Add("http://0.0.0.0:5106");
 app.Run();
-//makes the nescessary dependency injection
-void DependencyInjection(IServiceCollection services)
-{
-    
-    
-}

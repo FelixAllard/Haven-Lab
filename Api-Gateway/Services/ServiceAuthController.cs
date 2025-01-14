@@ -11,12 +11,13 @@ namespace Api_Gateway.Services;
 public class ServiceAuthController
 {
     private readonly IHttpClientFactory _httpClientFactory; // Use IHttpClientFactory instead of HttpClient directly
-    private readonly string BASE_URL = "http://localhost:5113"; // Your base URL for Shopify API
+    private readonly string BASE_URL ; // Your base URL for Shopify API
 
     // Constructor that takes in IHttpClientFactory via Dependency Injection
     public ServiceAuthController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_APIWEBAUTH_API")??"http://localhost:5113";
     }
     
     public virtual async Task<string> LoginAsync(Login model)

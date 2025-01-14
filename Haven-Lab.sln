@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingProject", "TestingPr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiWebAuth", "ApiWebAuth\ApiWebAuth.csproj", "{A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "emailing-service", "emailing-service\emailing-service.csproj", "{48E7F22E-657B-4A44-A695-50871F3FE930}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E40EFD28-6BF7-44DA-A090-7404BB155E6C}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
@@ -34,13 +32,9 @@ Global
 		{4F9B749D-0BC2-47DF-AE1E-48B8370D5C7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F9B749D-0BC2-47DF-AE1E-48B8370D5C7A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        {A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        {A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        {A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}.Release|Any CPU.Build.0 = Release|Any CPU
-        
-        {48E7F22E-657B-4A44-A695-50871F3FE930}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        {48E7F22E-657B-4A44-A695-50871F3FE930}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        {48E7F22E-657B-4A44-A695-50871F3FE930}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        {48E7F22E-657B-4A44-A695-50871F3FE930}.Release|Any CPU.Build.0 = Release|Any CPU
+								{A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}.Debug|Any CPU.Build.0 = Debug|Any CPU
+								{A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}.Release|Any CPU.ActiveCfg = Release|Any CPU
+								{A8F69E0A-43B9-4F8D-BD45-5B72E48A6179}.Release|Any CPU.Build.0 = Release|Any CPU
+								
 	EndGlobalSection
 EndGlobal

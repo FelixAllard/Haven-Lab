@@ -27,7 +27,7 @@ const OrderDetail = () => {
   }
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-6">
       <h2>Order Details</h2>
       <p><strong>App ID:</strong> {order.app_id}</p>
       <p><strong>Order Number:</strong> {order.order_number}</p>

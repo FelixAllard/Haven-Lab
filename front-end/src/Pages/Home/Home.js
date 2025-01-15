@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import "../../Shared/global.css"
 
 const Home = () => {
     const [bestsellers, setBestsellers] = useState([]);
@@ -42,7 +41,7 @@ const Home = () => {
 
     return (
         <div>
-            <div className="container custom-mt-5">
+            <div className="container mt-7">
                 <h2 className="mb-4">Bestsellers</h2>
                 {loading && <p>Loading...</p>}
                 {error && <p className="text-danger">{error}</p>}

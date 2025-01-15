@@ -3,6 +3,7 @@
     height: 80px; /* Adjust the height as needed */
     display: flex;
     align-items: center; /* Vertically center items within the navbar */
+    position: relative; /* Ensure position is relative for absolute positioning of the button */
 }
 
 /* Adjust the logo height within the taller navbar */
@@ -10,17 +11,24 @@
     max-height: 60px; /* Increase the max height to better fit the taller navbar */
 }
 
-/* Center the offcanvas links */
+/* Position the navbar toggler (hamburger menu) to the right */
+.navbar-toggler {
+    position: absolute;
+    right: 10px; /* Adjust to your preference */
+    z-index: 1; /* Ensure it's above other content */
+}
+
 .offcanvas-end {
-    width: 25% !important; /* How much of the screen is taken */
+    width: 25% !important;  /* How much of the screen is taken */
     height: 100% !important;
     top: 0;
     transition: transform 0.5s ease-in-out !important;
 }
 
+/* Center the navbar links */
 .offcanvas-body {
-    display: flex;
-    justify-content: center; /* Centers items horizontally */
+    display: flow;
+    justify-content: center;  /* Centers items horizontally */
     padding-left: 50%;
     font-size: calc(10px + 2vmin);
 }
@@ -35,17 +43,12 @@
         padding-left: 25%; /* Adjust padding for centering */
         font-size: calc(12px + 2vmin); /* Adjust font size for smaller screens */
     }
-
-    .nav-link {
-        text-align: center;
-    }
 }
 
+.nav-link {
+    text-align: center;
+}
 
 .navbar-logo {
     max-height: 50px;
 }
-
-/* NavBar.css */
-
-/* Styling for the nav link */

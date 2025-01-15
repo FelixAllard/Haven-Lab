@@ -82,7 +82,6 @@ const Navbar = () => {
             <div className="offcanvas offcanvas-end text-bg-dark" tabIndex="-1" id="offcanvasNavbar"
                  aria-labelledby="offcanvasNavbarLabel">
                 <div className="offcanvas-header">
-                    <h5 className="offcanvas-title h1" id="offcanvasNavbarLabel">Welcome to Haven Lab</h5>
                     <button type="button" className="btn-close" data-bs-dismiss="offcanvas"
                             aria-label="Close"></button>
                 </div>

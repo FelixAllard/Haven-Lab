@@ -92,7 +92,7 @@ const ProductDetailsPage = () => {
     }
 
     return (
-        <div className="container mt-5 position-relative">
+        <div className="container custom-mt-4 position-relative">
             {/* Back arrow link */}
             <Link to="/products" className="btn btn-link text-dark position-absolute" style={{ top: '20px', left: '20px', zIndex: 10 }}>
                 <FaArrowLeft size={30} />

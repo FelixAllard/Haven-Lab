@@ -8,21 +8,21 @@
 
 @font-face {
     font-family: 'Bodoni Moda';
-    src: url('../Fonts/BodoniModa/BodiniModa_28pt-BoldItalic.ttf') format('truetype');
+    src: url('../Fonts/BodoniModa/BodoniModa_28pt-BoldItalic.ttf') format('truetype');
     font-weight: bold;
     font-style: italic;
 }
 
 @font-face {
     font-family: 'Bodoni Moda';
-    src: url('../Fonts/BodoniModa/BodiniModa_28pt-Medium.ttf') format('truetype');
+    src: url('../Fonts/BodoniModa/BodoniModa_28pt-Medium.ttf') format('truetype');
     font-weight: 500;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Bodoni Moda';
-    src: url('../Fonts/BodoniModa/BodiniModa_28pt-MediumItalic.ttf') format('truetype');
+    src: url('../Fonts/BodoniModa/BodoniModa_28pt-MediumItalic.ttf') format('truetype');
     font-weight: 500;
     font-style: italic;
 }

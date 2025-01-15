@@ -1,7 +1,9 @@
-// src/pages/Home.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import BackgroundVideo from './wavesloop.mp4';
+import Logo from '../../Shared/Logo.svg';
+import './Home.css'; 
 
 const Home = () => {
     const [bestsellers, setBestsellers] = useState([]);
@@ -12,7 +14,6 @@ const Home = () => {
     // Fetch product details for bestsellers
     useEffect(() => {
         const fetchBestsellers = async () => {
-            // Product IDs to fetch
             const bestsellerIds = [
                 8073898131501,
                 8073775972397,
@@ -34,13 +35,25 @@ const Home = () => {
         fetchBestsellers();
     }, []);
 
-    // Redirect to product page
     const handleViewProduct = (id) => {
-        navigate(`/product/${id}`); // Adjust to match your product page route
+        navigate(`/product/${id}`);
     };
 
     return (
         <div>
+            {/* Background video section */}
+            <div className="video-container">
+                <video autoPlay loop muted>
+                    <source src={BackgroundVideo} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+                <div className="logo-container">
+                    <img src={Logo} alt="Logo" />
+                    <h1 className="headline">Luxury Hair Products</h1>
+                </div>
+            </div>
+
+            {/* Bestsellers Section */}
             <div className="container mt-7">
                 <h2 className="mb-4">Bestsellers</h2>
                 {loading && <p>Loading...</p>}

@@ -18,7 +18,6 @@
   
   .content {
     flex: 1;
-    padding: 1rem;
     container-type: inline-size;
     container-name: content-box;
   }

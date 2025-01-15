@@ -1,20 +1,18 @@
-/* Adjust the navbar height */
 .navbar {
-    height: 80px; /* Adjust the height as needed */
+    height: 80px; 
+    background-color: black;
     display: flex;
-    align-items: center; /* Vertically center items within the navbar */
+    align-items: center;
     position: relative; /* Ensure position is relative for absolute positioning of the button */
 }
 
-/* Adjust the logo height within the taller navbar */
 .navbar-logo {
-    max-height: 60px; /* Increase the max height to better fit the taller navbar */
+    max-height: 60px; 
 }
 
-/* Position the navbar toggler (hamburger menu) to the right */
 .navbar-toggler {
     position: absolute;
-    right: 10px; /* Adjust to your preference */
+    right: 10px;
     z-index: 1; /* Ensure it's above other content */
 }
 

@@ -53,7 +53,7 @@ const Navbar = () => {
 
     return (
         <>
-        <nav className="navbar navbar-dark bg-dark fixed-top">
+        <nav className="navbar navbar-dark fixed-top">
             <div className="container-fluid d-flex align-items-center justify-content-between">
 
                 {/* Center Section - Logo */}

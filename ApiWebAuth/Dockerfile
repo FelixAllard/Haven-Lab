@@ -19,4 +19,5 @@ RUN dotnet publish "ApiWebAuth.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./ApiWebAuth/app.db ./app.db
 ENTRYPOINT ["dotnet", "ApiWebAuth.dll"]

@@ -31,6 +31,8 @@ services:
     build:
       context: .
       dockerfile: ApiWebAuth/Dockerfile
+    volumes:
+      - ./ApiWebAuth/app.db:/app/app.db
 
   shopify-api:
     image: shopify-api
@@ -38,4 +40,14 @@ services:
       context: .
       dockerfile: Shopify-Api/Dockerfile
       
+  phpmyadmin:
+    image: phpmyadmin:5.2.0
+    container_name: Appointment_DB
+    links:
+      - apiwebauth
+    restart: always
+    ports:
+      - 5013:80
+    environment:
+      - PMA_ARBITRARY=1
   

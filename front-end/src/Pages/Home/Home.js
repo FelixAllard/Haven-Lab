@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import BackgroundVideo from './wavesloop.mp4';
+import BackgroundVideo from './Assets/wavesloop.mp4';
 import Logo from '../../Shared/Logo.svg';
-import './Home.css'; 
+import Arrow from './Assets/arrow.png';
+
+import './Home.css';
 
 const Home = () => {
     const [bestsellers, setBestsellers] = useState([]);
@@ -47,15 +49,28 @@ const Home = () => {
                     <source src={BackgroundVideo} type="video/mp4" />
                     Your browser does not support the video tag.
                 </video>
-                <div className="logo-container">
+                <div className="logo-container mt-5">
                     <img src={Logo} alt="Logo" />
                     <h1 className="headline">Luxury Hair Products</h1>
                 </div>
+                <div
+                    className="arrow-container"
+                    onClick={() => {
+                        const nextSection = document.querySelector('.title-container');
+                        nextSection.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                >
+                    <img src={Arrow} alt="Scroll Down" className="arrow" />
+                </div>
             </div>
 
+
             {/* Bestsellers Section */}
-            <div className="container mt-7">
-                <h2 className="mb-4">Bestsellers</h2>
+            <div className="container bestsellers-container mt-7">
+                <div className="container title-container">
+                    <h1 className="mb-4">Our Bestsellers</h1>
+                </div>
+
                 {loading && <p>Loading...</p>}
                 {error && <p className="text-danger">{error}</p>}
                 {!loading && !error && bestsellers.length === 0 && (

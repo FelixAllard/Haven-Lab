@@ -1,7 +1,18 @@
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px); 
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .video-container {
     position: relative;
     width: 100%;
-    height: 100vh; 
+    height: 100vh; /* Full height of the viewport */
     overflow: hidden;
 }
 
@@ -14,9 +25,9 @@
     min-height: 100%;
     width: auto;
     height: auto;
-    z-index: -1; /* Ensure it stays behind content */
-    object-fit: cover; /* Ensures it stretches while keeping the correct aspect ratio */
-    background-color: black; /* Fallback color */
+    z-index: -1;
+    object-fit: cover;
+    background-color: black;
 }
 
 .logo-container {
@@ -24,21 +35,87 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 1; /* Ensure it's on top of the video */
     text-align: center;
 }
 
 .logo-container img {
-    max-width: 100%; 
+    max-width: 600px;
     height: auto;
-    margin-bottom: 2rem; /* Adds space between the logo and the heading */
+    margin-bottom: 2rem;
+
+    /* animation */
+    animation: fadeIn 1s ease-in-out forwards;
+    animation-delay: 0s; 
+    opacity: 0;
 }
 
 .logo-container .headline {
     font-family: 'Bodoni Moda', serif;
-    font-size: 2rem; /* Adjusted for visibility */
+    font-size: 2rem;
     color: white;
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 2px;
+
+    /* animation */
+    animation: fadeIn 1s ease-in-out forwards;
+    animation-delay: 1s; 
+    opacity: 0;
+
+}
+
+.arrow-container {
+    position: absolute;
+    bottom: 2rem; 
+    left: 47.5%;
+    transform: translateX(-50%);
+    cursor: pointer;
+    width: 60px; 
+    height: 60px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+
+    /* animation */
+    animation: fadeIn 1s ease-in-out forwards;
+    animation-delay: 2s; 
+    opacity: 0;
+}
+
+.arrow {
+    position: absolute;
+    width: 100%; 
+    left: 50%;
+    height: auto;
+    animation: moveUpDown 2s infinite;
+    transition: transform 0.2s ease-in-out;
+}
+
+.arrow-container:hover .arrow {
+    transform: scale(1.1); /* Slight zoom on hover for better interactivity */
+}
+/* Arrow animation */
+@keyframes moveUpDown {
+    0% {
+        transform: translateX(-50%) translateY(0);
+    }
+    50% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@media screen and (max-width: 550px) {
+    .logo-container img {
+        max-width: 400px; /* Reduce logo size for smaller screens */
+    }
+    .logo-container .headline {
+        font-size: 1.8rem; /* Adjust headline size */
+    }
+    .arrow-container {
+        left: 44%;
+    }
 }

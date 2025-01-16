@@ -40,14 +40,43 @@ services:
       context: .
       dockerfile: Shopify-Api/Dockerfile
       
+  appointments-service:
+    image: appointments-service
+    build:
+      context: .
+      dockerfile: AppointmentsService/Dockerfile
+      
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    platform: linux/amd64
+    ports:
+      - "3310:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpwd
+      - MYSQL_DATABASE=appointment_db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./data/init.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   phpmyadmin:
     image: phpmyadmin:5.2.0
-    container_name: Appointment_DB
+    container_name: PhpMyAdmin
     links:
-      - apiwebauth
+      - mysql
     restart: always
     ports:
       - 5013:80
     environment:
+      - PMA_HOST=mysql
+      - PMA_USER=user
+      - PMA_PASSWORD=pwd
       - PMA_ARBITRARY=1
   

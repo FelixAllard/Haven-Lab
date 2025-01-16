@@ -95,7 +95,8 @@
 .arrow-container:hover .arrow {
     transform: scale(1.1); /* Slight zoom on hover for better interactivity */
 }
-/* Arrow animation */
+
+/* arrow animation */
 @keyframes moveUpDown {
     0% {
         transform: translateX(-50%) translateY(0);
@@ -119,3 +120,102 @@
         left: 44%;
     }
 }
+
+/* bestsellers section */
+.bestsellers-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #111;
+    color: white;
+    padding: 2rem;
+}
+
+.title-container {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.carousel-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.bestseller-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #222;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    padding: 2rem;
+    width: 90%;
+    margin: 0 auto;
+}
+
+.bestseller-image {
+    width: 50%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.bestseller-info {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem;
+    text-align: left;
+    color: white;
+}
+
+.bestseller-info h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.bestseller-info p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.view-product-btn {
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    color: #111;
+    background-color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.view-product-btn:hover {
+    background-color: #ddd;
+}
+
+.view-all-btn {
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    color: white;
+    background-color: #444;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.view-all-btn:hover {
+    background-color: #666;
+}
+
+

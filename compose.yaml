@@ -21,10 +21,11 @@ services:
     environment:
       - BASE_URL_SHOPIFY_API=http://shopify-api:5106
       - BASE_URL_APIWEBAUTH_API=http://apiwebauth:5113
+      - BASE_URL_APPOINTMENT_API=http://appointments-service:5114
     depends_on:
       - apiwebauth
       - shopify-api
-
+      - appointments-service
 
   apiwebauth:
     image: apiwebauth
@@ -45,7 +46,13 @@ services:
     build:
       context: .
       dockerfile: AppointmentsService/Dockerfile
-      
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql  # Set this only to "mysql" when running in Docker
+    command: ["./wait-for-it.sh", "mysql:3306", "--", "dotnet", "AppointmentsService.dll"]
+
+        
   mysql:
     image: mysql:8.0
     container_name: mysql_container
@@ -58,7 +65,7 @@ services:
       - MYSQL_USER=user
       - MYSQL_PASSWORD=pwd
     volumes:
-      - ./data/mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
       - ./data/init.d:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost"]
@@ -80,3 +87,6 @@ services:
       - PMA_PASSWORD=pwd
       - PMA_ARBITRARY=1
   
+
+volumes:
+  mysql_data:

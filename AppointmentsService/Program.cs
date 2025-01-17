@@ -5,10 +5,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Register DbContext with MySQL connection string
+// Get the environment variable for DB_HOST (defaults to "localhost" if not set)
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";  // Use "mysql" when inside Docker, "localhost" locally
+
+// Register DbContext with a dynamically updated connection string
 builder.Services.AddDbContext<AppointmentDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        new MySqlServerVersion(new Version(8, 0, 29))));
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+            .Replace("${DB_HOST}", dbHost),  // Only replace the Server part with dbHost
+        new MySqlServerVersion(new Version(8, 0, 29))
+    ));
+
+
 
 // Add controllers
 builder.Services.AddControllers();

@@ -1,13 +1,30 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace AppointmentsService.Entity;
 
 public class Appointment
 {
+    [Column("id")]
     public int Id { get; set; }
+    
+    [Column("title")]
     public string Title { get; set; }
+    
+    [Column("description")]
     public string Description { get; set; }
+    
+    [Column("appointment_date")]
     public DateTime AppointmentDate { get; set; }
-    public string CustomerName { get; set; }  // New field
-    public string CustomerEmail { get; set; } // New field
-    public string Status { get; set; } // New field (should be one of the statuses: "Upcoming", "Cancelled", "Passed")
+    
+    [Column("customer_name")]
+    public string CustomerName { get; set; }
+    
+    [Column("customer_email")]
+    public string CustomerEmail { get; set; }
+    
+    [Column("status")]
+    public string Status { get; set; }
+    
+    [Column("created_at")]
     public DateTime CreatedAt { get; set; }
 }

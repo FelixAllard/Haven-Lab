@@ -80,7 +80,7 @@ const Appointments = () => {
                     {appointment.customerName || 'N/A'}
                   </p>
                   <button
-                    onClick={() => handleViewClick(appointment.id)}
+                    onClick={() => handleViewClick(appointment.appointmentId)}
                     className="btn btn-primary mt-3"
                   >
                     View Details

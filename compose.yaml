@@ -1,6 +1,7 @@
 ﻿version: "3.8"
 
 services:
+  
   frontend:
     build:
       context: ./front-end  # Set build context to "front-end"
@@ -22,11 +23,12 @@ services:
       - BASE_URL_SHOPIFY_API=http://shopify-api:5106
       - BASE_URL_APIWEBAUTH_API=http://apiwebauth:5113
     depends_on:
-      - apiwebauth
+      - api-web-auth
       - shopify-api
+      - email-api
 
 
-  apiwebauth:
+  api-web-auth:
     image: apiwebauth
     build:
       context: .
@@ -38,4 +40,26 @@ services:
       context: .
       dockerfile: Shopify-Api/Dockerfile
       
-  
+  email-api: # open on port 5092
+    image: email-api
+    build:
+      context: .
+      dockerfile: Email-Api/Dockerfile
+    depends_on:
+      - mail-dev
+    ports:
+      - "5092:5092"
+    environment:
+      - BASE_URL_MAIL_DEV_SERVER=mail-dev
+      
+  mail-dev:
+    image: maildev/maildev
+    restart: always
+    ports:
+      - "1025:1025"  # SMTP Port
+      - "1080:1080"  # Web UI Port - you can see all email here :)
+    volumes:
+      - /home/maildev:/home/maildev:rw
+
+volumes:
+  maildev-data:

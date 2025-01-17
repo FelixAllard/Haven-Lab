@@ -17,7 +17,7 @@ public class ServiceAppointmentsController
         BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_APPOINTMENT_API") ?? "http://localhost:5114";
     }
 
-    public async Task<string> GetAllAppointmentsAsync()
+    public virtual async Task<string> GetAllAppointmentsAsync()
     {
         try
         {

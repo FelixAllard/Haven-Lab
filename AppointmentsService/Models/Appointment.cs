@@ -8,7 +8,7 @@ public class Appointment
     public int Id { get; set; }
 
     [Column("appointment_id")]
-    public Guid AppointmentId { get; set; }  // UUID for the new AppointmentId
+    public Guid AppointmentId { get; set; }
     
     [Column("title")]
     public string Title { get; set; }

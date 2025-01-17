@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 
 const Appointments = () => {
-  const [appointments, setAppointments] = useState([]); // State for appointments
+  const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -47,10 +47,8 @@ const Appointments = () => {
   }
 
   const handleViewClick = (appointmentId) => {
-    // Navigate to the appointment detail page
     navigate(`/appointments/${appointmentId}`);
   };
-
   return (
     <div className="container mt-4">
       <h1 className="mb-4"><br></br>Appointments</h1>
@@ -59,7 +57,7 @@ const Appointments = () => {
           appointments.map((appointment, index) => (
             <motion.div
               className="col-md-4 mb-4"
-              key={appointment.id}
+              key={appointment.appointmentId}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}

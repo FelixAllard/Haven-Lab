@@ -20,6 +20,9 @@ public class AppointmentsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Appointment>>> GetAll()
     {
-        return await _context.Appointments.ToListAsync();
+        var appointments = await _context.Appointments.ToListAsync();
+
+        // If no appointments are found, still return a 200 OK response with an empty list
+        return Ok(appointments);
     }
 }

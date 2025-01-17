@@ -67,7 +67,7 @@ const Appointments = () => {
               <div className="card shadow-sm border-light">
                 <div className="card-body">
                   <p>
-                    <strong>Appointment ID:</strong> {appointment.id || 'N/A'}
+                    <strong>Appointment ID:</strong> {appointment.appointmentId || 'N/A'}
                   </p>
                   <p>
                     <strong>Date:</strong>{' '}

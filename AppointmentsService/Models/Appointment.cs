@@ -6,6 +6,9 @@ public class Appointment
 {
     [Column("id")]
     public int Id { get; set; }
+
+    [Column("appointment_id")]
+    public Guid AppointmentId { get; set; }  // UUID for the new AppointmentId
     
     [Column("title")]
     public string Title { get; set; }

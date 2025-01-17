@@ -1,5 +1,6 @@
 using AppointmentsService.Data;
-using AppointmentsService.Entity;
+using AppointmentsService.Models;
+
 namespace AppointmentsService.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

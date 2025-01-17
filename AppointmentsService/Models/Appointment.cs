@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AppointmentsService.Entity;
+namespace AppointmentsService.Models;
 
 public class Appointment
 {

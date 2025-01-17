@@ -1,4 +1,4 @@
-using AppointmentsService.Entity;
+using AppointmentsService.Models;
 
 namespace AppointmentsService.Data;
 using Microsoft.EntityFrameworkCore;

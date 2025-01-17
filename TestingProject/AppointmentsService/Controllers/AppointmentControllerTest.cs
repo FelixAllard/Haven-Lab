@@ -1,6 +1,6 @@
 using AppointmentsService.Controllers;
 using AppointmentsService.Data;
-using AppointmentsService.Entity;
+using AppointmentsService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

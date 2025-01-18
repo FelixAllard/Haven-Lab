@@ -1,5 +1,5 @@
 using System.Text;
-using Email_Api.Model;
+using Api_Gateway.Models;
 using Newtonsoft.Json;
 
 namespace Api_Gateway.Services;

@@ -1,5 +1,5 @@
+using Api_Gateway.Models;
 using Api_Gateway.Services;
-using Email_Api.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api_Gateway.Controller;

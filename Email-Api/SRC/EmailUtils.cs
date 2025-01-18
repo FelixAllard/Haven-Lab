@@ -14,16 +14,19 @@ public static class EmailUtils
     //public static bool enableLogging = true;
     
     
+    /// <summary>
+    /// Test if an email is valid with an expression validated by online sources
+    /// </summary>
+    /// <param name="email">The email to verify</param>
+    /// <returns>True if the email is valid and false if the email is null, empty or invalid</returns>
     public static bool CheckIfEmailIsValid(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
         {
             return false;
         }
-
         // Regular expression for validating an email
         string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        
         return Regex.IsMatch(email, emailPattern);
     }
 }

@@ -21,9 +21,7 @@ public class EmailService : IEmailService
     }
     public OperationResult SendEmail(DirectEmailModel model)
     {
-        Console.WriteLine("Received Email Call Function!");
         DirectEmailModel directEmailModel = model;
-        Console.WriteLine("Found the model!" + directEmailModel);
         
         if (String.IsNullOrWhiteSpace(directEmailModel.EmailToSendTo))
             throw new BadEmailModel("Email To Send To is null or whitespace. EMAIL IS REQUIRED");
@@ -70,11 +68,6 @@ public class EmailService : IEmailService
             );
         }
         catch (TemplateRequiredFieldNotSet e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-        catch (TriedToFillEmailFieldWithEmptyWhiteSpace e)
         {
             Console.WriteLine(e);
             throw;

@@ -1,4 +1,5 @@
 using Email_Api.Service;
+using MailKit.Net.Smtp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 builder.Services.AddTransient<ISmtpConnection, SmtpConnection>();
 builder.Services.AddSingleton<ITemplateManager,TemplateManager>();
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<ISmtpClient, SmtpClient>();
 
 //--------------------------
 var app = builder.Build();

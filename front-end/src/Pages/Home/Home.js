@@ -7,6 +7,7 @@ import Arrow from './Assets/arrow.png';
 import './Home.css';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
+import PlaceholderImage from './Assets/placeholder.png';
 
 
 const Home = () => {
@@ -68,7 +69,7 @@ const Home = () => {
                 <div
                     className="arrow-container"
                     onClick={() => {
-                        const nextSection = document.querySelector('.title-container');
+                        const nextSection = document.querySelector('.bestsellers-container');
                         nextSection.scrollIntoView({ behavior: 'smooth' });
                     }}
                 >
@@ -86,8 +87,6 @@ const Home = () => {
                     <Carousel
                         responsive={responsive}
                         infinite
-                        autoPlay
-                        autoPlaySpeed={5000}
                         keyBoardControl
                         showDots={true}
                         containerClass="carousel-container"
@@ -95,22 +94,27 @@ const Home = () => {
                     >
                         {bestsellers.map((product) => (
                             <div key={product.id} className="bestseller-card">
-                                <img
-                                    src={product.image || 'https://via.placeholder.com/300'}
-                                    alt={product.title}
-                                    className="bestseller-image"
-                                />
-                                <div className="bestseller-info">
-                                    <h2>{product.title}</h2>
-                                    <p>
-                                        <strong>Price:</strong> ${product.variants[0]?.price}
-                                    </p>
-                                    <button
-                                        className="view-product-btn"
-                                        onClick={() => handleViewProduct(product.id)}
-                                    >
-                                        View Product
-                                    </button>
+                                <div className="bestseller-content">
+                                    <img
+                                        src={PlaceholderImage}
+                                        alt={product.title}
+                                        className="bestseller-image"
+                                    />
+
+                                    <div className="bestseller-info">
+                                        <h1>{product.title}</h1>
+                                        <p>
+                                            ${product.variants[0]?.price}
+                                        </p>
+
+                                        <div className="divider"></div>
+                                        <button
+                                            className="view-product-btn"
+                                            onClick={() => handleViewProduct(product.id)}
+                                        >
+                                            View Product
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}

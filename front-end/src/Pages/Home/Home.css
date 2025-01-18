@@ -66,8 +66,8 @@
 
 .arrow-container {
     position: absolute;
-    bottom: 2rem; 
-    left: 47.5%;
+    bottom: 2rem;
+    left: 48.5%;
     transform: translateX(-50%);
     cursor: pointer;
     width: 60px; 
@@ -123,14 +123,14 @@
 
 /* bestsellers section */
 .bestsellers-container {
-    height: 100vh;
+    height: 90vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #111;
     color: white;
     padding: 2rem;
+    overflow: hidden;
 }
 
 .title-container {
@@ -141,65 +141,118 @@
 }
 
 .carousel-container {
+    position: relative;
     width: 100%;
-    max-width: 1200px;
+    max-width: 80%;
     margin: 0 auto;
+    min-height: 600px;
+    overflow: hidden;
 }
 
 .bestseller-card {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
-    background-color: #222;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
     padding: 2rem;
-    width: 90%;
-    margin: 0 auto;
+    color: white;
+    overflow: hidden;
+}
+
+.carousel-item {
+    display: flex !important;
+    height: 90%;
+}
+
+.react-multi-carousel-track {
+    display: flex !important;
+    height: 100%;
+}
+
+.bestseller-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 10%;
+    padding: 2rem;
+    background-color: #222;
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    gap: 2rem;
 }
 
 .bestseller-image {
-    width: 50%;
+    width: 45%;
     height: auto;
     object-fit: cover;
     border-radius: 10px;
 }
 
 .bestseller-info {
-    width: 45%;
+    width: 55%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 1rem;
-    text-align: left;
-    color: white;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
 }
 
-.bestseller-info h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+.bestseller-info h1 {
+    font-size: 4rem;
+    margin: 0;
 }
 
 .bestseller-info p {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    margin: 0;
+    font-family: 'Bodoni Moda', serif;
 }
 
 .view-product-btn {
-    padding: 0.7rem 1.5rem;
-    font-size: 1rem;
-    color: #111;
-    background-color: #fff;
+    padding: 0.8rem 1.5rem;
+    background-color: #555;
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-size: 1.5rem;
+    transition: background-color 0.3s ease;
+    font-family: 'Bodoni Moda', serif;
 }
 
 .view-product-btn:hover {
-    background-color: #ddd;
+    background-color: #777;
+}
+
+.bestseller-info .divider {
+    width: 25%; /* Adjust line width as needed */
+    height: 1px;
+    background-color: white;
+    margin: 1rem 0; /* Spacing around the line */
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .bestseller-content {
+        flex-direction: column; /* Stack image and info vertically on smaller screens */
+        gap: 1rem;
+    }
+
+    .bestseller-image {
+        width: 100%; /* Full width for the image on small screens */
+        height: auto;
+    }
+
+    .bestseller-info {
+        width: 100%; /* Full width for the information */
+        text-align: center; /* Center text on smaller screens */
+    }
 }
 
 .view-all-btn {
@@ -212,6 +265,7 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-family: 'Bodoni Moda', serif;
 }
 
 .view-all-btn:hover {

@@ -59,21 +59,21 @@ const Home = () => {
             {/* Background video section */}
             <div className="video-container">
                 <video autoPlay loop muted>
-                    <source src={BackgroundVideo} type="video/mp4" />
+                    <source src={BackgroundVideo} type="video/mp4"/>
                     Your browser does not support the video tag.
                 </video>
                 <div className="logo-container">
-                    <img src={Logo} alt="Logo" />
+                    <img src={Logo} alt="Logo"/>
                     <h1 className="headline">Luxury Hair Products</h1>
                 </div>
                 <div
                     className="arrow-container"
                     onClick={() => {
                         const nextSection = document.querySelector('.bestsellers-container');
-                        nextSection.scrollIntoView({ behavior: 'smooth' });
+                        nextSection.scrollIntoView({behavior: 'smooth'});
                     }}
                 >
-                    <img src={Arrow} alt="Scroll Down" className="arrow" />
+                    <img src={Arrow} alt="Scroll Down" className="arrow"/>
                 </div>
             </div>
 
@@ -123,6 +123,24 @@ const Home = () => {
                 <button className="view-all-btn" onClick={handleMoreProducts}>
                     View All Products
                 </button>
+            </div>
+
+            {/* Newsletter Section */}
+            <div className="newsletter-container">
+                <h1 className="newsletter-title">Subscribe</h1>
+                <p className="newsletter-description">
+                    Unlock exclusive deals and be the first to know about our latest drops! <br/>
+                    Sign up for our newsletter!
+                </p>
+                <div className="newsletter-divider"></div>
+                <div className="newsletter-form">
+                    <input
+                        type="email"
+                        placeholder="Enter your email"
+                        className="newsletter-input"
+                    />
+                    <button className="subscribe-btn">Subscribe</button>
+                </div>
             </div>
         </div>
     );

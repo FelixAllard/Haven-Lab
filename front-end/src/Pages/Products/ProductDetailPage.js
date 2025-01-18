@@ -127,7 +127,7 @@ const ProductDetailsPage = () => {
 
                 {/* Right Column: Product Details */}
                 <div className="col-md-6">
-                    <div className="card shadow-lg border-light p-4">
+                    <div className="card shadow-lg p-4">
 
                         {/* Toast Message */}
                         <div className="toast-container position-fixed bottom-0 end-0 p-3">

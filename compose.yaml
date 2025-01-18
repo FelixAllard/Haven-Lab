@@ -22,6 +22,7 @@ services:
     environment:
       - BASE_URL_SHOPIFY_API=http://shopify-api:5106
       - BASE_URL_APIWEBAUTH_API=http://apiwebauth:5113
+      - BASE_URL_EMAIL_API=http://email-api:5092
     depends_on:
       - api-web-auth
       - shopify-api

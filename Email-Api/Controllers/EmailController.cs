@@ -29,7 +29,7 @@ public class EmailController : ControllerBase
 
     public async Task<IActionResult> SendSingleEmailWithTemplate([FromBody]DirectEmailModel directEmailModel)
     {
-        if( directEmailModel ==null || directEmailModel.IsEmpty())
+        if (directEmailModel == null || directEmailModel.IsEmpty())
         {
             return NoContent();
         }

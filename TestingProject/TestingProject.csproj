@@ -26,7 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Email-Api\Controllers\" />
       <Folder Include="Front-End\" />
     </ItemGroup>
     <ItemGroup>
@@ -34,9 +33,6 @@
         <ProjectReference Include="..\Api-Gateway\Api-Gateway.csproj" />
         <ProjectReference Include="..\ApiWebAuth\ApiWebAuth.csproj" />
         <ProjectReference Include="..\Email-Api\Email-Api.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-      <Compile Remove="Email-Api\Controllers\EmailControllerTest.cs" />
     </ItemGroup>
 
 </Project>

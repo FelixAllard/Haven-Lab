@@ -4,6 +4,7 @@ using Email_Api.Model;
 using Email_Api.Service;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using DirectEmailModel = TestingProject.Email_Api.SRC.Model.DirectEmailModel;
 
 namespace TestingProject.Email_Api.Controllers;
 

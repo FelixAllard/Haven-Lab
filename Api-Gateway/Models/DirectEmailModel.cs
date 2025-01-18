@@ -1,4 +1,4 @@
-namespace Email_Api.Model;
+namespace Api_Gateway.Models;
 
 public class DirectEmailModel
 {

@@ -77,9 +77,6 @@ const AppointmentDetail = () => {
                 : 'N/A'}
             </p>
             <p>
-              <strong>Appointment ID:</strong> {appointment.appointmentId || 'N/A'}
-            </p>
-            <p>
               <strong>Customer Name:</strong> {appointment.customerName || 'N/A'}
             </p>
             <p>

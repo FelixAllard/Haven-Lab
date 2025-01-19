@@ -40,7 +40,7 @@ const AppointmentDetail = () => {
   const handleDelete = async () => {
     try {
       const response = await axios.delete(`http://localhost:5158/gateway/api/ProxyAppointment/${appointmentId}`);
-      if (response.status === 204) {
+      if (response.status === 200) {
         // Redirect to appointments list after deleting
         navigate('/appointments');
       }

@@ -78,11 +78,6 @@ namespace AppointmentsService.Controllers
             var existingAppointment = await _context.Appointments
                 .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
 
-            if (existingAppointment == null)
-            {
-                return NotFound();
-            }
-
             // Update the fields of the existing appointment with the new values
             existingAppointment.Title = appointment.Title;
             existingAppointment.Description = appointment.Description;
@@ -91,24 +86,9 @@ namespace AppointmentsService.Controllers
             existingAppointment.CustomerEmail = appointment.CustomerEmail;
             existingAppointment.Status = appointment.Status;
             existingAppointment.CreatedAt = appointment.CreatedAt;
-
-            // Track changes and save
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AppointmentExists(appointmentId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            
+            await _context.SaveChangesAsync();
+            
             return NoContent();
         }
 

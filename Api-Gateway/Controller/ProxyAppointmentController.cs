@@ -65,19 +65,15 @@ namespace Api_Gateway.Controller
         [HttpPost]
         public async Task<IActionResult> CreateAppointment([FromBody] Appointment appointment)
         {
+            
             if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
             {
-                return BadRequest("Status must be 'Cancelled', 'Upcoming', or 'Finished'");
+                return BadRequest(new { Message = "Status must be 'Cancelled', 'Upcoming', or 'Finished'" });
             }
             
             try
             {
                 var result = await _serviceAppointmentController.CreateAppointmentAsync(appointment);
-
-                if (result.StartsWith("Error"))
-                {
-                    return BadRequest(new { Message = result });
-                }
 
                 return CreatedAtAction(nameof(GetAppointmentById), new { appointmentId = appointment.AppointmentId }, result);
             }
@@ -92,11 +88,6 @@ namespace Api_Gateway.Controller
         [HttpPut("{appointmentId}")]
         public async Task<IActionResult> UpdateAppointment(Guid appointmentId, [FromBody] Appointment appointment)
         {
-            
-            if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
-            {
-                return BadRequest("Status must be 'Cancelled', 'Upcoming', or 'Finished'");
-            }
             
             try
             {

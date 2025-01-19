@@ -5,26 +5,29 @@ FROM node:18-alpine AS build
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json ./ 
 
 # Install dependencies
 RUN npm install
 
 # Copy the rest of the application files
-COPY . .
+COPY . . 
 
 # Build the React application
 RUN npm run build
 
-
-# Use an Nginx image to serve the built app
+# Use the official Nginx image as the base image
 FROM nginx:alpine
 
-# Copy the built React files to Nginx's HTML directory
-COPY --from=build /app/build /usr/share/nginx/html
+# Copy the custom nginx.conf file into the container
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80 to serve the application
+# Copy the build folder of the React app into Nginx's default folder
+COPY ./build /usr/share/nginx/html
+
+# Expose port 80 for the web server
 EXPOSE 80
 
-# Start Nginx when the container starts
+# Start Nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]
+

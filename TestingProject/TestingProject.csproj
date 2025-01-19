@@ -33,6 +33,7 @@
         <ProjectReference Include="..\Api-Gateway\Api-Gateway.csproj" />
         <ProjectReference Include="..\ApiWebAuth\ApiWebAuth.csproj" />
         <ProjectReference Include="..\Email-Api\Email-Api.csproj" />
+        <ProjectReference Include="..\AppointmentsService\AppointmentsService.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,13 +1,14 @@
 ﻿version: "3.8"
 
 services:
-  
   frontend:
     build:
-      context: ./front-end  # Set build context to "front-end"
-      dockerfile: Dockerfile  # Use Dockerfile in that folder
+      context: ./front-end
+      dockerfile: Dockerfile
     ports:
-      - "3000:80"  # Map host port 3000 to container port 80
+      - "3000:80"  # Host port 3000 maps to container port 80
+    volumes:
+      - ./front-end/nginx.conf:/etc/nginx/nginx.conf  # Mount nginx.conf to container
     restart: always
     depends_on:
       - api-gateway
@@ -22,18 +23,22 @@ services:
     environment:
       - BASE_URL_SHOPIFY_API=http://shopify-api:5106
       - BASE_URL_APIWEBAUTH_API=http://apiwebauth:5113
+      - BASE_URL_APPOINTMENT_API=http://appointments-service:5114
       - BASE_URL_EMAIL_API=http://email-api:5092
     depends_on:
-      - api-web-auth
+      - apiwebauth
       - shopify-api
+      - appointments-service
       - email-api
 
 
-  api-web-auth:
+  apiwebauth:
     image: apiwebauth
     build:
       context: .
       dockerfile: ApiWebAuth/Dockerfile
+    volumes:
+      - ./ApiWebAuth/app.db:/app/app.db
 
   shopify-api:
     image: shopify-api
@@ -41,6 +46,53 @@ services:
       context: .
       dockerfile: Shopify-Api/Dockerfile
       
+  appointments-service:
+    image: appointments-service
+    build:
+      context: .
+      dockerfile: AppointmentsService/Dockerfile
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+    command: ["./wait-for-it.sh", "mysql:3306", "--", "dotnet", "AppointmentsService.dll"]
+
+        
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    platform: linux/amd64
+    ports:
+      - "3310:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpwd
+      - MYSQL_DATABASE=appointment_db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./data/init.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.0
+    container_name: PhpMyAdmin
+    links:
+      - mysql
+    restart: always
+    ports:
+      - 5013:80
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=user
+      - PMA_PASSWORD=pwd
+      - PMA_ARBITRARY=1
+  
   email-api: # open on port 5092
     image: email-api
     build:
@@ -63,4 +115,5 @@ services:
       - /home/maildev:/home/maildev:rw
 
 volumes:
+  mysql_data:
   maildev-data:

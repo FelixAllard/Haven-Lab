@@ -1,4 +1,4 @@
-name: Build and Test C# Services, Frontend, and Playwright
+# Build and Test C# Services, Frontend, and Playwright
 
 on:
   push:
@@ -8,11 +8,25 @@ on:
 
 jobs:
   build_and_test:
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+      
+      # Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      # Set up Docker Compose to run the services defined in service_compose.yaml
+      - name: Set up Docker Compose
+        uses: docker/setup-buildx-action@v2
+
+      # Build and run the Docker containers using service_compose.yaml
+      - name: Build and run services with Docker Compose
+        run: |
+          docker-compose -f service_compose.yaml up -d
       
       # Set up .NET SDK for C# services
       - name: Setup .NET
@@ -47,7 +61,7 @@ jobs:
       # Install frontend dependencies
       - name: Install Frontend Dependencies
         run: npm install
-        working-directory: ./front-end  # Adjust the directory to where your frontend code resides
+        working-directory: ./front-end
       
       # Build the frontend React app
       - name: Build Frontend
@@ -57,9 +71,9 @@ jobs:
       # Run frontend server in the background and check if it runs correctly
       - name: Start Frontend Development Server
         run: |
-          npm run start & # Run the server in the background
-          sleep 10 # Wait for the server to start
-          curl -I http://localhost:3000 | grep "200 OK" # Check if the server responds with 200 OK
+          npm run start &
+          sleep 10
+          curl -I http://localhost:3000 | grep "200 OK"
         working-directory: ./front-end
       
       # Set up Node.js and install Playwright test dependencies
@@ -68,21 +82,11 @@ jobs:
           npm install @playwright/test
         working-directory: ./PlaywrightTesting
 
-    #  # Install Playwright Browsers
-    #  - name: Install Playwright Browsers
-    #    run: npx playwright install --with-deps
-    #    working-directory: ./PlaywrightTesting
-          
       # Install Chromium with Playwright
       - name: Install Chromium
         run: npx playwright install chromium --with-deps
         working-directory: ./PlaywrightTesting
-      
-    #  # Run Playwright tests
-    #  - name: Run Playwright tests
-    #    run: npx playwright test
-    #    working-directory: ./PlaywrightTesting
-      
+
       # Run Playwright tests with Chromium only
       - name: Run Playwright tests with Chromium
         run: npx playwright test --project=chromium
@@ -95,3 +99,8 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      # Clean up (stop and remove containers)
+      - name: Clean up
+        run: |
+          docker-compose -f service_compose.yaml down

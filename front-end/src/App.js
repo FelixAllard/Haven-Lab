@@ -19,6 +19,7 @@ import Cart from "./Pages/Cart/Cart.js"
 import OwnerLogin from "./Pages/Admin/Authentification/OwnerLogin.js"
 import OrderUpdatePage from './Pages/Orders/OrderUpdatePage.js';
 import ProtectedRoute from './AXIOS/ProtectedRoute.js';
+import Appointments from './Pages/Appointments/Appointments.js';
 
 
 function App() {
@@ -62,9 +63,17 @@ function App() {
                 <OrderDetail />
               </ProtectedRoute>
             } />
+
             <Route path="/admin/order/update/:orderId" element={
               <ProtectedRoute>
                 <OrderUpdatePage />
+              </ProtectedRoute>
+            } />
+
+            {/* Appointments */}
+            <Route path="/appointments" element={
+              <ProtectedRoute>
+                <Appointments />
               </ProtectedRoute>
             } />
         </Routes>

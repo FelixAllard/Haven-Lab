@@ -1,0 +1,59 @@
+name: Docker CI Check
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests targeting the main branch
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Install Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      # Install frontend dependencies
+      - name: Install Frontend Dependencies
+        run: npm install
+        working-directory: ./front-end  # Adjust to your frontend directory
+      
+      # Build the frontend
+      - name: Build Frontend
+        run: npm run build
+        working-directory: ./front-end  # Adjust to your frontend directory
+      
+      # Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      
+      # Set up Docker Compose
+      - name: Set up Docker Compose
+        uses: docker/setup-buildx-action@v2
+
+      # Build and run the Docker containers using docker-compose
+      - name: Build and run with Docker Compose
+        run: |
+          docker-compose -f compose.yaml up -d  # This will build and run the services defined in your compose.yaml
+      
+      # Check if the containers are running
+      - name: Check if containers are running
+        run: |
+          docker ps -a  # List all containers to confirm they're running
+      
+      # Clean up (stop and remove containers)
+      - name: Clean up
+        run: |
+          docker-compose -f compose.yaml down  # Stop and remove containers defined in the compose.yaml file

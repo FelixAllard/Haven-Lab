@@ -167,7 +167,7 @@ const ProductForm = () => {
     };
 
     return (
-        <div className="container mt-5" style={{ marginBottom: '11%' }}>
+        <div className="container mt-7" style={{ marginBottom: '11%' }}>
             <h2>Edit Product</h2>
 
             <Form onSubmit={handleSubmit}>
@@ -293,7 +293,7 @@ const ProductForm = () => {
             </Form>
 
             {/* Success/Error Modals */}
-            <Modal show={showSuccess} onHide={() => setShowSuccess(false)}>
+            <Modal show={showSuccess} onHide={() => setShowSuccess(false)} style={{ backgroundColor: '#333', color: 'white' }}>
                 <Modal.Header closeButton>
                     <Modal.Title>Success</Modal.Title>
                 </Modal.Header>
@@ -305,7 +305,7 @@ const ProductForm = () => {
                 </Modal.Footer>
             </Modal>
 
-            <Modal show={showError} onHide={() => setShowError(false)}>
+            <Modal show={showError} onHide={() => setShowError(false)} style={{ backgroundColor: '#333', color: 'white' }}>
                 <Modal.Header closeButton>
                     <Modal.Title>Error</Modal.Title>
                 </Modal.Header>

@@ -87,6 +87,7 @@ const Navbar = () => {
                 </div>
                 <div className="offcanvas-body">
                     <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        
                         <motion.li
                             key={isOpen ? "home-open" : "home-closed"}
                             className="nav-item"
@@ -97,6 +98,7 @@ const Navbar = () => {
                         >
                             <Link className="nav-link" aria-current="page" to="/">Home</Link>
                         </motion.li>
+                        
                         <motion.li
                             key={isOpen ? "products-open" : "products-closed"}
                             className="nav-item"
@@ -107,6 +109,7 @@ const Navbar = () => {
                         >
                             <Link className="nav-link" aria-current="page" to="/products">Products</Link>
                         </motion.li>
+                        
                         <motion.li
                             key={isOpen ? "cart-open" : "cart-closed"}
                             className="nav-item"
@@ -117,6 +120,7 @@ const Navbar = () => {
                         >
                             <Link className="nav-link" aria-current="page" to="/cart">Cart</Link>
                         </motion.li>
+                        
                         {isLoggedIn && (
                         <motion.li
                             key={isOpen ? "orders-open" : "orders-closed"}
@@ -129,6 +133,33 @@ const Navbar = () => {
                             <Link className="nav-link" aria-current="page" to="/orders">Orders</Link>
                         </motion.li>
                         )}
+
+                        {isLoggedIn && (
+                            <motion.li
+                                key={isOpen ? "Emails-open" : "Emails-closed"}
+                                className="nav-item"
+                                initial={{opacity: 0, scale: 0.1}}
+                                animate={{opacity: 1, scale: 1}}
+                                exit={{opacity: 0, scale: 0.1}}
+                                transition={{delay: 0.5, duration: 0.7}}
+                            >
+                                <Link className="nav-link" aria-current="page" to="/admin/email/send">Emails</Link>
+                            </motion.li>
+                        )}
+                        
+                        {isLoggedIn && (
+                            <motion.li
+                                key={isOpen ? "appointments-open" : "appointments-closed"}
+                                className="nav-item"
+                                initial={{opacity: 0, scale: 0.1}}
+                                animate={{opacity: 1, scale: 1}}
+                                exit={{opacity: 0, scale: 0.1}}
+                                transition={{delay: 0.5, duration: 0.7}}
+                            >
+                                <Link className="nav-link" aria-current="page" to="/appointments">Appointments</Link>
+                            </motion.li>
+                        )}
+                        
                         <motion.li
                             key={isOpen ? "about-open" : "about-closed"}
                             className="nav-item"

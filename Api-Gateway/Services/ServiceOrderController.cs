@@ -8,12 +8,13 @@ namespace Api_Gateway.Services;
 public class ServiceOrderController
 {
     private readonly IHttpClientFactory _httpClientFactory; // Use IHttpClientFactory instead of HttpClient directly
-    private readonly string BASE_URL = "http://localhost:5106"; // Your base URL for Shopify API
+    private readonly string BASE_URL ; // Your base URL for Shopify API
 
     // Constructor that takes in IHttpClientFactory via Dependency Injection
     public ServiceOrderController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_SHOPIFY_API")??"http://localhost:5106";
     }
 
     // Method to make the API call to Shopify and return the result

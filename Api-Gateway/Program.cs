@@ -23,6 +23,9 @@ builder.Services.AddTransient<ServiceOrderController>();
 builder.Services.AddTransient<ServiceDraftOrderController>();
 builder.Services.AddHttpClient<ServiceAuthController>();
 builder.Services.AddTransient<ServiceAuthController>();
+builder.Services.AddHttpClient<ServiceAppointmentsController>();
+builder.Services.AddTransient<ServiceAppointmentsController>();
+builder.Services.AddTransient<ServiceEmailApiController>();
 
 // ENABLE CORS
 builder.Services.AddCors(options =>
@@ -36,6 +39,12 @@ builder.Services.AddCors(options =>
             .AllowCredentials();  // Allow credentials (cookies, HTTP authentication)
     });
 });
+//Allows Docker to connect to it directly
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5158);
+});
+
 
 var app = builder.Build();
 
@@ -49,8 +58,10 @@ if (app.Environment.IsDevelopment())
 // Apply CORS policy before other middleware
 app.UseCors("AllowSpecificOrigin");
 
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
+app.Urls.Add("http://0.0.0.0:5158");
 app.Run();

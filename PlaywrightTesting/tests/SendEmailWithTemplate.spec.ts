@@ -31,4 +31,8 @@ test('SendEmailWithTemplate', async ({ page }) => {
   await page.getByLabel('Sender Name').fill('Felix');
   await page.getByRole('button', { name: 'Send Email' }).click();
   await expect(page.getByText('Email sent successfully!')).toBeVisible();
+  await expect(page.getByText('Owner', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
+  await page.getByRole('button', { name: 'Logout' }).click();
+  await page.goto('http://localhost:3000/');
 });

@@ -20,6 +20,7 @@ import OwnerLogin from "./Pages/Admin/Authentification/OwnerLogin.js"
 import OrderUpdatePage from './Pages/Orders/OrderUpdatePage.js';
 import ProtectedRoute from './AXIOS/ProtectedRoute.js';
 import Appointments from './Pages/Appointments/Appointments.js';
+import EmailSendPage from "./Pages/Email/EmailSendPage";
 
 
 function App() {
@@ -48,6 +49,11 @@ function App() {
             <Route path="/admin/product/create" element={
               <ProtectedRoute>
                 <AddProductPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/email/send" element={
+              <ProtectedRoute>
+                <EmailSendPage />
               </ProtectedRoute>
             } />
 

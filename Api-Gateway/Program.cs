@@ -25,6 +25,7 @@ builder.Services.AddHttpClient<ServiceAuthController>();
 builder.Services.AddTransient<ServiceAuthController>();
 builder.Services.AddHttpClient<ServiceAppointmentsController>();
 builder.Services.AddTransient<ServiceAppointmentsController>();
+builder.Services.AddTransient<ServiceEmailApiController>();
 
 // ENABLE CORS
 builder.Services.AddCors(options =>

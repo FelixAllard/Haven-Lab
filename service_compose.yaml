@@ -20,6 +20,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+  mail-dev:
+    image: maildev/maildev
+    restart: always
+    ports:
+      - "1025:1025"  # SMTP Port
+      - "1080:1080"  # Web UI Port - you can see all email here :)
+    volumes:
+      - /home/maildev:/home/maildev:rw
 
 volumes:
   mysql_data:
+  maildev-data:

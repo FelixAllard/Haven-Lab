@@ -24,10 +24,13 @@ services:
       - BASE_URL_SHOPIFY_API=http://shopify-api:5106
       - BASE_URL_APIWEBAUTH_API=http://apiwebauth:5113
       - BASE_URL_APPOINTMENT_API=http://appointments-service:5114
+      - BASE_URL_EMAIL_API=http://email-api:5092
     depends_on:
       - apiwebauth
       - shopify-api
       - appointments-service
+      - email-api
+
 
   apiwebauth:
     image: apiwebauth
@@ -90,6 +93,27 @@ services:
       - PMA_PASSWORD=pwd
       - PMA_ARBITRARY=1
   
+  email-api: # open on port 5092
+    image: email-api
+    build:
+      context: .
+      dockerfile: Email-Api/Dockerfile
+    depends_on:
+      - mail-dev
+    ports:
+      - "5092:5092"
+    environment:
+      - BASE_URL_MAIL_DEV_SERVER=mail-dev
+      
+  mail-dev:
+    image: maildev/maildev
+    restart: always
+    ports:
+      - "1025:1025"  # SMTP Port
+      - "1080:1080"  # Web UI Port - you can see all email here :)
+    volumes:
+      - /home/maildev:/home/maildev:rw
 
 volumes:
   mysql_data:
+  maildev-data:

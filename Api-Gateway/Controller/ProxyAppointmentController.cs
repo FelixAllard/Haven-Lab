@@ -107,7 +107,7 @@ namespace Api_Gateway.Controller
                     return BadRequest(new { Message = result });
                 }
 
-                return NoContent();
+                return Ok();
             }
             catch (Exception e)
             {
@@ -129,7 +129,7 @@ namespace Api_Gateway.Controller
                     return BadRequest(new { Message = result });
                 }
 
-                return NoContent();
+                return Ok();
             }
             catch (Exception e)
             {

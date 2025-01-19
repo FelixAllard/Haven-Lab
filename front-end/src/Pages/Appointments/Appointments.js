@@ -50,7 +50,7 @@ const Appointments = () => {
     navigate(`/appointments/${appointmentId}`);
   };
   return (
-    <div className="container mt-4">
+    <div className="container mt-7">
       <h1 className="mb-4"><br></br>Appointments</h1>
       <div className="row">
         {appointments.length > 0 ? (

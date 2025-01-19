@@ -185,7 +185,7 @@
     overflow: hidden;
     gap: 2rem;
 
-    margin-left: 4rem; /* IMPORTANT: HACK FIX FOR CENTERING. should be
+    margin-left: 7rem; /* IMPORTANT: HACK FIX FOR CENTERING. should be
     fixed next sprint for the sake of responsiveness */
 }
 

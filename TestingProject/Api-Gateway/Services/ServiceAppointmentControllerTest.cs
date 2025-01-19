@@ -1,221 +1,494 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AppointmentsService.Data;
-using AppointmentsService.Models;
-using Microsoft.EntityFrameworkCore;
+using Moq;
 using NUnit.Framework;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Api_Gateway.Services;
+using Newtonsoft.Json;
+using Api_Gateway.Models;
+using Moq.Protected;
 
 namespace TestingProject.AppointmentsService.Tests
 {
-    [TestFixture]
-    public class ServiceAppointmentControllerTest
+[TestFixture]
+public class ServiceAppointmentsControllerTests
+{
+    private Mock<IHttpClientFactory> _mockHttpClientFactory;
+    private ServiceAppointmentsController _controller;
+
+    [SetUp]
+    public void SetUp()
     {
-        private AppointmentDbContext _dbContext;
-        private DbContextOptions<AppointmentDbContext> _dbOptions;
+        // Initialize the mock HttpClientFactory
+        _mockHttpClientFactory = new Mock<IHttpClientFactory>();
 
-        [SetUp]
-        public void SetUp()
+        // Create a mock HttpMessageHandler that will mock the SendAsync method
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+        // Create HttpClient using the mocked HttpMessageHandler
+        var mockHttpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+        // Setup the factory to return the mocked HttpClient
+        _mockHttpClientFactory.Setup(factory => factory.CreateClient(It.IsAny<string>()))
+            .Returns(mockHttpClient);
+
+        // Create the controller with the mocked HttpClientFactory
+        _controller = new ServiceAppointmentsController(_mockHttpClientFactory.Object);
+    }
+
+    [Test]
+    public async Task GetAllAppointmentsAsync_Success_ReturnsAppointmentsList()
+    {
+        // Arrange
+        var appointmentsResponse = new HttpResponseMessage
         {
-            _dbOptions = new DbContextOptionsBuilder<AppointmentDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
-                .Options;
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent("[{\"AppointmentId\":\"12345\", \"Title\":\"Test Appointment\", \"Description\":\"Test Description\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]")
+        };
 
-            _dbContext = new AppointmentDbContext(_dbOptions);
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
 
-            // Clear the database before each test.
-            _dbContext.Appointments.RemoveRange(_dbContext.Appointments);
-            _dbContext.SaveChanges();
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync();
+
+        // Assert
+        Assert.IsTrue(result.Contains("Test Appointment"));
+    }
+
+    [Test]
+    public async Task GetAllAppointmentsAsync_Failure_ReturnsErrorMessage()
+    {
+        // Arrange
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.BadRequest,
+            Content = new StringContent("Bad Request")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync();
+
+        // Assert
+        Assert.AreEqual(result, "Error fetching appointments: Bad Request");
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_InternalServerError_ReturnsErrorMessage()
+    {
+        // Arrange
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.InternalServerError,
+            Content = new StringContent("Internal Server Error")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync();
+
+        // Assert
+        Assert.AreEqual(result, "Error fetching appointments: Internal Server Error");
+    }
+
+    [Test]
+    public async Task GetAllAppointmentsAsync_Exception_ReturnsErrorMessage()
+    {
+        // Arrange
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Throws(new Exception("Network error"));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync();
+
+        // Assert
+        Assert.AreEqual(result, "Error 500: Internal Server Error - Network error");
+    }
+
+
+    [Test]
+    public async Task GetAppointmentByIdAsync_Success_ReturnsAppointmentDetails()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointmentResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent("{\"AppointmentId\":\"12345\", \"Title\":\"Test Appointment\", \"Description\":\"Test Description\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(appointmentResponse)));
+
+        // Act
+        var result = await _controller.GetAppointmentByIdAsync(appointmentId);
+
+        // Assert
+        Assert.IsTrue(result.Contains("Test Appointment"));
+    }
+    
+    [Test]
+    public async Task GetAppointmentByIdAsync_NotFound_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.NotFound,
+            Content = new StringContent("Not Found")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.GetAppointmentByIdAsync(appointmentId);
+
+        // Assert
+        Assert.AreEqual(result, "Error fetching appointment: Not Found");
+    }
+    
+    [Test]
+    public async Task GetAppointmentByIdAsync_InternalServerError_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.InternalServerError,
+            Content = new StringContent("Internal Server Error")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.GetAppointmentByIdAsync(appointmentId);
+
+        // Assert
+        Assert.AreEqual(result, "Error fetching appointment: Internal Server Error");
+    }
+    
+
+    [Test]
+    public async Task CreateAppointmentAsync_Success_ReturnsAppointmentCreatedMessage()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "New Appointment",
+            Description = "Test description",
+            AppointmentDate = DateTime.UtcNow.AddDays(1),
+            CustomerName = "Jane Doe",
+            CustomerEmail = "jane.doe@example.com",
+            Status = "Upcoming",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var appointmentResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.Created,
+            Content = new StringContent("{\"AppointmentId\":\"12345\", \"Title\":\"New Appointment\", \"Description\":\"Test description\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"Jane Doe\", \"CustomerEmail\":\"jane.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(appointmentResponse)));
+
+        // Act
+        var result = await _controller.CreateAppointmentAsync(appointment);
+
+        // Assert
+        Assert.IsTrue(result.Contains("AppointmentId"));
+    }
+
+    [Test]
+    public async Task CreateAppointmentAsync_BadRequest_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "New Appointment",
+            Description = "Test description",
+            AppointmentDate = DateTime.UtcNow.AddDays(1),
+            CustomerName = "Jane Doe",
+            CustomerEmail = "jane.doe@example.com",
+            Status = "InvalidStatus",  // Invalid status
+            CreatedAt = DateTime.UtcNow
+        };
+
+        // Act
+        var result = await _controller.CreateAppointmentAsync(appointment);
+
+        // Assert
+        Assert.AreEqual(result, "Error 400: Status must be 'Cancelled', 'Upcoming', or 'Finished'");
+    }
+    
+    [Test]
+    public async Task CreateAppointmentAsync_InvalidStatus_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "New Appointment",
+            Description = "Test description",
+            AppointmentDate = DateTime.UtcNow.AddDays(1),
+            CustomerName = "Jane Doe",
+            CustomerEmail = "jane.doe@example.com",
+            Status = "InvalidStatus", // Invalid status
+            CreatedAt = DateTime.UtcNow
+        };
+
+        // Act
+        var result = await _controller.CreateAppointmentAsync(appointment);
+
+        // Assert
+        Assert.AreEqual(result, "Error 400: Status must be 'Cancelled', 'Upcoming', or 'Finished'");
+    }
+    
+    [Test]
+    public async Task CreateAppointmentAsync_InternalServerError_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "New Appointment",
+            Description = "Test description",
+            AppointmentDate = DateTime.UtcNow.AddDays(1),
+            CustomerName = "Jane Doe",
+            CustomerEmail = "jane.doe@example.com",
+            Status = "Upcoming",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.InternalServerError,
+            Content = new StringContent("Internal Server Error")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.CreateAppointmentAsync(appointment);
+
+        // Assert
+        Assert.AreEqual(result, "Error creating appointment: Internal Server Error");
+    }
+    
+
+
+
+    [Test]
+    public async Task UpdateAppointmentAsync_Success_ReturnsSuccessMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Updated Appointment",
+            Description = "Updated Description",
+            AppointmentDate = DateTime.UtcNow.AddDays(2),
+            CustomerName = "John Doe",
+            CustomerEmail = "john.doe@example.com",
+            Status = "Finished",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var appointmentResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent("Appointment updated successfully")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(appointmentResponse)));
+
+        // Act
+        var result = await _controller.UpdateAppointmentAsync(appointmentId, appointment);
+
+        // Assert
+        Assert.AreEqual(result, "Appointment updated successfully");
+    }
+
+    [Test]
+    public async Task UpdateAppointmentAsync_BadRequest_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Updated Appointment",
+            Description = "Updated Description",
+            AppointmentDate = DateTime.UtcNow.AddDays(2),
+            CustomerName = "John Doe",
+            CustomerEmail = "john.doe@example.com",
+            Status = "InvalidStatus",  // Invalid status
+            CreatedAt = DateTime.UtcNow
+        };
+
+        // Act
+        var result = await _controller.UpdateAppointmentAsync(appointmentId, appointment);
+
+        // Assert
+        Assert.AreEqual(result, "Error 400: Status must be 'Cancelled', 'Upcoming', or 'Finished'");
+    }
+    
+    [Test]
+    public async Task UpdateAppointmentAsync_InvalidStatus_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Updated Appointment",
+            Description = "Updated Description",
+            AppointmentDate = DateTime.UtcNow.AddDays(2),
+            CustomerName = "John Doe",
+            CustomerEmail = "john.doe@example.com",
+            Status = "InvalidStatus",  // Invalid status
+            CreatedAt = DateTime.UtcNow
+        };
+
+        // Act
+        var result = await _controller.UpdateAppointmentAsync(appointmentId, appointment);
+
+        // Assert
+        Assert.AreEqual(result, "Error 400: Status must be 'Cancelled', 'Upcoming', or 'Finished'");
+    }
+
+    [Test]
+    public async Task UpdateAppointmentAsync_InternalServerError_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Updated Appointment",
+            Description = "Updated Description",
+            AppointmentDate = DateTime.UtcNow.AddDays(2),
+            CustomerName = "John Doe",
+            CustomerEmail = "john.doe@example.com",
+            Status = "Upcoming",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.InternalServerError,
+            Content = new StringContent("Internal Server Error")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.UpdateAppointmentAsync(appointmentId, appointment);
+
+        // Assert
+        Assert.AreEqual(result, "Error updating appointment: Internal Server Error");
+    }
+
+
+    [Test]
+    public async Task DeleteAppointmentAsync_Success_ReturnsSuccessMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var deleteResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.NoContent
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(deleteResponse)));
+
+        // Act
+        var result = await _controller.DeleteAppointmentAsync(appointmentId);
+
+        // Assert
+        Assert.AreEqual(result, "Appointment deleted successfully");
+    }
+
+    [Test]
+    public async Task DeleteAppointmentAsync_Failure_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.NotFound,
+            Content = new StringContent("Not Found")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.DeleteAppointmentAsync(appointmentId);
+
+        // Assert
+        Assert.AreEqual(result, "Error deleting appointment: Not Found");
+    }
+    
+    [Test]
+    public async Task DeleteAppointmentAsync_NotFound_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.NotFound,
+            Content = new StringContent("Not Found")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.DeleteAppointmentAsync(appointmentId);
+
+        // Assert
+        Assert.AreEqual(result, "Error deleting appointment: Not Found");
+    }
+    
+    [Test]
+    public async Task DeleteAppointmentAsync_InternalServerError_ReturnsErrorMessage()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var errorResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.InternalServerError,
+            Content = new StringContent("Internal Server Error")
+        };
+
+        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+
+        // Act
+        var result = await _controller.DeleteAppointmentAsync(appointmentId);
+
+        // Assert
+        Assert.AreEqual(result, "Error deleting appointment: Internal Server Error");
+    }
+
+
+
+    // Helper class to mock HttpMessageHandler
+    public class FakeHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly HttpResponseMessage _response;
+
+        public FakeHttpMessageHandler(HttpResponseMessage response)
+        {
+            _response = response;
         }
 
-        [TearDown]
-        public void TearDown()
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
         {
-            // Dispose the DbContext after each test
-            _dbContext.Dispose();
-        }
-
-        [Test]
-        public async Task AddAppointment_Success_AddsAppointmentToDatabase()
-        {
-            // Arrange
-            var appointment = new Appointment
-            {
-                Id = 1,
-                AppointmentId = Guid.NewGuid(),
-                Title = "Test Appointment",
-                Description = "Test Description",
-                AppointmentDate = DateTime.UtcNow,
-                CustomerName = "John Doe",
-                CustomerEmail = "john.doe@example.com",
-                Status = "Scheduled",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            // Act
-            await _dbContext.Appointments.AddAsync(appointment);
-            await _dbContext.SaveChangesAsync();
-
-            // Assert
-            var addedAppointment = _dbContext.Appointments.FirstOrDefault(a => a.Id == 1);
-            Assert.NotNull(addedAppointment);
-            Assert.AreEqual("Test Appointment", addedAppointment.Title);
-        }
-
-        [Test]
-        public async Task GetAppointmentById_Success_ReturnsCorrectAppointment()
-        {
-            // Arrange
-            var appointment = new Appointment
-            {
-                Id = 1,
-                AppointmentId = Guid.NewGuid(),
-                Title = "Test Appointment",
-                Description = "Test Description",
-                AppointmentDate = DateTime.UtcNow,
-                CustomerName = "John Doe",
-                CustomerEmail = "john.doe@example.com",
-                Status = "Scheduled",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _dbContext.Appointments.AddAsync(appointment);
-            await _dbContext.SaveChangesAsync();
-
-            // Act
-            var fetchedAppointment = await _dbContext.Appointments.FindAsync(1);
-
-            // Assert
-            Assert.NotNull(fetchedAppointment);
-            Assert.AreEqual("Test Appointment", fetchedAppointment.Title);
-        }
-
-        [Test]
-        public async Task UpdateAppointment_Success_UpdatesAppointmentDetails()
-        {
-            // Arrange
-            var appointment = new Appointment
-            {
-                Id = 1,
-                AppointmentId = Guid.NewGuid(),
-                Title = "Initial Title",
-                Description = "Initial Description",
-                AppointmentDate = DateTime.UtcNow,
-                CustomerName = "John Doe",
-                CustomerEmail = "john.doe@example.com",
-                Status = "Scheduled",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _dbContext.Appointments.AddAsync(appointment);
-            await _dbContext.SaveChangesAsync();
-
-            // Act
-            appointment.Title = "Updated Title";
-            appointment.Description = "Updated Description";
-            _dbContext.Appointments.Update(appointment);
-            await _dbContext.SaveChangesAsync();
-
-            // Assert
-            var updatedAppointment = await _dbContext.Appointments.FindAsync(1);
-            Assert.AreEqual("Updated Title", updatedAppointment.Title);
-            Assert.AreEqual("Updated Description", updatedAppointment.Description);
-        }
-
-        [Test]
-        public async Task DeleteAppointment_Success_RemovesAppointmentFromDatabase()
-        {
-            // Arrange
-            var appointment = new Appointment
-            {
-                Id = 1,
-                AppointmentId = Guid.NewGuid(),
-                Title = "Test Appointment",
-                Description = "Test Description",
-                AppointmentDate = DateTime.UtcNow,
-                CustomerName = "John Doe",
-                CustomerEmail = "john.doe@example.com",
-                Status = "Scheduled",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _dbContext.Appointments.AddAsync(appointment);
-            await _dbContext.SaveChangesAsync();
-
-            // Act
-            _dbContext.Appointments.Remove(appointment);
-            await _dbContext.SaveChangesAsync();
-
-            // Assert
-            var deletedAppointment = await _dbContext.Appointments.FindAsync(1);
-            Assert.Null(deletedAppointment);
-        }
-
-        [Test]
-        public async Task GetAllAppointments_Success_ReturnsAllAppointments()
-        {
-            // Arrange
-            var appointment1 = new Appointment
-            {
-                Id = 1,
-                AppointmentId = Guid.NewGuid(),
-                Title = "Test Appointment",
-                Description = "Test Description",
-                AppointmentDate = DateTime.UtcNow,
-                CustomerName = "John Doe",
-                CustomerEmail = "john.doe@example.com",
-                Status = "Scheduled",
-                CreatedAt = DateTime.UtcNow
-            };
-            var appointment2 = new Appointment
-            {
-                Id = 2,
-                AppointmentId = Guid.NewGuid(),
-                Title = "Test Appointment2",
-                Description = "Test Description2",
-                AppointmentDate = DateTime.UtcNow.AddDays(1),
-                CustomerName = "John Doe2",
-                CustomerEmail = "john.doe2@example.com",
-                Status = "Scheduled2",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _dbContext.Appointments.AddRangeAsync(appointment1, appointment2);
-            await _dbContext.SaveChangesAsync();
-
-            // Act
-            var allAppointments = await _dbContext.Appointments.ToListAsync();
-
-            // Assert
-            Assert.AreEqual(2, allAppointments.Count);
-
-            var fetchedAppointment1 = allAppointments.FirstOrDefault(a => a.Id == 1);
-            var fetchedAppointment2 = allAppointments.FirstOrDefault(a => a.Id == 2);
-
-            Assert.NotNull(fetchedAppointment1);
-            Assert.NotNull(fetchedAppointment2);
-
-            // Assert each field for appointment1
-            Assert.AreEqual(appointment1.Id, fetchedAppointment1.Id);
-            Assert.AreEqual(appointment1.AppointmentId, fetchedAppointment1.AppointmentId);
-            Assert.AreEqual(appointment1.Title, fetchedAppointment1.Title);
-            Assert.AreEqual(appointment1.Description, fetchedAppointment1.Description);
-            Assert.AreEqual(appointment1.AppointmentDate, fetchedAppointment1.AppointmentDate);
-            Assert.AreEqual(appointment1.CustomerName, fetchedAppointment1.CustomerName);
-            Assert.AreEqual(appointment1.CustomerEmail, fetchedAppointment1.CustomerEmail);
-            Assert.AreEqual(appointment1.Status, fetchedAppointment1.Status);
-            Assert.AreEqual(appointment1.CreatedAt, fetchedAppointment1.CreatedAt);
-
-            // Assert each field for appointment2
-            Assert.AreEqual(appointment2.Id, fetchedAppointment2.Id);
-            Assert.AreEqual(appointment2.AppointmentId, fetchedAppointment2.AppointmentId);
-            Assert.AreEqual(appointment2.Title, fetchedAppointment2.Title);
-            Assert.AreEqual(appointment2.Description, fetchedAppointment2.Description);
-            Assert.AreEqual(appointment2.AppointmentDate, fetchedAppointment2.AppointmentDate);
-            Assert.AreEqual(appointment2.CustomerName, fetchedAppointment2.CustomerName);
-            Assert.AreEqual(appointment2.CustomerEmail, fetchedAppointment2.CustomerEmail);
-            Assert.AreEqual(appointment2.Status, fetchedAppointment2.Status);
-            Assert.AreEqual(appointment2.CreatedAt, fetchedAppointment2.CreatedAt);
+            return Task.FromResult(_response);
         }
     }
+}
+
 }

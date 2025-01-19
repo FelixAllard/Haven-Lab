@@ -1,38 +1,132 @@
-namespace Api_Gateway.Controller;
-
-using Api_Gateway.Services;
-using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-
-[Route("gateway/api/[controller]")]
-[ApiController]
-public class ProxyAppointmentController : ControllerBase
+namespace Api_Gateway.Controller
 {
-    private readonly ServiceAppointmentsController _serviceAppointmentController;
+    using Api_Gateway.Services;
+    using Api_Gateway.Models;
+    using Microsoft.AspNetCore.Mvc;
+    using System;
+    using System.Threading.Tasks;
 
-    public ProxyAppointmentController(ServiceAppointmentsController serviceAppointmentsController)
+    [Route("gateway/api/[controller]")]
+    [ApiController]
+    public class ProxyAppointmentController : ControllerBase
     {
-        _serviceAppointmentController = serviceAppointmentsController;
-    }
+        private readonly ServiceAppointmentsController _serviceAppointmentController;
 
-    [HttpGet("all")]
-    public async Task<IActionResult> GetAllAppointments()
-    {
-        try
+        public ProxyAppointmentController(ServiceAppointmentsController serviceAppointmentsController)
         {
-            var result = await _serviceAppointmentController.GetAllAppointmentsAsync();
+            _serviceAppointmentController = serviceAppointmentsController;
+        }
 
-            if (result.StartsWith("Error"))
+        // GET: gateway/api/ProxyAppointment/all
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllAppointments()
+        {
+            try
             {
-                return BadRequest(new { Message = result });
+                var result = await _serviceAppointmentController.GetAllAppointmentsAsync();
+
+                if (result.StartsWith("Error"))
+                {
+                    return BadRequest(new { Message = result });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, new { Message = e.Message });
+            }
+        }
+
+        // GET: gateway/api/ProxyAppointment/{appointmentId}
+        [HttpGet("{appointmentId}")]
+        public async Task<IActionResult> GetAppointmentById(Guid appointmentId)
+        {
+            try
+            {
+                var result = await _serviceAppointmentController.GetAppointmentByIdAsync(appointmentId);
+
+                if (result.StartsWith("Error"))
+                {
+                    return BadRequest(new { Message = result });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, new { Message = e.Message });
+            }
+        }
+
+        // POST: gateway/api/ProxyAppointment
+        [HttpPost]
+        public async Task<IActionResult> CreateAppointment([FromBody] Appointment appointment)
+        {
+            
+            if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
+            {
+                return BadRequest(new { Message = "Status must be 'Cancelled', 'Upcoming', or 'Finished'" });
             }
             
-            return Ok(result);
+            try
+            {
+                var result = await _serviceAppointmentController.CreateAppointmentAsync(appointment);
+
+                return CreatedAtAction(nameof(GetAppointmentById), new { appointmentId = appointment.AppointmentId }, result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, new { Message = e.Message });
+            }
         }
-        catch (Exception e)
+
+        // PUT: gateway/api/ProxyAppointment/{appointmentId}
+        [HttpPut("{appointmentId}")]
+        public async Task<IActionResult> UpdateAppointment(Guid appointmentId, [FromBody] Appointment appointment)
         {
-            Console.WriteLine(e);
-            return StatusCode(500, new { Message = e.Message });
+            
+            try
+            {
+                var result = await _serviceAppointmentController.UpdateAppointmentAsync(appointmentId, appointment);
+
+                if (result.StartsWith("Error"))
+                {
+                    return BadRequest(new { Message = result });
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, new { Message = e.Message });
+            }
+        }
+
+        // DELETE: gateway/api/ProxyAppointment/{appointmentId}
+        [HttpDelete("{appointmentId}")]
+        public async Task<IActionResult> DeleteAppointment(Guid appointmentId)
+        {
+            try
+            {
+                var result = await _serviceAppointmentController.DeleteAppointmentAsync(appointmentId);
+
+                if (result.StartsWith("Error"))
+                {
+                    return BadRequest(new { Message = result });
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, new { Message = e.Message });
+            }
         }
     }
 }

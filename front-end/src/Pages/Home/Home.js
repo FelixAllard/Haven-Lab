@@ -132,7 +132,6 @@ const Home = () => {
                     Unlock exclusive deals and be the first to know about our latest drops! <br/>
                     Sign up for our newsletter!
                 </p>
-                <div className="newsletter-divider"></div>
                 <div className="newsletter-form">
                     <input
                         type="email"

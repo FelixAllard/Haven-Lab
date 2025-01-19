@@ -145,7 +145,7 @@
     width: 100%;
     max-width: 80%;
     margin: 0 auto;
-    min-height: 600px;
+    min-height: 10rem;
     overflow: hidden;
 }
 
@@ -180,13 +180,13 @@
     padding: 2rem;
     background-color: #222;
     color: white;
-    border-radius: 10px;
+    border-radius: 1rem;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     gap: 2rem;
 
-    margin-left: 7rem; /* IMPORTANT: HACK FIX FOR CENTERING. should be fixed next sprint for the sake of responsiveness.
-     im too tired to fix this rn*/
+    margin-left: 4rem; /* IMPORTANT: HACK FIX FOR CENTERING. should be
+    fixed next sprint for the sake of responsiveness */
 }
 
 .bestseller-image {
@@ -300,13 +300,6 @@
     margin-bottom: 1.5rem;
 }
 
-.newsletter-divider {
-    width: 30%;
-    height: 1px;
-    background-color: #ccc;
-    margin: 1rem 0;
-}
-
 .newsletter-form {
     display: flex;
     justify-content: center;
@@ -350,6 +343,7 @@
 @media screen and (max-width: 768px) {
     .newsletter-container {
         padding: 1rem;
+        height: 50vh;
     }
 
     .newsletter-form {

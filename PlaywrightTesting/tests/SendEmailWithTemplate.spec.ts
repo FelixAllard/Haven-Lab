@@ -11,8 +11,8 @@ test('SendEmailWithTemplate', async ({ page }) => {
   await page.getByRole('button', { name: 'Login', exact: true }).click();
   await page.getByLabel('Toggle navigation').click();
   await page.getByRole('link', { name: 'Emails' }).click();
+  await page.getByLabel('Close').click();
   await page.locator('div:nth-child(6)').first().click();
-  await page.locator('#root div').filter({ hasText: 'Haven LabOwnerLogoutWelcome' }).locator('div').nth(4).click();
   await page.getByLabel('Email To').click();
   await page.getByLabel('Email To').fill('xilef992@gmail.com');
   await page.getByLabel('Email Title').click();
@@ -35,4 +35,6 @@ test('SendEmailWithTemplate', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
   await page.getByRole('button', { name: 'Logout' }).click();
   await page.goto('http://localhost:3000/');
+
+  
 });

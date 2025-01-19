@@ -51,7 +51,7 @@ const EmailForm = () => {
     };
 
     return (
-        <div className="container mt-5">
+        <div className="container mt-7 mb-5">
             <div className="card p-4">
                 <h2 className="text-center mb-4">Send Email with Template</h2>
                 <Form onSubmit={handleSubmit}>

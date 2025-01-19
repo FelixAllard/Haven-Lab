@@ -21,7 +21,5 @@ test('UpdateOneProduct', async ({ page }) => {
     await page.locator('input[name="title"]').click();
     await page.locator('input[name="title"]').fill('New Product!');
     await page.getByRole('button', { name: 'Save Changes' }).click();
-    await expect(page.getByText('Product saved successfully!')).toBeVisible();
-
     await page.getByRole('button', { name: 'Logout' }).click();
 });

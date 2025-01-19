@@ -138,7 +138,7 @@ const CartPage = () => {
 
 
     return (
-        <div className="cart-page">
+        <div className="cart-page mt-6">
             <h1>Your Cart</h1>
             <ul>
                 {Object.keys(cart).map((productId) => (

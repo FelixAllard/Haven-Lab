@@ -92,7 +92,7 @@ const ProductDetailsPage = () => {
     }
 
     return (
-        <div className="container mt-5 position-relative">
+        <div className="container mt-6 position-relative">
             {/* Back arrow link */}
             <Link to="/products" className="btn btn-link text-dark position-absolute" style={{ top: '20px', left: '20px', zIndex: 10 }}>
                 <FaArrowLeft size={30} />
@@ -127,7 +127,7 @@ const ProductDetailsPage = () => {
 
                 {/* Right Column: Product Details */}
                 <div className="col-md-6">
-                    <div className="card shadow-lg border-light p-4">
+                    <div className="card shadow-lg p-4">
 
                         {/* Toast Message */}
                         <div className="toast-container position-fixed bottom-0 end-0 p-3">

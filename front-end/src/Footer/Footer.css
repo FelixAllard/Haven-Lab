@@ -1,9 +1,8 @@
 .footer-container {
-    position: fixed;
     bottom: -100%;
     left: 0;
     width: 100%;
-    background-color: #212121;
+    background-color: #000000;
     color: white;
     transition: bottom 0.5s ease-out; /* Smooth slide-up transition */
     z-index: 1000;

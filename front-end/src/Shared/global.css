@@ -1,0 +1,60 @@
+@import 'fonts.css';
+
+/* custom bootstrap container styling that fixes navbar and footer spacing */
+
+.mt-7 {
+    margin-top: 7rem !important;
+}
+
+.mt-6 {
+    margin-top: 5rem !important;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .content {
+    flex: 1;
+    container-type: inline-size;
+    container-name: content-box;
+  }
+  
+  footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  @container content-box (max-height: 600px) {
+    .content {
+      padding-bottom: 4rem; /* extra padding for when content is short */
+    }
+  }
+  
+
+/* global fonts */
+* {
+    color: white;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bodoni Moda', serif; 
+}
+
+body {
+    font-family: 'Inter', sans-serif; 
+}
+
+/* Background image */
+body {
+    background-image: url('back1.jpg');
+    background-size: auto; 
+    background-attachment: fixed; 
+    background-position: center center;
+    margin: 0; 
+    height: 100vh;
+  }

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'; // Import Link for routing
 
 // Bootstrap CSS for styling
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './ProductsPage.css'
 
 const ProductPage = () => {
     const [products, setProducts] = useState([]);
@@ -63,7 +64,7 @@ const ProductPage = () => {
     }
 
     return (
-        <div className="container mt-4">
+        <div className="container mt-5">
             <br /><br />
             <h1>Our Products</h1>
             <br />
@@ -134,7 +135,7 @@ const ProductPage = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
                             >
-                                <div className="card shadow-sm border-light">
+                                <div className="card shadow-sm">
                                     <img
                                         src={product.images[0]?.src || 'https://via.placeholder.com/150'}
                                         className="card-img-top"

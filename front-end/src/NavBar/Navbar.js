@@ -124,7 +124,7 @@ const Navbar = () => {
                                 )}
                                 {isLoggedIn && (
                                     <motion.li
-                                        key={isOpen ? "orders-open" : "orders-closed"}
+                                        key={isOpen ? "Emails-open" : "Emails-closed"}
                                         className="nav-item"
                                         initial={{opacity: 0, scale: 0.1}}
                                         animate={{opacity: 1, scale: 1}}

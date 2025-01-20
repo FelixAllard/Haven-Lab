@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useParams, useNavigate } from 'react-router-dom';
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const AppointmentUpdate = () => {
   const { appointmentId } = useParams();
   const [appointment, setAppointment] = useState(null);
@@ -13,7 +13,7 @@ const AppointmentUpdate = () => {
   useEffect(() => {
     const fetchAppointmentDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:5158/gateway/api/ProxyAppointment/${appointmentId}`);
+        const response = await axios.get(`${environment}/gateway/api/ProxyAppointment/${appointmentId}`);
         setAppointment(response.data);
       } catch (err) {
         setError('Failed to fetch appointment details');
@@ -27,7 +27,7 @@ const AppointmentUpdate = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`http://localhost:5158/gateway/api/ProxyAppointment/${appointmentId}`, appointment);
+      const response = await axios.put(`${environment}/gateway/api/ProxyAppointment/${appointmentId}`, appointment);
       console.log(response.status)
       if (response.status === 200) {
         navigate(`/appointments/${appointmentId}`);  // Navigate back to the appointment detail page

@@ -104,7 +104,7 @@ public class ServiceOrderControllerTest
         var result = await _serviceOrderController.GetAllOrdersAsync();
 
         // Assert: Validate the exception message
-        Assert.AreEqual("Exception: Test Exception", result);
+        Assert.AreEqual("Error: Test Exception", result);
     }
 
     [Test]
@@ -191,7 +191,7 @@ public class ServiceOrderControllerTest
         var result = await _serviceOrderController.GetOrderByIdAsync(1);
 
         // Assert: Validate the exception message
-        Assert.AreEqual("Exception: Test Exception", result);
+        Assert.AreEqual("Error: Test Exception", result);
     }
     
     [Test]
@@ -219,7 +219,7 @@ public class ServiceOrderControllerTest
 
         // Assert: Validate the exception message and status code
         Assert.AreEqual(System.Net.HttpStatusCode.ServiceUnavailable, result.StatusCode);
-        Assert.AreEqual("Exception: Network error", await result.Content.ReadAsStringAsync());
+        Assert.AreEqual("Error: Network error", await result.Content.ReadAsStringAsync());
     }
     
     [Test]
@@ -247,7 +247,7 @@ public class ServiceOrderControllerTest
 
         // Assert: Validate the exception message and status code
         Assert.AreEqual(System.Net.HttpStatusCode.InternalServerError, result.StatusCode);
-        Assert.AreEqual("Exception: Unexpected error", await result.Content.ReadAsStringAsync());
+        Assert.AreEqual("Error: Unexpected error", await result.Content.ReadAsStringAsync());
     }
     
     [Test]

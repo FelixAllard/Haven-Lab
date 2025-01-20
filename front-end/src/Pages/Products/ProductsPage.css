@@ -1,6 +1,131 @@
-.card {
-    background-color: #222;
+body {
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center center;
+    font-family: 'Inter', sans-serif;
+}
+
+h1, h5 {
     color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.filter-section {
+    background-color: rgba(0, 0, 0, 1);
+    margin-top: 15px;
+    border: 1px solid grey;
+    border-radius: 8px;
+    color: white;
+    margin-top: 120px;
+}
+
+.product-card {
+    background-color: rgba(0, 0, 0, 1);
+    border: 1px solid grey;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-img-top {
+    height: 300px;
+    object-fit: cover;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.card-body .card-title {
+    color: white;
+}
+
+.price {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+.btn-secondary {
+    background-color: #555;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #333;
+}
+
+input.form-control {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+}
+
+input.form-control::placeholder {
+    color: lightgray;
+}
+
+input.form-control:focus {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+    outline: none;
+}
+
+.form-check-input {
+    background-color: black;
+    border: 1px solid white;
+    color: white;
+}
+
+.form-check-input:checked {
+    background-color: black;
+    border-color: white;
+    color: black;
+}
+
+.form-check-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.form-check-label {
+    color: white;
+}
+
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 20px;
+    margin-top: 50px;
+}
+
+.search-bar {
+    width: 70%;
+    padding-right: 40px;
+    border-radius: 25px;
+    margin-top: 15px;
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+}
+
+.search-bar::placeholder {
+    color: grey;
+}
+
+.search-icon-button {
+    position: absolute;
+    right: 31.5%;
+    bottom: 12%;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 1;
+}
+
+.search-icon-button:hover {
+    color: grey;
 }

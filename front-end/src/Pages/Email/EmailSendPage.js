@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const EmailForm = () => {
     const [emailToSendTo, setEmailToSendTo] = useState('');
     const [emailTitle, setEmailTitle] = useState('');
@@ -28,7 +28,7 @@ const EmailForm = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5158/gateway/api/ProxyEmailApi/sendwithformat', {
+            const response = await fetch(`${environment}}/gateway/api/ProxyEmailApi/sendwithformat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

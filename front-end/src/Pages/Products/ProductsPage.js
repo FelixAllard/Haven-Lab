@@ -1,28 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { motion } from 'motion/react';
-import { Link } from 'react-router-dom'; // Import Link for routing
-
-// Bootstrap CSS for styling
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css'
+import { FaSearch } from 'react-icons/fa';
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+
 
 const ProductPage = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    // State for search form
     const [searchTerm, setSearchTerm] = useState('');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [available, setAvailable] = useState(false);
 
-    // Fetch products based on search parameters
     const fetchProducts = async (params = '') => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://localhost:5158/gateway/api/ProxyProduct${params}`);
+            const response = await axios.get(`${environment}/gateway/api/ProxyProduct${params}`);
             setProducts(response.data.items);
         } catch (err) {
             setError(err.message);
@@ -36,28 +34,24 @@ const ProductPage = () => {
         fetchProducts();
     }, []);
 
-    // Handle search button click
-    const handleSearch = () => {
+    const handleSearch = (event) => {
+        if (event) event.preventDefault(); // Prevent any default form submission
         let query = '?';
-
         if (searchTerm) query += `Name=${encodeURIComponent(searchTerm)}&`;
         if (minPrice) query += `MinimumPrice=${encodeURIComponent(minPrice)}&`;
         if (maxPrice) query += `MaximumPrice=${encodeURIComponent(maxPrice)}&`;
         if (available) query += `Available=${available}&`;
-
-        // Remove the trailing '&' or '?' if no parameters are added
         if (query.endsWith('&') || query.endsWith('?')) {
             query = query.slice(0, -1);
         }
-
-        // Fetch products with the query string
         fetchProducts(query);
     };
 
-    // Render loading or error states
-    if (loading) {
-        return <div className="text-center">Loading...</div>;
-    }
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            handleSearch(event);
+        }
+    };
 
     if (error) {
         return <div className="text-center text-danger">Error: {error}</div>;
@@ -65,112 +59,97 @@ const ProductPage = () => {
 
     return (
         <div className="container mt-5">
-            <br /><br />
-            <h1>Our Products</h1>
-            <br />
-            <div className="row">
-                {/* Search Form on the Left */}
+            <div className="row mt-3">
                 <div className="col-md-3">
-                    <div className="card p-3 mb-4">
-                        <h5 className="mb-3">Search Products</h5>
+                    <div className="filter-section p-4">
+                        <h5>Filter Products</h5>
                         <div className="form-group mb-3">
-                            <label htmlFor="searchTerm">Search</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                id="searchTerm"
-                                placeholder="Search term"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <div className="form-group mb-3">
-                            <label htmlFor="minPrice">Minimum Price</label>
                             <input
                                 type="number"
                                 className="form-control"
-                                id="minPrice"
                                 placeholder="Minimum price"
                                 value={minPrice}
                                 onChange={(e) => setMinPrice(e.target.value)}
                             />
                         </div>
                         <div className="form-group mb-3">
-                            <label htmlFor="maxPrice">Maximum Price</label>
                             <input
                                 type="number"
                                 className="form-control"
-                                id="maxPrice"
                                 placeholder="Maximum price"
                                 value={maxPrice}
                                 onChange={(e) => setMaxPrice(e.target.value)}
                             />
                         </div>
-                        <div className="form-group form-check mb-3">
+                        <div className="form-check mb-3">
                             <input
                                 type="checkbox"
                                 className="form-check-input"
-                                id="available"
                                 checked={available}
                                 onChange={(e) => setAvailable(e.target.checked)}
                             />
-                            <label className="form-check-label" htmlFor="available">
-                                Available
-                            </label>
+                            <label className="form-check-label">Available</label>
                         </div>
-                        <button className="btn btn-primary w-100" onClick={handleSearch}>
-                            Search
+                        <button className="btn btn-secondary btn-block" onClick={handleSearch}>
+                            Apply Filter
                         </button>
                     </div>
                 </div>
-
-                {/* Product Cards on the Right */}
                 <div className="col-md-9">
-                    <div className="row">
-                        {products.map((product, index) => (
-                            <motion.div
-                                className="col-md-4 mb-4"
-                                key={product.id}
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                            >
-                                <div className="card shadow-sm">
-                                    <img
-                                        src={product.images[0]?.src || 'https://via.placeholder.com/150'}
-                                        className="card-img-top"
-                                        alt={product.title}
-                                        style={{ height: '200px', objectFit: 'cover' }}
-                                    />
-                                    <div className="card-body">
-                                        <h5 className="card-title">{product.title}</h5>
-                                        <div
-                                            className="card-text"
-                                            dangerouslySetInnerHTML={{ __html: product.bodyHtml }}
+                    {/* Search Bar at the Top */}
+                    <div className="search-bar-container">
+                        <input
+                            type="text"
+                            className="form-control search-bar"
+                            placeholder="Search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        />
+                        <button className="search-icon-button" onClick={handleSearch}>
+                            <FaSearch />
+                        </button>
+                    </div>
+    
+                    {/* Display Loading or Products */}
+                    {loading ? (
+                        <div className="text-center">Loading...</div>
+                    ) : error ? (
+                        <div className="text-center text-danger">Error: {error}</div>
+                    ) : (
+                        <div className="row">
+                            {products.map((product, index) => (
+                                <motion.div
+                                    className="col-md-4 mb-4"
+                                    key={product.id}
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                                >
+                                    <div className="card product-card">
+                                        <img
+                                            src={product.images[0]?.src || require('../../Shared/imageNotFound.jpg')}
+                                            className="card-img-top"
+                                            alt={product.title}
                                         />
-                                        <p><strong>Quantity:</strong> {product.variants[0]?.inventoryQuantity}</p>
-                                        <p><strong>Price:</strong> ${product.variants[0]?.price}</p>
-                                        <motion.button
-                                            className="btn btn-primary"
-                                            whileHover={{ scale: 1.1 }} // Grow on hover
-                                            transition={{ duration: 0.2 }}
-                                        >
-                                            <Link
-                                                to={`/product/${product.id}`} // Pass the product ID as a URL parameter
-                                                style={{ color: 'white', textDecoration: 'none' }}
-                                            >
+                                        <div className="card-body">
+                                            <h5 className="card-title">{product.title}</h5>
+                                            <p className="price">${product.variants[0]?.price}</p>
+                                            <Link to={`/product/${product.id}`} className="btn btn-secondary btn-block">
                                                 View Product
                                             </Link>
-                                        </motion.button>
+                                        </div>
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
+    
+    
 };
 
 export default ProductPage;

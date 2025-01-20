@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'motion/react';
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const OrderDetail = () => {
   const { orderId } = useParams(); // Get the orderId from the URL
   const [order, setOrder] = useState(null);
@@ -11,7 +11,7 @@ const OrderDetail = () => {
     // Fetch the order details by orderId
     const fetchOrderDetail = async () => {
       try {
-        const response = await axios.get(`http://localhost:5158/gateway/api/ProxyOrder/${orderId}`);
+        const response = await axios.get(`${environment}/gateway/api/ProxyOrder/${orderId}`);
         console.log("Fetched Order Data:", response.data);
         setOrder(response.data);
       } catch (err) {

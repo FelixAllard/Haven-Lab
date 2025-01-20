@@ -5,7 +5,7 @@ test('AddToCartAndCheckout', async ({ page }) => {
     await page.getByLabel('Toggle navigation').click();
     await page.getByRole('link', { name: 'Products' }).click();
     await page.getByLabel('Close').click();
-    await page.locator('.btn > a').first().click();
+    await page.locator('.card-body > .btn').first().click();
     await page.getByRole('button', { name: 'Add to Cart' }).click();
     await page.getByLabel('Toggle navigation').click();
     await page.getByRole('link', { name: 'Cart' }).click();

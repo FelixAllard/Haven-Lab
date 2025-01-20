@@ -114,7 +114,7 @@ namespace TestingProject.Api_Gateway.Services
 
             // Assert: Validate the exception message
             Assert.AreEqual(503, result.StatusCode);
-            Assert.AreEqual("Exception: Test Exception", result.Content);
+            Assert.AreEqual("Error: Test Exception", result.Content);
         }
         
     }

@@ -16,7 +16,7 @@ test('DeleteProductTest', async ({ page }) => {
     await page.getByLabel('Toggle navigation').click();
     await page.getByRole('link', { name: 'Products' }).click();
     await page.getByLabel('Close').click();
-    await page.locator('div:nth-child(14) > .card > .card-body > .btn > a').click();
+    await page.locator('div:nth-child(2) > .card > .card-body > .btn').click();
     await page.getByRole('button', { name: 'Delete Product' }).click();
 
     await page.getByRole('button', { name: 'Logout' }).click();

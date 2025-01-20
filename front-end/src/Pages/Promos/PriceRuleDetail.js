@@ -8,7 +8,7 @@ const PriceRuleDetail = () => {
     const { priceruleId } = useParams();
     const [priceRule, setPriceRule] = useState(null);
     const [discounts, setDiscounts] = useState({});
-    const [error, setError] = useState(null);
+    const [setError] = useState(null);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         code: ''

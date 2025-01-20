@@ -1,71 +1,73 @@
 /* Bodoni Moda Fontsd */
 @font-face {
-    font-family: 'Bodoni Moda';
-    src: url('../Fonts/BodoniModa/BodoniModa_28pt-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
+  font-family: 'Bodoni Moda';
+  src: url('../Fonts/BodoniModa/BodoniModa_28pt-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
 }
 
 @font-face {
-    font-family: 'Bodoni Moda';
-    src: url('../Fonts/BodoniModa/BodoniModa_28pt-BoldItalic.ttf') format('truetype');
-    font-weight: bold;
-    font-style: italic;
+  font-family: 'Bodoni Moda';
+  src: url('../Fonts/BodoniModa/BodoniModa_28pt-BoldItalic.ttf')
+    format('truetype');
+  font-weight: bold;
+  font-style: italic;
 }
 
 @font-face {
-    font-family: 'Bodoni Moda';
-    src: url('../Fonts/BodoniModa/BodoniModa_28pt-Medium.ttf') format('truetype');
-    font-weight: 500;
-    font-style: normal;
+  font-family: 'Bodoni Moda';
+  src: url('../Fonts/BodoniModa/BodoniModa_28pt-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
 }
 
 @font-face {
-    font-family: 'Bodoni Moda';
-    src: url('../Fonts/BodoniModa/BodoniModa_28pt-MediumItalic.ttf') format('truetype');
-    font-weight: 500;
-    font-style: italic;
+  font-family: 'Bodoni Moda';
+  src: url('../Fonts/BodoniModa/BodoniModa_28pt-MediumItalic.ttf')
+    format('truetype');
+  font-weight: 500;
+  font-style: italic;
 }
 
 /* Inter Fonts */
 @font-face {
-    font-family: 'Inter';
-    src: url('../Fonts/Inter/Inter_28pt-Thin.ttf') format('truetype');
-    font-weight: 100; /* Thin weight */
-    font-style: normal;
+  font-family: 'Inter';
+  src: url('../Fonts/Inter/Inter_28pt-Thin.ttf') format('truetype');
+  font-weight: 100; /* Thin weight */
+  font-style: normal;
 }
 
 @font-face {
-    font-family: 'Inter';
-    src: url('../Fonts/Inter/Inter_28pt-ThinItalic.ttf') format('truetype');
-    font-weight: 100;
-    font-style: italic;
+  font-family: 'Inter';
+  src: url('../Fonts/Inter/Inter_28pt-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
 }
 
 @font-face {
-    font-family: 'Inter';
-    src: url('../Fonts/Inter/Inter_28pt-Medium.ttf') format('truetype');
-    font-weight: 500;
-    font-style: normal;
+  font-family: 'Inter';
+  src: url('../Fonts/Inter/Inter_28pt-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
 }
 
 @font-face {
-    font-family: 'Inter';
-    src: url('../Fonts/Inter/Inter_28pt-MediumItalic.ttf') format('truetype');
-    font-weight: 500;
-    font-style: italic;
+  font-family: 'Inter';
+  src: url('../Fonts/Inter/Inter_28pt-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
 }
 
 @font-face {
-    font-family: 'Inter';
-    src: url('../Fonts/Inter/Inter_28pt-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
+  font-family: 'Inter';
+  src: url('../Fonts/Inter/Inter_28pt-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
 }
 
 @font-face {
-    font-family: 'Inter';
-    src: url('../Fonts/Inter/Inter_28pt-BoldItalic.ttf') format('truetype');
-    font-weight: bold;
-    font-style: italic;
+  font-family: 'Inter';
+  src: url('../Fonts/Inter/Inter_28pt-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
 }

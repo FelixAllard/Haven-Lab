@@ -12,7 +12,7 @@ const AppointmentCreate = () => {
     appointmentDate: '',
     description: '',
     status: 'Upcoming',
-    createdAt: '',  // Initialize the createdAt field
+    createdAt: '', // Initialize the createdAt field
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -26,7 +26,10 @@ const AppointmentCreate = () => {
     const appointmentToCreate = { ...appointment, createdAt: currentDate };
 
     try {
-      const response = await axios.post(`${environment}/gateway/api/ProxyAppointment`, appointmentToCreate);
+      const response = await axios.post(
+        `${environment}/gateway/api/ProxyAppointment`,
+        appointmentToCreate,
+      );
       if (response.status === 201) {
         navigate('/appointments'); // Redirect to appointments list after successful creation
       }
@@ -55,7 +58,9 @@ const AppointmentCreate = () => {
                 type="text"
                 className="form-control"
                 value={appointment.title}
-                onChange={(e) => setAppointment({ ...appointment, title: e.target.value })}
+                onChange={(e) =>
+                  setAppointment({ ...appointment, title: e.target.value })
+                }
               />
             </div>
 
@@ -66,7 +71,12 @@ const AppointmentCreate = () => {
                 type="text"
                 className="form-control"
                 value={appointment.customerName}
-                onChange={(e) => setAppointment({ ...appointment, customerName: e.target.value })}
+                onChange={(e) =>
+                  setAppointment({
+                    ...appointment,
+                    customerName: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -77,7 +87,12 @@ const AppointmentCreate = () => {
                 type="email"
                 className="form-control"
                 value={appointment.customerEmail}
-                onChange={(e) => setAppointment({ ...appointment, customerEmail: e.target.value })}
+                onChange={(e) =>
+                  setAppointment({
+                    ...appointment,
+                    customerEmail: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -88,7 +103,12 @@ const AppointmentCreate = () => {
                 type="datetime-local"
                 className="form-control"
                 value={appointment.appointmentDate}
-                onChange={(e) => setAppointment({ ...appointment, appointmentDate: e.target.value })}
+                onChange={(e) =>
+                  setAppointment({
+                    ...appointment,
+                    appointmentDate: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -98,7 +118,12 @@ const AppointmentCreate = () => {
               <textarea
                 className="form-control"
                 value={appointment.description}
-                onChange={(e) => setAppointment({ ...appointment, description: e.target.value })}
+                onChange={(e) =>
+                  setAppointment({
+                    ...appointment,
+                    description: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -108,7 +133,9 @@ const AppointmentCreate = () => {
               <select
                 className="form-control"
                 value={appointment.status}
-                onChange={(e) => setAppointment({ ...appointment, status: e.target.value })}
+                onChange={(e) =>
+                  setAppointment({ ...appointment, status: e.target.value })
+                }
               >
                 <option value="Upcoming">Upcoming</option>
                 <option value="Cancelled">Cancelled</option>
@@ -125,7 +152,11 @@ const AppointmentCreate = () => {
             >
               {loading ? 'Creating...' : 'Create Appointment'}
             </button>
-            <button type="button" className="btn btn-secondary mt-3 ml-3" onClick={handleCancel}>
+            <button
+              type="button"
+              className="btn btn-secondary mt-3 ml-3"
+              onClick={handleCancel}
+            >
               Cancel
             </button>
           </form>

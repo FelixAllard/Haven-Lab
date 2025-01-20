@@ -1,52 +1,52 @@
 .navbar {
-    height: 80px; 
-    background-color: black;
-    display: flex;
-    align-items: center;
-    position: relative; /* Ensure position is relative for absolute positioning of the button */
+  height: 80px;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  position: relative; /* Ensure position is relative for absolute positioning of the button */
 }
 
 .navbar-logo {
-    max-height: 60px; 
+  max-height: 60px;
 }
 
 .navbar-toggler {
-    position: absolute;
-    right: 10px;
-    z-index: 1; /* Ensure it's above other content */
+  position: absolute;
+  right: 10px;
+  z-index: 1; /* Ensure it's above other content */
 }
 
 .offcanvas-end {
-    width: 25% !important;  /* How much of the screen is taken */
-    height: 100% !important;
-    top: 0;
-    transition: transform 0.5s ease-in-out !important;
+  width: 25% !important; /* How much of the screen is taken */
+  height: 100% !important;
+  top: 0;
+  transition: transform 0.5s ease-in-out !important;
 }
 
 /* Center the navbar links */
 .offcanvas-body {
-    display: flow;
-    justify-content: center;  /* Centers items horizontally */
-    padding-left: 50%;
-    font-size: calc(10px + 2vmin);
+  display: flow;
+  justify-content: center; /* Centers items horizontally */
+  padding-left: 50%;
+  font-size: calc(10px + 2vmin);
 }
 
 /* Responsive styles for smaller screens */
 @media (max-width: 768px) {
-    .offcanvas-end {
-        width: 100% !important; /* Take up more space on smaller screens */
-    }
+  .offcanvas-end {
+    width: 100% !important; /* Take up more space on smaller screens */
+  }
 
-    .offcanvas-body {
-        padding-left: 25%; /* Adjust padding for centering */
-        font-size: calc(12px + 2vmin); /* Adjust font size for smaller screens */
-    }
+  .offcanvas-body {
+    padding-left: 25%; /* Adjust padding for centering */
+    font-size: calc(12px + 2vmin); /* Adjust font size for smaller screens */
+  }
 }
 
 .nav-link {
-    text-align: center;
+  text-align: center;
 }
 
 .navbar-logo {
-    max-height: 50px;
+  max-height: 50px;
 }

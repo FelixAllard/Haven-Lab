@@ -14,11 +14,15 @@ const Appointments = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await axios.get(`${environment}/gateway/api/ProxyAppointment/all`);
+        const response = await axios.get(
+          `${environment}/gateway/api/ProxyAppointment/all`,
+        );
         setAppointments(response.data || []);
       } catch (err) {
         if (err.response) {
-          setError(`Server Error: ${err.response.status} - ${err.response.data.message || 'An error occurred'}`);
+          setError(
+            `Server Error: ${err.response.status} - ${err.response.data.message || 'An error occurred'}`,
+          );
         } else if (err.request) {
           setError('Network Error: No response received from the server.');
         } else {

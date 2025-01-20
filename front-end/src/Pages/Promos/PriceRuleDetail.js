@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const PriceRuleDetail = () => {
     const { priceruleId } = useParams();
@@ -19,7 +18,7 @@ const PriceRuleDetail = () => {
         // Fetch the price rule details by ID
         const fetchPriceRuleDetail = async () => {
             try {
-                const response = await axios.get(`${environment}/gateway/api/ProxyPromo/PriceRules/${priceruleId}`);
+                const response = await axios.get(`http://localhost:5158/gateway/api/ProxyPromo/PriceRules/${priceruleId}`);
                 console.log("Fetched Price Rule Data:", response.data);
                 setPriceRule(response.data);
             } catch (err) {
@@ -29,7 +28,7 @@ const PriceRuleDetail = () => {
 
         const fetchDiscountCodes = async () => {
             try {
-                const response = await axios.get(`${environment}/gateway/api/ProxyPromo/Discounts/${priceruleId}`);
+                const response = await axios.get(`http://localhost:5158/gateway/api/ProxyPromo/Discounts/${priceruleId}`);
                 console.log("Fetched Discount Data:", response.data);
                 setDiscounts(response.data.items || []);
             } catch (err) {
@@ -48,7 +47,7 @@ const PriceRuleDetail = () => {
 
     const handleDelete = async () => {
         try {
-            const response = await axios.delete(`${environment}/gateway/api/ProxyPromo/PriceRules/${priceruleId}`);
+            const response = await axios.delete(`http://localhost:5158/gateway/api/ProxyPromo/PriceRules/${priceruleId}`);
             if (response.status === 200) {
                 navigate(0);
             }
@@ -59,7 +58,7 @@ const PriceRuleDetail = () => {
 
     const handleDiscountDelete = async (discountId) => {
         try {
-            const response = await axios.delete(`${environment}/gateway/api/ProxyPromo/Discounts/${priceruleId}/${discountId}`);
+            const response = await axios.delete(`http://localhost:5158/gateway/api/ProxyPromo/Discounts/${priceruleId}/${discountId}`);
             if (response.status === 200) {
                 navigate(0);
             }
@@ -70,7 +69,7 @@ const PriceRuleDetail = () => {
 
     const handleDiscountCreate = async (code) => {
         try {
-            const response = await axios.post(`${environment}/gateway/api/ProxyPromo/Discounts/${priceruleId}`, formData);
+            const response = await axios.post(`http://localhost:5158/gateway/api/ProxyPromo/Discounts/${priceruleId}`, formData);
             if (response.status === 200) {
                 navigate(0);
             }

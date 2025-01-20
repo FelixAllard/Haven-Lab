@@ -57,7 +57,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route
+  <Route
                 path="/admin/product/create"
                 element={
                   <ProtectedRoute>

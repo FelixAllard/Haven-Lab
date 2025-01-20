@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'; // Import Link for routing
 // Bootstrap CSS for styling
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css'
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const ProductPage = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -22,7 +22,7 @@ const ProductPage = () => {
     const fetchProducts = async (params = '') => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://localhost:5158/gateway/api/ProxyProduct${params}`);
+            const response = await axios.get(`${environment}/gateway/api/ProxyProduct${params}`);
             setProducts(response.data.items);
         } catch (err) {
             setError(err.message);

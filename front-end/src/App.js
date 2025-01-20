@@ -28,6 +28,7 @@ import AppointmentCreate from './Pages/Appointments/AppointmentCreate.js';
 
 
 function App() {
+    console.log(process.env.REACT_APP_API_GATEWAY_HOST)
   return (
     <AuthProvider>
       <Router>

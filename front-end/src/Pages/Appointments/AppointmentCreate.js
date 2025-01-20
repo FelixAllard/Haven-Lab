@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const AppointmentCreate = () => {
   const [appointment, setAppointment] = useState({
@@ -25,7 +26,7 @@ const AppointmentCreate = () => {
     const appointmentToCreate = { ...appointment, createdAt: currentDate };
 
     try {
-      const response = await axios.post('http://localhost:5158/gateway/api/ProxyAppointment', appointmentToCreate);
+      const response = await axios.post(`${environment}/gateway/api/ProxyAppointment`, appointmentToCreate);
       if (response.status === 201) {
         navigate('/appointments'); // Redirect to appointments list after successful creation
       }

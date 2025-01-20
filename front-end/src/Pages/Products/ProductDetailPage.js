@@ -8,7 +8,7 @@ import { useAuth } from "../../AXIOS/AuthentificationContext";
 // Bootstrap CSS for card styling
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaArrowLeft } from 'react-icons/fa'; // FontAwesome icon for the back arrow
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const ProductDetailsPage = () => {
     const { productId } = useParams(); // Get product ID from the URL
     const [product, setProduct] = useState(null);
@@ -33,7 +33,7 @@ const ProductDetailsPage = () => {
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:5158/gateway/api/ProxyProduct/${productId}`);
+                const response = await axios.get(`${environment}/gateway/api/ProxyProduct/${productId}`);
                 setProduct(response.data);
             } catch (err) {
                 setError(err.message);
@@ -47,7 +47,7 @@ const ProductDetailsPage = () => {
 
     const handleDelete = async () => {
         try {
-            const response = await axios.delete(`http://localhost:5158/gateway/api/ProxyProduct/${productId}`);
+            const response = await axios.delete(`${environment}/gateway/api/ProxyProduct/${productId}`);
             if (response.status === 200) {
                 setToastMessage('Product successfully deleted.');
                 setTimeout(() => {
@@ -64,10 +64,10 @@ const ProductDetailsPage = () => {
     const addToCart = async () => {
         try {
             console.log('Adding product to cart...');
-            const response = await axios.post(`http://localhost:5158/gateway/api/Cart/add/${productId}`, null, { withCredentials: true });
+            const response = await axios.post(`${environment}/gateway/api/Cart/add/${productId}`, null, { withCredentials: true });
             if (response.status === 200) {
 
-                const updatedCartResponse = await axios.get('http://localhost:5158/gateway/api/Cart', null, { withCredentials: true });
+                const updatedCartResponse = await axios.get(`${environment}/gateway/api/Cart`, null, { withCredentials: true });
                 if (updatedCartResponse.status === 200) {
                     console.log('Updated cart:', updatedCartResponse.data);
                 }

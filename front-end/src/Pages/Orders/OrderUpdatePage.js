@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const OrderUpdatePage = () => {
   const { orderId } = useParams(); // Retrieve orderId from URL
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const OrderUpdatePage = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:5158/gateway/api/ProxyOrder/${orderId}`);
+        const response = await axios.get(`${environment}/gateway/api/ProxyOrder/${orderId}`);
         setOrder(response.data);
       } catch (err) {
         setError('Error fetching order details.');
@@ -53,7 +53,7 @@ const OrderUpdatePage = () => {
     e.preventDefault();
     try {
       console.log(order);
-      const response = await axios.put(`http://localhost:5158/gateway/api/ProxyOrder/${orderId}`, order);
+      const response = await axios.put(`${environment}/gateway/api/ProxyOrder/${orderId}`, order);
       if (response.status === 200) {
         setSuccessMessage('Order updated successfully!');
         setTimeout(() => navigate(`/orders/${orderId}`), 2000); // Redirect to orders page after 2 seconds

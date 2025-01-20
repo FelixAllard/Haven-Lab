@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const ProductForm = () => {
     const [formData, setFormData] = useState({
@@ -89,7 +90,7 @@ const ProductForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5158/gateway/api/ProxyProduct', formData);
+            const response = await axios.post(`${environment}/gateway/api/ProxyProduct`, formData);
             if (response.status === 200) {
                 setShowSuccess(true);
                 setTimeout(() => {

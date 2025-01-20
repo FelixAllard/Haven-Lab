@@ -28,7 +28,7 @@ const EmailForm = () => {
         };
 
         try {
-            const response = await fetch(`${environment}}/gateway/api/ProxyEmailApi/sendwithformat`, {
+            const response = await fetch(`${environment}/gateway/api/ProxyEmailApi/sendwithformat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

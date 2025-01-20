@@ -1,7 +1,11 @@
 using AppointmentsService.Data;
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load("../.env");
 
 // Add services to the container.
 

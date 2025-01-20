@@ -3,6 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const PriceRules = () => {
     const [priceRules, setPriceRules] = useState([]); // Updated state name for clarity
@@ -14,7 +15,7 @@ const PriceRules = () => {
     useEffect(() => {
         const fetchPriceRules = async () => {
             try {
-                const response = await axios.get('http://localhost:5158/gateway/api/ProxyPromo/PriceRules');
+                const response = await axios.get(`${environment}/gateway/api/ProxyPromo/PriceRules`);
                 setPriceRules(response.data.items || []); // Ensure fallback to empty array if no items
             } catch (err) {
                 if (err.response) {

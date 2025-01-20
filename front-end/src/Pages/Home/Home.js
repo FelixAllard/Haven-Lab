@@ -72,7 +72,7 @@ const Home = () => {
             return;
         }
             try {
-                const response = await fetch(`http://localhost:5158/gateway/api/ProxyCustomer/subscribe`, {
+                const response = await fetch(`${environment}/gateway/api/ProxyCustomer/subscribe`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(email), 
@@ -98,7 +98,7 @@ const Home = () => {
             return;
         }
             try {
-                const response = await fetch("http://localhost:5158/gateway/api/ProxyCustomer/unsubscribe", {
+                const response = await fetch(`${environment}/gateway/api/ProxyCustomer/unsubscribe`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(email), 

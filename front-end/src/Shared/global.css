@@ -58,3 +58,9 @@ body {
     margin: 0; 
     height: 100vh;
   }
+
+@media (min-width: 2235px) and (min-height: 1345px) {
+    body {
+        background-image: url('back2.jpg');
+    }
+}

@@ -1,0 +1,57 @@
+.container {
+    font-family: 'Georgia', serif; /* Match the font */
+    color: white; /* Text color */
+    background-color: #333; /* Background color */
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap; /* Ensure responsiveness */
+    justify-content: space-between; /* Space between columns */
+  }
+  
+  .col {
+    flex: 0 0 48%; /* Each column takes 48% of the width */
+    margin-bottom: 20px;
+  }
+  
+  p {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  h4 {
+    margin-bottom: 15px;
+    font-size: 22px;
+  }
+  
+  a {
+    color: #00d1ff; /* Highlighted link color */
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  button {
+    background-color: #555; /* Gray button */
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #777; /* Lighter gray on hover */
+  }
+  

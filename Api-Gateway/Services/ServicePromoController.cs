@@ -1,4 +1,10 @@
-﻿namespace Api_Gateway.Services;
+﻿using System.Net;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using ShopifySharp;
+
+namespace Api_Gateway.Services;
 
 public class ServicePromoController
 {
@@ -15,33 +21,159 @@ public class ServicePromoController
     {
         try
         {
-            // Create the HttpClient instance using the factory
-            var client = _httpClientFactory.CreateClient(); // Uses default HttpClient configuration
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Promo/PriceRules";
 
-            var requestUrl = $"{BASE_URL}/api/pricerules"; // Shopify endpoint for orders
-
-            // Create the request message
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-
-            // Send the request and get the response
-            var response = await client.SendAsync(requestMessage);
+            var response = await client.GetAsync(requestUrl);
 
             if (response.IsSuccessStatusCode)
             {
-                // Read and return the response content as string
                 return await response.Content.ReadAsStringAsync();
             }
             else
             {
-                // If the API call fails, return an error message
-                return $"Error fetching orders: {response.ReasonPhrase}";
+                return $"Error fetching price rules: {response.ReasonPhrase}";
             }
         }
         catch (Exception ex)
         {
-            // Return error details in case of an exception
             return $"Exception: {ex.Message}";
-        } 
+        }
+    }
+    
+    public virtual async Task<string> GetPriceRuleByIdAsync(long id)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Promo/PriceRules/{id}";
+
+            var response = await client.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return "404 Not Found: Price rule not found";
+            }
+            else
+            {
+                return $"Error fetching price rule by ID: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Exception: {ex.Message}";
+        }
+    }
+    
+    public virtual async Task<string> DeletePriceRuleAsync(long id)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Promo/PriceRules/{id}";
+
+            var response = await client.DeleteAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return "Price rule deleted successfully.";
+            }
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return "404 Not Found: Price rule not found";
+            }
+            else
+            {
+                return $"Error deleting price rule by ID: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Exception: {ex.Message}";
+        }
+    }
+    
+    public virtual async Task<string> GetAllDiscountsByRuleAsync(long priceRuleId)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Promo/Discounts/{priceRuleId}";
+
+            var response = await client.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                return $"Error fetching discounts: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Exception: {ex.Message}";
+        }
+    }
+    
+    public virtual async Task<HttpResponseMessage> CreateDiscountAsync(long priceRuleId, PriceRuleDiscountCode discountCode)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Promo/Discounts/{priceRuleId}";
+
+            var jsonSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Formatting = Formatting.None
+            };
+
+            var jsonContent = JsonConvert.SerializeObject(discountCode, jsonSettings);
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            return await client.PostAsync(requestUrl, content);
+        }
+        catch (Exception ex)
+        {
+            return new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent($"Exception: {ex.Message}")
+            };
+        }
+    }
+    
+    public virtual async Task<string> DeleteDiscountAsync(long priceRuleId, long discountId)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Promo/Discounts/{priceRuleId}/{discountId}";
+
+            var response = await client.DeleteAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return "Discount code deleted successfully.";
+            }
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return "404 Not Found: Discount code not found";
+            }
+            else
+            {
+                return $"Error deleting discount code: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Exception: {ex.Message}";
+        }
     }
 
 }

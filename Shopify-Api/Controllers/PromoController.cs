@@ -42,7 +42,7 @@ public class PromoController : ControllerBase
     }
 
     //================================ PRICE RULES ==================================
-    [HttpGet("/PriceRules")] 
+    [HttpGet("PriceRules")] 
     public async Task<IActionResult> GetAllPriceRules()
     {
         try
@@ -61,7 +61,7 @@ public class PromoController : ControllerBase
         }
     }
     
-    [HttpGet("/PriceRules/{id}")] 
+    [HttpGet("PriceRules/{id}")] 
     public async Task<IActionResult> GetPriceRulesById([FromRoute]long id)
     {
         try
@@ -108,7 +108,7 @@ public class PromoController : ControllerBase
     }
     */
     
-    [HttpDelete("/PriceRules/{id}")]
+    [HttpDelete("PriceRules/{id}")]
     public async Task<IActionResult> DeletePriceRule([FromRoute]long id)
     {
         try
@@ -127,7 +127,7 @@ public class PromoController : ControllerBase
     }
     
     //================================ DISCOUNT CODES ==================================
-    [HttpGet("/Discounts/{priceRuleId}")] 
+    [HttpGet("Discounts/{priceRuleId}")] 
     public async Task<IActionResult> GetAllDiscountsByRule([FromRoute]long priceRuleId)
     {
         try
@@ -146,7 +146,7 @@ public class PromoController : ControllerBase
         }
     }
     
-    [HttpPost("/Discounts/{priceRuleId}")]
+    [HttpPost("Discounts/{priceRuleId}")]
     public virtual async Task<IActionResult> PostDiscount([FromRoute]long priceRuleId, [FromBody] PriceRuleDiscountCode request)
     {
         try
@@ -171,7 +171,7 @@ public class PromoController : ControllerBase
         }
     }
     
-    [HttpDelete("/Discounts/{priceRuleId}/{discountId}")]
+    [HttpDelete("Discounts/{priceRuleId}/{discountId}")]
     public async Task<IActionResult> DeleteDiscount([FromRoute]long priceRuleId, [FromRoute] long discountId)
     {
         try

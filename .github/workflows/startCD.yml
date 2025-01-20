@@ -15,6 +15,6 @@ jobs:
 
       - name: Make HTTP POST request to verify key
         run: |
-          curl -X POST ${{ secrets.DEPLOYMENT_API_IP }}:25565/api/Deployment/verify-key \
+          curl -X POST ${{ secrets.DEPLOYMENT_API_IP }} \
           -H "Content-Type: application/json" \
           -d '{"key": "${{ secrets.SECRET_KET_CD }}"}'

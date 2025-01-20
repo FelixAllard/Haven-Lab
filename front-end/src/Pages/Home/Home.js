@@ -8,7 +8,7 @@ import './Home.css';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import PlaceholderImage from './Assets/placeholder.png';
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const Home = () => {
     const [bestsellers, setBestsellers] = useState([]);
@@ -26,7 +26,7 @@ const Home = () => {
             ];
             try {
                 const requests = bestsellerIds.map((productId) =>
-                    axios.get(`http://localhost:5158/gateway/api/ProxyProduct/${productId}`)
+                    axios.get(`${environment}/gateway/api/ProxyProduct/${productId}`)
                 );
                 const responses = await Promise.all(requests);
                 setBestsellers(responses.map((response) => response.data));

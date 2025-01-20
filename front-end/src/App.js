@@ -25,9 +25,12 @@ import EmailSendPage from "./Pages/Email/EmailSendPage";
 import AppointmentDetails from './Pages/Appointments/AppointmentDetails.js';
 import AppointmentUpdate from './Pages/Appointments/AppointmentUpdate.js';
 import AppointmentCreate from './Pages/Appointments/AppointmentCreate.js';
+import PriceRules from './Pages/Promos/PriceRules';
+import PriceRuleDetail from './Pages/Promos/PriceRuleDetail.js';
 
 
 function App() {
+    console.log(process.env.REACT_APP_API_GATEWAY_HOST)
   return (
     <AuthProvider>
       <Router>
@@ -122,13 +125,32 @@ function App() {
                 } 
               />
 
-              <Route path="/appointments/create" 
+                <Route path="/appointments/create"
+                       element={
+                           <ProtectedRoute>
+                               <AppointmentCreate />
+                           </ProtectedRoute>
+                       }
+                />
+
+                {/* Promo */}
+              <Route path="/promo/pricerules"
                 element={
                     <ProtectedRoute>
-                        <AppointmentCreate />
+                        <PriceRules />
                     </ProtectedRoute>
-                } 
+                }
               />
+
+
+                <Route path="/promo/pricerules/:priceruleId"
+                       element={
+                           <ProtectedRoute>
+                               <PriceRuleDetail />
+                           </ProtectedRoute>
+                       }
+                />
+
             </Routes>
           </main>
           <Footer />

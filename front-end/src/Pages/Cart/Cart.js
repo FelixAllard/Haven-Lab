@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const CartPage = () => {
     const [cart, setCart] = useState({});
 
@@ -11,7 +11,7 @@ const CartPage = () => {
 
     const fetchCart = async () => {
         try {
-            const response = await axios.get('http://localhost:5158/gateway/api/Cart', { withCredentials: true });
+            const response = await axios.get(`${environment}/gateway/api/Cart`, { withCredentials: true });
             if (response.status === 200) {
                 console.log('Cart fetched successfully:', response.data);
                 setCart(response.data);
@@ -27,7 +27,7 @@ const CartPage = () => {
     const removeByOne = async (variantId) => {
         try {
             const response = await axios.post(
-                `http://localhost:5158/gateway/api/Cart/removebyone/${variantId}`,
+                `${environment}/gateway/api/Cart/removebyone/${variantId}`,
                 null,
                 { withCredentials: true }
             );
@@ -54,7 +54,7 @@ const CartPage = () => {
         } else {
             try {
                 const response = await axios.post(
-                    `http://localhost:5158/gateway/api/Cart/addbyone/${variantId}`,
+                    `${environment}/gateway/api/Cart/addbyone/${variantId}`,
                     null,
                     { withCredentials: true }
                 );
@@ -73,7 +73,7 @@ const CartPage = () => {
     const removeFromCart = async (variantId) => {
         try {
             const response = await axios.post(
-                `http://localhost:5158/gateway/api/Cart/remove/${variantId}`,
+                `${environment}/gateway/api/Cart/remove/${variantId}`,
                 null,
                 { withCredentials: true }
             );
@@ -114,7 +114,7 @@ const CartPage = () => {
 
             // Send the request to create a draft order
             const response = await axios.post(
-                'http://localhost:5158/gateway/api/ProxyDraftOrder',
+                `${environment}/gateway/api/ProxyDraftOrder`,
                 draftOrderData,
                 { withCredentials: true }
             );

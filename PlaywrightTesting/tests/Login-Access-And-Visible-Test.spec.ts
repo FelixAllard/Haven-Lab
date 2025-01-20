@@ -19,7 +19,7 @@ test('Login-Access-And-Visible-Test', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Orders' })).toBeHidden();
   await page.getByRole('link', { name: 'Products' }).click();
   await page.getByLabel('Close').click();
-  await page.locator('div:nth-child(2) > .card > .card-body > .btn > a').click();
+  await page.locator('div:nth-child(2) > .card > .card-body > .btn').click();
   await expect(page.getByRole('button', { name: 'Delete Product' })).toBeHidden();
   await expect(page.getByRole('button', { name: 'Update Product' })).toBeHidden();
 
@@ -35,6 +35,6 @@ test('Login-Access-And-Visible-Test', async ({ page }) => {
   await expect(page.url()).toBe('http://localhost:3000/orders');
   await page.getByRole('link', { name: 'Products' }).click();
   await page.getByLabel('Close').click();
-  await page.locator('div:nth-child(2) > .card > .card-body > .btn > a').click();
+  await page.locator('div:nth-child(2) > .card > .card-body > .btn').click();
   await page.getByRole('button', { name: 'Logout' }).click();
 });

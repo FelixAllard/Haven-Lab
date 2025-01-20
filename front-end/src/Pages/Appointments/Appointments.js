@@ -3,7 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +14,7 @@ const Appointments = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await axios.get('http://localhost:5158/gateway/api/ProxyAppointment/all');
+        const response = await axios.get(`${environment}/gateway/api/ProxyAppointment/all`);
         setAppointments(response.data || []);
       } catch (err) {
         if (err.response) {

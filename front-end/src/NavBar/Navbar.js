@@ -159,6 +159,19 @@ const Navbar = () => {
                                 <Link className="nav-link" aria-current="page" to="/appointments">Appointments</Link>
                             </motion.li>
                         )}
+
+                        {isLoggedIn && (
+                            <motion.li
+                                key={isOpen ? "promos-open" : "promos-closed"}
+                                className="nav-item"
+                                initial={{opacity: 0, scale: 0.1}}
+                                animate={{opacity: 1, scale: 1}}
+                                exit={{opacity: 0, scale: 0.1}}
+                                transition={{delay: 0.5, duration: 0.7}}
+                            >
+                                <Link className="nav-link" aria-current="page" to="/promo/pricerules">Promos</Link>
+                            </motion.li>
+                        )}
                         
                         <motion.li
                             key={isOpen ? "about-open" : "about-closed"}

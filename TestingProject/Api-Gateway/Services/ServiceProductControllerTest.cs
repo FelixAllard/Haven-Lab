@@ -99,7 +99,7 @@ public class ServiceProductControllerTest
         var result = await _serviceProductController.GetAllProductsAsync();
 
         // Assert
-        Assert.That(result, Is.EqualTo("Exception: Unexpected error"));
+        Assert.That(result, Is.EqualTo("Error: Unexpected error"));
     }
     // ------- GET Get By ID
     [Test]
@@ -202,7 +202,7 @@ public class ServiceProductControllerTest
         var result = await _serviceProductController.GetProductByIdAsync(productId);
 
         // Assert
-        Assert.That(result, Is.EqualTo("Exception: Unexpected error"));
+        Assert.That(result, Is.EqualTo("Error: Unexpected error"));
     }
 
     
@@ -262,7 +262,7 @@ public class ServiceProductControllerTest
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
-        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Exception: Network error"));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Error: Network error"));
     }
     [Test]
     public async Task CreateProductAsync_ReturnsInternalServerError_WhenGeneralExceptionOccurs()
@@ -288,7 +288,7 @@ public class ServiceProductControllerTest
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
-        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Exception: Unexpected error"));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Error: Unexpected error"));
     }
     [Test]
     public async Task CreateProductAsync_ReturnsBadRequest_WhenApiCallFails()
@@ -436,7 +436,7 @@ public class ServiceProductControllerTest
         var result = await _serviceProductController.DeleteProductAsync(productId);
 
         // Assert
-        Assert.That(result, Is.EqualTo("Exception: Unexpected error"));
+        Assert.That(result, Is.EqualTo("Error: Unexpected error"));
     }
 
 
@@ -501,7 +501,7 @@ public class ServiceProductControllerTest
 
         // Assert: Verify the response status and message
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
-        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Exception: Network error"));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Error: Network error"));
     }
     
     [Test]
@@ -530,7 +530,7 @@ public class ServiceProductControllerTest
 
         // Assert: Verify the response status and message
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
-        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Exception: Unexpected error"));
+        Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Error: Unexpected error"));
     }
 
     [Test]

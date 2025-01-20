@@ -3,7 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const OrderPage = () => {
   const [orders, setOrders] = useState([]); // Updated state name for clarity
   const [loading, setLoading] = useState(true);
@@ -14,7 +14,7 @@ const OrderPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:5158/gateway/api/ProxyOrder');
+        const response = await axios.get(`${environment}/gateway/api/ProxyOrder`);
         setOrders(response.data.items || []); // Ensure fallback to empty array if no items
       } catch (err) {
         if (err.response) {

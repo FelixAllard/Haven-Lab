@@ -21,11 +21,6 @@ public class CartController : ControllerBase
     [HttpPost("add/{productId}")]
     public async Task<IActionResult> AddToCart(long productId)
     {
-        if (productId <= 0)
-        {
-            return BadRequest(new { Message = "Invalid product ID format." });
-        }
-
         // Fetch the first variant ID for the given product ID
         long? variantId = await GetFirstVariantId(productId);
         if (variantId == null)

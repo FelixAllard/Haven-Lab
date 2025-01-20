@@ -30,6 +30,7 @@ import PriceRuleDetail from './Pages/Promos/PriceRuleDetail.js';
 
 
 function App() {
+    console.log(process.env.REACT_APP_API_GATEWAY_HOST)
   return (
     <AuthProvider>
       <Router>

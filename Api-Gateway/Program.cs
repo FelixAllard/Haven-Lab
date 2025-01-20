@@ -32,15 +32,19 @@ builder.Services.AddTransient<ServicePromoController>();
 // ENABLE CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin", builder =>
+    options.AddPolicy("AllowLocalhostAndSpecificUrl", builder =>
     {
         builder
-            .WithOrigins("http://localhost:3000")  // Allow only your frontend origin
-            .AllowAnyHeader()  // Allow any header
-            .AllowAnyMethod()  // Allow any HTTP method (GET, POST, etc.)
+            .WithOrigins(
+                "http://localhost:3000",     // Localhost for development
+                "http://96.23.35.62:3000/" // Specific production URL
+            )
+            .AllowAnyHeader()     // Allow any headers
+            .AllowAnyMethod()     // Allow any HTTP method
             .AllowCredentials();  // Allow credentials (cookies, HTTP authentication)
     });
 });
+
 //Allows Docker to connect to it directly
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
@@ -58,7 +62,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Apply CORS policy before other middleware
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowLocalhostAndSpecificUrl");
 
 
 app.UseHttpsRedirection();

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAuth } from "../../../AXIOS/AuthentificationContext";
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const OwnerLogin = () => {
   const [username, setUsername] = useState("");
@@ -15,7 +16,7 @@ const OwnerLogin = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5158/gateway/api/ProxyAuth/login",
+        `${environment}/gateway/api/ProxyAuth/login`,
         {
           username,
           password,

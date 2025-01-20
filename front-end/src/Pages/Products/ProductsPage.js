@@ -3,8 +3,10 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './ProductsPage.css';
+import './ProductsPage.css'
 import { FaSearch } from 'react-icons/fa';
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+
 
 const ProductPage = () => {
     const [products, setProducts] = useState([]);
@@ -18,7 +20,7 @@ const ProductPage = () => {
     const fetchProducts = async (params = '') => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://localhost:5158/gateway/api/ProxyProduct${params}`);
+            const response = await axios.get(`${environment}/gateway/api/ProxyProduct${params}`);
             setProducts(response.data.items);
         } catch (err) {
             setError(err.message);
@@ -27,6 +29,7 @@ const ProductPage = () => {
         }
     };
 
+    // Initial fetch on component mount
     useEffect(() => {
         fetchProducts();
     }, []);

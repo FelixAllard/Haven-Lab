@@ -5,8 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './AddProductPage.css';
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
-import './AddProductPage.css';
-
 const ProductForm = () => {
     const [formData, setFormData] = useState({
         title: '',

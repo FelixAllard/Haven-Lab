@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './AddProductPage.css';
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+<<<<<<< HEAD
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+=======
+import './AddProductPage.css';
+>>>>>>> main
 
 const ProductForm = () => {
     const [formData, setFormData] = useState({

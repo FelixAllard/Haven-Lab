@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'; // Add useNavig
 import { motion } from 'motion/react';
 import bootstrap from 'bootstrap/dist/js/bootstrap.min.js';
 import { useAuth } from "../../AXIOS/AuthentificationContext";
+import './ProductDetailPage.css';
 
 // Bootstrap CSS for card styling
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -115,7 +116,7 @@ const ProductDetailsPage = () => {
                 {/* Left Column: Product Image */}
                 <div className="col-md-4">
                     <motion.img
-                        src={product.images[0]?.src || 'https://via.placeholder.com/150'}
+                        src={product.images[0]?.src || require('../../Shared/imageNotFound.jpg')}
                         className="card-img-top mb-4"
                         alt={product.title}
                         style={{ height: '400px', objectFit: 'cover' }}
@@ -228,32 +229,32 @@ const ProductDetailsPage = () => {
                             </motion.button>
                         )}
 
+                        {/* Edit product Button - Owner */}
+                        {isLoggedIn && (
+                            <motion.button
+                                className="btn btn-secondary mt-2"
+                                whileHover={{ scale: 1.1 }}
+                                transition={{ duration: 0.2 }}
+                                >
+                                <Link
+                                    to={`/admin/product/update/${product.id}`}
+                                            style={{ color: 'white', textDecoration: 'none' }}
+                                >
+                                    Update Product
+                                </Link>
+                            </motion.button>
+                        )}
+
                         {/* Delete Button - Owner */}
                         {isLoggedIn && (
                             <motion.button
-                                className="btn btn-danger mb-3"
+                                className="btn btn-danger mb-3 mt-3"
                                 id="liveToastBtn"
                                 whileHover={{ scale: 1.1 }}
                                 transition={{ duration: 0.2 }}
                                 onClick={handleDelete}
                             >
                             Delete Product
-                            </motion.button>
-                        )}
-
-                        {/* Edit product Button - Owner */}
-                        {isLoggedIn && (
-                            <motion.button
-                                        className="btn btn-secondary"
-                                        whileHover={{ scale: 1.1 }}
-                                        transition={{ duration: 0.2 }}
-                                    >
-                                        <Link
-                                            to={`/admin/product/update/${product.id}`}
-                                            style={{ color: 'white', textDecoration: 'none' }}
-                                        >
-                                            Update Product
-                                        </Link>
                             </motion.button>
                         )}
                     </div>

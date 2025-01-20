@@ -22,6 +22,9 @@ import OrderUpdatePage from './Pages/Orders/OrderUpdatePage.js';
 import ProtectedRoute from './AXIOS/ProtectedRoute.js';
 import Appointments from './Pages/Appointments/Appointments.js';
 import EmailSendPage from "./Pages/Email/EmailSendPage";
+import AppointmentDetails from './Pages/Appointments/AppointmentDetails.js';
+import AppointmentUpdate from './Pages/Appointments/AppointmentUpdate.js';
+import AppointmentCreate from './Pages/Appointments/AppointmentCreate.js';
 
 
 function App() {
@@ -95,11 +98,37 @@ function App() {
               />
 
                 {/* Appointments */}
-                <Route path="/appointments" element={
+              <Route path="/appointments" 
+                element={
                     <ProtectedRoute>
                         <Appointments />
                     </ProtectedRoute>
-                } />
+                } 
+              />
+
+              <Route path="/appointments/:appointmentId" 
+                element={
+                    <ProtectedRoute>
+                        <AppointmentDetails />
+                    </ProtectedRoute>
+                } 
+              />
+
+              <Route path="/appointments/update/:appointmentId" 
+                element={
+                    <ProtectedRoute>
+                        <AppointmentUpdate />
+                    </ProtectedRoute>
+                } 
+              />
+
+              <Route path="/appointments/create" 
+                element={
+                    <ProtectedRoute>
+                        <AppointmentCreate />
+                    </ProtectedRoute>
+                } 
+              />
             </Routes>
           </main>
           <Footer />

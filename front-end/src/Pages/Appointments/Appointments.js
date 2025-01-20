@@ -15,15 +15,10 @@ const Appointments = () => {
     const fetchAppointments = async () => {
       try {
         const response = await axios.get('http://localhost:5158/gateway/api/ProxyAppointment/all');
-        console.log(response.data);
         setAppointments(response.data || []);
       } catch (err) {
         if (err.response) {
-          setError(
-            `Server Error: ${err.response.status} - ${
-              err.response.data.message || 'An error occurred while fetching appointments'
-            }`
-          );
+          setError(`Server Error: ${err.response.status} - ${err.response.data.message || 'An error occurred'}`);
         } else if (err.request) {
           setError('Network Error: No response received from the server.');
         } else {
@@ -49,9 +44,17 @@ const Appointments = () => {
   const handleViewClick = (appointmentId) => {
     navigate(`/appointments/${appointmentId}`);
   };
+
+  const handleCreateClick = () => {
+    navigate('/appointments/create');
+  };
+
   return (
     <div className="container mt-7">
-      <h1 className="mb-4"><br></br>Appointments</h1>
+      <h1 className="mb-4">Appointments</h1>
+      <button className="btn btn-success mb-3" onClick={handleCreateClick}>
+        Create Appointment
+      </button>
       <div className="row">
         {appointments.length > 0 ? (
           appointments.map((appointment, index) => (
@@ -65,7 +68,7 @@ const Appointments = () => {
               <div className="card shadow-sm border-light">
                 <div className="card-body">
                   <p>
-                    <strong>Appointment ID:</strong> {appointment.appointmentId || 'N/A'}
+                    <strong>Title:</strong> {appointment.title || 'N/A'}
                   </p>
                   <p>
                     <strong>Date:</strong>{' '}

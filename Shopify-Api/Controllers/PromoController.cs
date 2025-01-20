@@ -21,7 +21,6 @@ public class PromoController : ControllerBase
         IPriceRuleServiceFactory priceServiceFactory,
         IDiscountCodeServiceFactory discountServiceFactory,
         Shopify_Api.ShopifyRestApiCredentials credentials
-        //ProductValidator productValidator
     )
     {
         _priceRuleService = priceServiceFactory.Create(new ShopifySharp.Credentials.ShopifyApiCredentials(
@@ -35,10 +34,6 @@ public class PromoController : ControllerBase
                 credentials.AccessToken
             )
         );
-        
-        //_productValidator = productValidator;
-        
-        //_shopifyService = new ShopifyService(shopUrl, accessToken);
     }
 
     //================================ PRICE RULES ==================================
@@ -122,7 +117,7 @@ public class PromoController : ControllerBase
         }
         catch (System.Exception ex)
         {
-            return StatusCode(500, new { message = "Error deleting price rules" + ex.Message });
+            return StatusCode(500, new { message = "Error deleting price rules"});
         }
     }
     
@@ -153,7 +148,6 @@ public class PromoController : ControllerBase
         {
             PriceRuleDiscountCode tempPriceRuleDiscountCode = request;
             //Product tempProduct = _productValidator.FormatPostProduct(product);
-            Console.Write("We formatted!");
             var discountCode = await _discountCodeService.CreateAsync(priceRuleId, request);
             return Ok(discountCode);
         }

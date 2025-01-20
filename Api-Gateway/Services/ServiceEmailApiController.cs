@@ -52,7 +52,7 @@ public class ServiceEmailApiController
         catch (Exception ex)
         {
             // Return 503 Service Unavailable if an exception occurs
-            return (503, $"Exception: {ex.Message}");
+            return (503, $"Error: {ex.Message}");
         }
     }
 }

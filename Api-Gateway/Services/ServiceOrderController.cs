@@ -47,7 +47,7 @@ public class ServiceOrderController
         catch (Exception ex)
         {
             // Return error details in case of an exception
-            return $"Exception: {ex.Message}";
+            return $"Error: {ex.Message}";
         } 
     }
     
@@ -80,7 +80,7 @@ public class ServiceOrderController
         catch (Exception ex)
         {
             // Return error details in case of an exception
-            return $"Exception: {ex.Message}";
+            return $"Error: {ex.Message}";
         }
     }
     
@@ -108,7 +108,7 @@ public class ServiceOrderController
         {
             return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
             {
-                Content = new StringContent($"Exception: {ex.Message}")
+                Content = new StringContent($"Error: {ex.Message}")
             };
         }
         catch (Exception ex)
@@ -116,7 +116,7 @@ public class ServiceOrderController
             // Return a response with an exception message if something goes wrong
             return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError)
             {
-                Content = new StringContent($"Exception: {ex.Message}")
+                Content = new StringContent($"Error: {ex.Message}")
             };
         }
     }

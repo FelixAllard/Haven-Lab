@@ -29,7 +29,6 @@ builder.Services.AddTransient<ServiceEmailApiController>();
 builder.Services.AddTransient<ServicePromoController>();
 builder.Services.AddTransient<ServiceCustomerController>();
 
-builder.Services.AddTransient<ServiceCustomerController>();
 
 // ENABLE CORS
 builder.Services.AddCors(options =>
@@ -46,6 +45,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials();  // Allow credentials (cookies, HTTP authentication)
     });
 });
+
 //Allows Docker to connect to it directly
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {

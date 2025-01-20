@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css'
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 import { FaSearch } from 'react-icons/fa';
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+
 
 const ProductPage = () => {
     const [products, setProducts] = useState([]);

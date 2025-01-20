@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './AddProductPage.css';
 
 const ProductForm = () => {
     const [formData, setFormData] = useState({

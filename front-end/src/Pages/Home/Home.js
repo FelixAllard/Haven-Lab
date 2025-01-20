@@ -20,9 +20,9 @@ const Home = () => {
     useEffect(() => {
         const fetchBestsellers = async () => {
             const bestsellerIds = [
-                8073898131501,
                 8073775972397,
-                8073518088237,
+                8073606660141,
+                8073606889517,
             ];
             try {
                 const requests = bestsellerIds.map((productId) =>

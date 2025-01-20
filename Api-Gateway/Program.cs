@@ -37,7 +37,7 @@ builder.Services.AddCors(options =>
         builder
             .WithOrigins(
                 "http://localhost:3000",     // Localhost for development
-                "http://96.23.35.62:3000/" // Specific production URL
+                "http://96.23.35.62:3000" // Specific production URL
             )
             .AllowAnyHeader()     // Allow any headers
             .AllowAnyMethod()     // Allow any HTTP method

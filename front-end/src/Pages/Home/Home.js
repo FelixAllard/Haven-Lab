@@ -20,9 +20,9 @@ const Home = () => {
     useEffect(() => {
         const fetchBestsellers = async () => {
             const bestsellerIds = [
-                8073898131501,
                 8073775972397,
-                8073518088237,
+                8073606660141,
+                8073606889517,
             ];
             try {
                 const requests = bestsellerIds.map((productId) =>
@@ -47,6 +47,74 @@ const Home = () => {
     const handleMoreProducts = () => {
         navigate('/products');
     };
+
+        const [email, setEmail] = useState("");
+        const [message, setMessage] = useState("");
+
+        const validateEmail = async (email) => {
+            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (emailRegex.test(email)) {
+                return true;
+            } else {
+                return false;
+            }
+        };
+
+        const handleEmailChange = (event) => {
+            setEmail(event.target.value);  // Update email state with the input value
+        };
+
+        // Function to handle subscription
+        const handleSubscribe = async () => {
+            const isValidEmail = await validateEmail(email);  // Check if email is valid
+        if (!isValidEmail) {
+            setMessage("Please enter a valid email.");
+            return;
+        }
+            try {
+                const response = await fetch(`http://localhost:5158/gateway/api/ProxyCustomer/subscribe`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(email), 
+                });
+    
+                if (response.ok) {
+                    setMessage("Successfully subscribed!");
+                    setEmail(""); // Clear the input
+                } else {
+                    const error = await response.json();
+                    setMessage(error.message || "Subscription failed.");
+                }
+            } catch (error) {
+                setMessage("Error: Unable to subscribe.");
+            }
+        };
+    
+        // Function to handle unsubscription
+        const handleUnsubscribe = async () => {
+            const isValidEmail = await validateEmail(email);  // Check if email is valid
+        if (!isValidEmail) {
+            setMessage("Please enter a valid email.");
+            return;
+        }
+            try {
+                const response = await fetch("http://localhost:5158/gateway/api/ProxyCustomer/unsubscribe", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(email), 
+                });
+    
+                if (response.ok) {
+                    setMessage("Successfully unsubscribed!");
+                    setEmail(""); // Clear the input
+                } else {
+                    const error = await response.json();
+                    setMessage(error.message || "Unsubscription failed.");
+                }
+            } catch (error) {
+                setMessage("Error: Unable to unsubscribe.");
+            }
+        };
 
     const responsive = {
         desktop: { breakpoint: { max: 3000, min: 1024 }, items: 1 },
@@ -134,12 +202,28 @@ const Home = () => {
                 </p>
                 <div className="newsletter-form">
                     <input
-                        type="email"
+                        type="email" 
                         placeholder="Enter your email"
                         className="newsletter-input"
+                        value={email}  // Set the input value to the `email` state
+                onChange={handleEmailChange}
                     />
-                    <button className="subscribe-btn">Subscribe</button>
+                    <button className="subscribe-btn" onClick={handleSubscribe}>Subscribe</button>
+                    <button className="unsubscribe-btn" onClick={handleUnsubscribe}>
+                    Unsubscribe
+                </button>
                 </div>
+                {message && (
+    <p
+        style={{
+            marginTop: "10px",
+            fontSize: "14px",
+            color: message.startsWith("Error") ? "red" : "green", // Red for errors, green for success
+        }}
+    >
+        {message}
+    </p>
+)}
             </div>
         </div>
     );

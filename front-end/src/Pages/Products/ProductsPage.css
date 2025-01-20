@@ -3,7 +3,6 @@ body {
     background-attachment: fixed;
     background-position: center center;
     font-family: 'Inter', sans-serif;
-    margin-top: 55px;
 }
 
 h1, h5 {
@@ -16,6 +15,7 @@ h1, h5 {
     border: 1px solid grey;
     border-radius: 8px;
     color: white;
+    margin-top: 120px;
 }
 
 .product-card {
@@ -97,6 +97,7 @@ input.form-control:focus {
     align-items: center;
     position: relative;
     margin-bottom: 20px;
+    margin-top: 50px;
 }
 
 .search-bar {

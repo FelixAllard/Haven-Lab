@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useParams } from 'react-router-dom'; // Import useParams for route params
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './UpdateProductPage.css';
 
 const ProductForm = () => {
     const { productId } = useParams(); // Retrieve productId from URL params

@@ -14,14 +14,17 @@ const OrderPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`${environment}/gateway/api/ProxyOrder`);
+        const response = await axios.get(
+          `${environment}/gateway/api/ProxyOrder`,
+        );
         setOrders(response.data.items || []); // Ensure fallback to empty array if no items
       } catch (err) {
         if (err.response) {
           setError(
             `Server Error: ${err.response.status} - ${
-              err.response.data.message || 'An error occurred while fetching orders'
-            }`
+              err.response.data.message ||
+              'An error occurred while fetching orders'
+            }`,
           );
         } else if (err.request) {
           setError('Network Error: No response received from the server.');
@@ -52,7 +55,9 @@ const OrderPage = () => {
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-4"><br></br>Orders</h1>
+      <h1 className="mb-4">
+        <br></br>Orders
+      </h1>
       <div className="row">
         {orders.length > 0 ? (
           orders.map((order, index) => (

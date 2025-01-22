@@ -24,7 +24,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
+    "check-format": "prettier --check './src/**/*.{js,jsx,ts,tsx}'"
   },
   "eslintConfig": {
     "extends": [
@@ -46,6 +47,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@types/node": "^22.10.1"
+    "@types/node": "^22.10.1",
+    "prettier": "^3.4.2"
   }
 }

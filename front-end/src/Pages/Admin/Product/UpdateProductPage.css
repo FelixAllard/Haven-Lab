@@ -1,14 +1,14 @@
 /* Ensure the select and textarea elements are targeted specifically */
-.container select, 
+.container select,
 .container textarea {
-    background-color: black !important;
-    color: white !important;
-    border: 1px solid white !important;
+  background-color: black !important;
+  color: white !important;
+  border: 1px solid white !important;
 }
 
 /* Focused state with stronger emphasis */
-.container textarea:focus, 
+.container textarea:focus,
 .container select:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.7) !important;
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.7) !important;
 }

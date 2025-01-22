@@ -1,0 +1,40 @@
+name: Prettier Check
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push to the main branch (or any other branch you want)
+  pull_request:
+    branches:
+      - main  # Trigger the workflow on pull request to the main branch (or any other branch you want)
+
+jobs:
+  prettier-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # This checks out your code so it can be worked with
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Use the Node.js version your project requires (adjust as needed)
+
+      - name: Install dependencies
+        run: |
+          cd front-end  # Navigate to the front-end folder
+          npm install  # Installs all dependencies from package.json, including Prettier
+
+      - name: Run Prettier check
+        run: |
+          cd front-end  # Navigate to the front-end folder
+          npx prettier --check './src/**/*.{js,jsx,ts,tsx}'  # This checks if all the files are correctly formatted
+
+      - name: Fail if Prettier check fails
+        run: |
+          cd front-end  # Navigate to the front-end folder
+          if ! npx prettier --check './src/**/*.{js,jsx,ts,tsx}'; then
+            echo "Prettier check failed! Please format your code using Prettier before pushing."
+            exit 1
+          fi

@@ -14,14 +14,17 @@ const AppointmentDetail = () => {
   useEffect(() => {
     const fetchAppointmentDetails = async () => {
       try {
-        const response = await axios.get(`${environment}/gateway/api/ProxyAppointment/${appointmentId}`);
+        const response = await axios.get(
+          `${environment}/gateway/api/ProxyAppointment/${appointmentId}`,
+        );
         setAppointment(response.data);
       } catch (err) {
         if (err.response) {
           setError(
             `Server Error: ${err.response.status} - ${
-              err.response.data.message || 'An error occurred while fetching appointment details'
-            }`
+              err.response.data.message ||
+              'An error occurred while fetching appointment details'
+            }`,
           );
         } else if (err.request) {
           setError('Network Error: No response received from the server.');
@@ -39,7 +42,9 @@ const AppointmentDetail = () => {
   // Handle delete
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(`${environment}/gateway/api/ProxyAppointment/${appointmentId}`);
+      const response = await axios.delete(
+        `${environment}/gateway/api/ProxyAppointment/${appointmentId}`,
+      );
       if (response.status === 200) {
         // Redirect to appointments list after deleting
         navigate('/appointments');
@@ -77,10 +82,12 @@ const AppointmentDetail = () => {
                 : 'N/A'}
             </p>
             <p>
-              <strong>Customer Name:</strong> {appointment.customerName || 'N/A'}
+              <strong>Customer Name:</strong>{' '}
+              {appointment.customerName || 'N/A'}
             </p>
             <p>
-              <strong>Customer Email:</strong> {appointment.customerEmail || 'N/A'}
+              <strong>Customer Email:</strong>{' '}
+              {appointment.customerEmail || 'N/A'}
             </p>
             <p>
               <strong>Description:</strong> {appointment.description || 'N/A'}
@@ -95,14 +102,20 @@ const AppointmentDetail = () => {
                 : 'N/A'}
             </p>
 
-            <button className="btn btn-secondary mt-3" onClick={() => navigate('/appointments')}>
+            <button
+              className="btn btn-secondary mt-3"
+              onClick={() => navigate('/appointments')}
+            >
               Back
             </button>
-            
-            <button className="btn btn-warning mt-3 ml-3" onClick={handleUpdate}>
+
+            <button
+              className="btn btn-warning mt-3 ml-3"
+              onClick={handleUpdate}
+            >
               Update
             </button>
-            
+
             <button className="btn btn-danger mt-3 ml-3" onClick={handleDelete}>
               Delete
             </button>

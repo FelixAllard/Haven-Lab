@@ -13,7 +13,9 @@ const AppointmentUpdate = () => {
   useEffect(() => {
     const fetchAppointmentDetails = async () => {
       try {
-        const response = await axios.get(`${environment}/gateway/api/ProxyAppointment/${appointmentId}`);
+        const response = await axios.get(
+          `${environment}/gateway/api/ProxyAppointment/${appointmentId}`,
+        );
         setAppointment(response.data);
       } catch (err) {
         setError('Failed to fetch appointment details');
@@ -27,10 +29,13 @@ const AppointmentUpdate = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`${environment}/gateway/api/ProxyAppointment/${appointmentId}`, appointment);
-      console.log(response.status)
+      const response = await axios.put(
+        `${environment}/gateway/api/ProxyAppointment/${appointmentId}`,
+        appointment,
+      );
+      console.log(response.status);
       if (response.status === 200) {
-        navigate(`/appointments/${appointmentId}`);  // Navigate back to the appointment detail page
+        navigate(`/appointments/${appointmentId}`); // Navigate back to the appointment detail page
       }
     } catch (err) {
       setError('Failed to update appointment');
@@ -60,7 +65,9 @@ const AppointmentUpdate = () => {
                   type="text"
                   className="form-control"
                   value={appointment.title || ''}
-                  onChange={(e) => setAppointment({ ...appointment, title: e.target.value })}
+                  onChange={(e) =>
+                    setAppointment({ ...appointment, title: e.target.value })
+                  }
                 />
               </div>
 
@@ -71,7 +78,12 @@ const AppointmentUpdate = () => {
                   type="text"
                   className="form-control"
                   value={appointment.customerName || ''}
-                  onChange={(e) => setAppointment({ ...appointment, customerName: e.target.value })}
+                  onChange={(e) =>
+                    setAppointment({
+                      ...appointment,
+                      customerName: e.target.value,
+                    })
+                  }
                 />
               </div>
 
@@ -82,7 +94,12 @@ const AppointmentUpdate = () => {
                   type="email"
                   className="form-control"
                   value={appointment.customerEmail || ''}
-                  onChange={(e) => setAppointment({ ...appointment, customerEmail: e.target.value })}
+                  onChange={(e) =>
+                    setAppointment({
+                      ...appointment,
+                      customerEmail: e.target.value,
+                    })
+                  }
                 />
               </div>
 
@@ -92,8 +109,19 @@ const AppointmentUpdate = () => {
                 <input
                   type="datetime-local"
                   className="form-control"
-                  value={appointment.appointmentDate ? new Date(appointment.appointmentDate).toISOString().slice(0, 16) : ''}
-                  onChange={(e) => setAppointment({ ...appointment, appointmentDate: e.target.value })}
+                  value={
+                    appointment.appointmentDate
+                      ? new Date(appointment.appointmentDate)
+                          .toISOString()
+                          .slice(0, 16)
+                      : ''
+                  }
+                  onChange={(e) =>
+                    setAppointment({
+                      ...appointment,
+                      appointmentDate: e.target.value,
+                    })
+                  }
                 />
               </div>
 
@@ -103,7 +131,12 @@ const AppointmentUpdate = () => {
                 <textarea
                   className="form-control"
                   value={appointment.description || ''}
-                  onChange={(e) => setAppointment({ ...appointment, description: e.target.value })}
+                  onChange={(e) =>
+                    setAppointment({
+                      ...appointment,
+                      description: e.target.value,
+                    })
+                  }
                 />
               </div>
 
@@ -113,7 +146,9 @@ const AppointmentUpdate = () => {
                 <select
                   className="form-control"
                   value={appointment.status || 'Upcoming'}
-                  onChange={(e) => setAppointment({ ...appointment, status: e.target.value })}
+                  onChange={(e) =>
+                    setAppointment({ ...appointment, status: e.target.value })
+                  }
                 >
                   <option value="Upcoming">Upcoming</option>
                   <option value="Cancelled">Cancelled</option>
@@ -122,10 +157,18 @@ const AppointmentUpdate = () => {
               </div>
 
               {/* Buttons */}
-              <button type="button" className="btn btn-primary mt-3" onClick={handleUpdate}>
+              <button
+                type="button"
+                className="btn btn-primary mt-3"
+                onClick={handleUpdate}
+              >
                 Update Appointment
               </button>
-              <button type="button" className="btn btn-secondary mt-3 ml-3" onClick={handleCancel}>
+              <button
+                type="button"
+                className="btn btn-secondary mt-3 ml-3"
+                onClick={handleCancel}
+              >
                 Cancel
               </button>
             </form>

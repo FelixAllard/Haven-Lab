@@ -40,6 +40,10 @@ Here are a few examples to illustrate the format:
 - **Traceability**: Associating branches with specific tickets or tasks makes it easy to trace changes back to specific issues or features.
 - **Consistency**: Having a consistent naming format prevents confusion and helps with collaboration.
 
+## Running Prettiest on the front end
+Execute the following command before each PR :
+```npx prettier --write .```
+
 ## Conclusion
 
 Following this branch naming convention ensures that our workflow remains organized and manageable. Please adhere to this structure when creating new branches.

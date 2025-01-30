@@ -54,9 +54,8 @@ public class TemplateManager : ITemplateManager
             ReadAllTxtFiles();
         // Ensure the directory exists
         if (!Directory.Exists(_folderPath))
-        {
             Directory.CreateDirectory(_folderPath);
-        }
+        
 
         // Construct full file path using the provided name
         string filePath = Path.Combine(_folderPath, template.TemplateName + ".html");

@@ -1,3 +1,4 @@
+using Email_Api.Exceptions;
 using Email_Api.Model;
 using Email_Api.Service;
 
@@ -12,7 +13,7 @@ public class TemplateManagerTest
     public void SetUp()
     {
         // Create a test folder
-        _testFolderPath = "./TestTemplates";
+        _testFolderPath = "./Templates";
         Directory.CreateDirectory(_testFolderPath);
 
         // Add sample test files
@@ -22,16 +23,17 @@ public class TemplateManagerTest
 
         // Initialize TemplateManager with a mock folder path
         _templateManager = new TemplateManager();
-        typeof(TemplateManager)
+        /*typeof(TemplateManager)
             .GetField("_folderPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            ?.SetValue(_templateManager, _testFolderPath);
+            ?.SetValue(_templateManager, _testFolderPath);*/
     }
 
     [TearDown]
     public void TearDown()
     {
+        if(Directory.Exists(_testFolderPath))
         // Clean up test folder
-        Directory.Delete(_testFolderPath, true);
+            Directory.Delete(_testFolderPath, true);
     }
 
     [Test]
@@ -45,7 +47,7 @@ public class TemplateManagerTest
     public void ReadTxtFile_ReturnsFileContent()
     {
         var content = _templateManager.ReadTxtFile("template1.html");
-        Assert.AreEqual("Content for template1", content);
+        Assert.That(content, Is.EqualTo("Content for template1"));
     }
 
     [Test]
@@ -59,7 +61,7 @@ public class TemplateManagerTest
     {
         _templateManager.ReadAllTxtFiles();
         var template = _templateManager.GetTemplate("template1");
-        Assert.AreEqual("Content for template1", template.HtmlFormat);
+        Assert.That(template.HtmlFormat, Is.EqualTo("Content for template1"));
     }
 
     [Test]
@@ -89,6 +91,126 @@ public class TemplateManagerTest
 
         // Ensure the new file is automatically loaded
         var template = _templateManager.GetTemplate("template4");
-        Assert.AreEqual("Content for template4", template.HtmlFormat);
+        Assert.That(template.HtmlFormat, Is.EqualTo("Content for template4"));
+    }
+    
+    
+    
+    
+    [Test]
+    public void ReadTxtFile_ThrowsFileNotFoundException_WhenFileDoesNotExist()
+    {
+        var templateManager = new TemplateManager();
+
+        Assert.Throws<FileNotFoundException>(() => templateManager.ReadTxtFile("NonExistentFile.html"));
+    }
+
+    [Test]
+    public void GetTemplate_ThrowsKeyNotFoundException_WhenTemplateNotFound()
+    {
+        var templateManager = new TemplateManager();
+
+        Assert.Throws<KeyNotFoundException>(() => templateManager.GetTemplate("NonExistentTemplate"));
+    }
+
+    [Test]
+    public void GetTemplates_ReturnsListOfTemplates()
+    {
+        File.WriteAllText(Path.Combine(_testFolderPath, "Template1.html"), "<html>Template 1</html>");
+        File.WriteAllText(Path.Combine(_testFolderPath, "Template2.html"), "<html>Template 2</html>");
+
+        var templateManager = new TemplateManager();
+
+        var result = templateManager.GetTemplates();
+
+        Assert.That(result.Count, Is.EqualTo(3));
+
+        // Clean up after test
+        Directory.Delete(_testFolderPath, true);
+    }
+
+    [Test]
+    public void PostTemplate_ReturnsCreatedTemplate_WhenSuccessfullyCreatedTemplate()
+    {
+        var templateManager = new TemplateManager();
+        
+        var template = new Template { TemplateName = "CompletlyNewTemplate", EmailTemplate = new EmailTemplate("<html>Existing Template</html>") };
+        
+        
+        var templatePost =  _templateManager.PostTemplate(template);
+        
+        Assert.That(templatePost.TemplateName, Is.EqualTo(template.TemplateName));
+    }
+
+    [Test]
+    public void PostTemplate_ThrowsTemplatesWithIdenticalNamesFound_WhenTemplateAlreadyExists()
+    {
+        var templateManager = new TemplateManager();
+        
+        var template = new Template { TemplateName = "ExistingTemplate", EmailTemplate = new EmailTemplate("<html>Existing Template</html>") };
+
+        Directory.CreateDirectory(_testFolderPath);
+        File.WriteAllText(Path.Combine(_testFolderPath, "ExistingTemplate.html"), "<html>Existing Template</html>");
+
+        Assert.Throws<TemplatesWithIdenticalNamesFound>(() => templateManager.PostTemplate(template));
+
+        // Clean up after test
+        Directory.Delete(_testFolderPath, true);
+    }
+    
+
+    [Test]
+    public void PutTemplate_ThrowsKeyNotFoundException_WhenTemplateToModifyDoesNotExist()
+    {
+        var templateManager = new TemplateManager();
+        
+        var template = new Template { TemplateName = "ModifiedTemplate", EmailTemplate = new EmailTemplate("<html>Modified Template</html>") };
+        
+        Assert.Throws<KeyNotFoundException>(() => templateManager.PutTemplate("NonExistentTemplate", template));
+    }
+
+    [Test]
+    public void PutTemplate_UpdatesTemplateSuccessfully()
+    {
+        File.WriteAllText(Path.Combine(_testFolderPath, "ExistingTemplate.html"), "<html>Existing Template</html>");
+        
+        var templateManager = new TemplateManager();
+        var template = new Template { TemplateName = "ExistingTemplate", EmailTemplate = new EmailTemplate("<html>Updated Template</html>") };
+        
+        var result = templateManager.PutTemplate("ExistingTemplate", template);
+
+        Assert.That(result.TemplateName, Is.EqualTo("ExistingTemplate"));
+        Assert.That(result.EmailTemplate.HtmlFormat, Is.EqualTo("<html>Updated Template</html>"));
+
+        // Clean up after test
+        Directory.Delete(_testFolderPath, true);
+    }
+
+    [Test]
+    public void DeleteTemplate_ThrowsKeyNotFoundException_WhenTemplateDoesNotExist()
+    {
+        var templateManager = new TemplateManager();
+        
+        Assert.Throws<KeyNotFoundException>(() => templateManager.DeleteTemplate("NonExistentTemplate"));
+    }
+
+    [Test]
+    public void DeleteTemplate_DeletesTemplateSuccessfully()
+    {
+
+        if(!Directory.Exists(_testFolderPath))
+            Directory.CreateDirectory(_testFolderPath);
+        File.WriteAllText(Path.Combine(_testFolderPath, "TemplateToDelete.html"), "<html>Template to Delete</html>");
+        
+        var templateManager = new TemplateManager();
+        templateManager.ReadAllTxtFiles();
+
+        var result = templateManager.DeleteTemplate("TemplateToDelete");
+
+        Assert.That(result.TemplateName, Is.EqualTo("TemplateToDelete"));
+        Assert.That(File.Exists(Path.Combine(_testFolderPath, "TemplateToDelete.html")), Is.False);
+
+        // Clean up after test
+        Directory.Delete(_testFolderPath, true);
     }
 }

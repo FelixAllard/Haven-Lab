@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Email_Api.Exceptions;
 using Email_Api.Model;
 
 namespace Email_Api.Service;
@@ -42,11 +43,15 @@ public class TemplateManager : ITemplateManager
 
     public List<Template> GetTemplates()
     {
+        if (CountTxtFiles() != fileContents.Count)
+            ReadAllTxtFiles();
         return templates;
     }
 
     public Template PostTemplate(Template template)
     {
+        if (CountTxtFiles() != fileContents.Count)
+            ReadAllTxtFiles();
         // Ensure the directory exists
         if (!Directory.Exists(_folderPath))
         {
@@ -55,6 +60,9 @@ public class TemplateManager : ITemplateManager
 
         // Construct full file path using the provided name
         string filePath = Path.Combine(_folderPath, template.TemplateName + ".html");
+        
+        if(File.Exists(filePath))
+            throw new TemplatesWithIdenticalNamesFound("A template already exists with the same name.", template.TemplateName);
 
         // Create and write to the file
         File.WriteAllText(filePath, template.EmailTemplate.HtmlFormat);
@@ -68,6 +76,8 @@ public class TemplateManager : ITemplateManager
 
     public Template PutTemplate(string templateName, Template template)
     {
+        if (CountTxtFiles() != fileContents.Count)
+            ReadAllTxtFiles();
         // Ensure the directory exists
         if (!Directory.Exists(_folderPath))
         {
@@ -93,6 +103,8 @@ public class TemplateManager : ITemplateManager
 
     public Template DeleteTemplate(string templateName)
     {
+        if (CountTxtFiles() != fileContents.Count)
+            ReadAllTxtFiles();
         // Ensure the directory exists
         if (!Directory.Exists(_folderPath))
         {

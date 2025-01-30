@@ -59,7 +59,7 @@ public class TemplateService : ITemplateService
             throw new UnauthorizedAccessException("Default template can't be modified from the website");
         foreach (var existingTemplate in _templateManager.GetTemplates())
         {
-            if(existingTemplate.TemplateName == template.TemplateName)
+            if(existingTemplate.TemplateName == name)
                 return _templateManager.PutTemplate(name, template);
         }
         throw new KeyNotFoundException("Template does not exist");

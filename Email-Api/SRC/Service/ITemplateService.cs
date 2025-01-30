@@ -5,6 +5,7 @@ namespace Email_Api.Service;
 
 public interface ITemplateService
 {
+    
     /// <summary>
     /// A function that gets the name of all the templates and return it as a List of strings
     /// </summary>

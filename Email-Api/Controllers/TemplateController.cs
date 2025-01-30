@@ -18,30 +18,15 @@ public class TemplateController : ControllerBase
     [HttpGet("names")]
     public async Task<IActionResult> GetAllTemplatesNames()
     {
-        try
-        {
-            return Ok(_templateService.GetAllTemplatesNames());
 
-        }
-        catch (Exception e)
-        { 
-            Console.WriteLine(e);
-            throw;
-        }
+        return Ok(_templateService.GetAllTemplatesNames());
+
         
     }
     [HttpGet]
     public async Task<IActionResult> GetAllTemplates()
     {
-        try
-        {
-            return Ok( _templateService.GetAllTemplates());
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        return Ok( _templateService.GetAllTemplates());
     }
     [HttpGet("{name}")]
     public async Task<IActionResult> GetTemplateByName([FromRoute]string name)
@@ -54,11 +39,6 @@ public class TemplateController : ControllerBase
         {
             return NotFound(new {message = "No Template with given name" + e.Message });
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
     }
     [HttpPost]
     public async Task<IActionResult> PostTemplate([FromBody]Template template)
@@ -70,11 +50,6 @@ public class TemplateController : ControllerBase
         catch (TemplatesWithIdenticalNamesFound e)
         {
             return BadRequest(new {message = e.Message});
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
         }
     }
     [HttpPut("{name}")]
@@ -92,11 +67,6 @@ public class TemplateController : ControllerBase
         {
             return NotFound(new {message = "No Template with given name" + e.Message });
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
     }
     [HttpDelete("{name}")]
 
@@ -113,11 +83,6 @@ public class TemplateController : ControllerBase
         catch (KeyNotFoundException e)
         {
             return NotFound(new {message = "No Template with given name" + e.Message });
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
         }
     }
 }

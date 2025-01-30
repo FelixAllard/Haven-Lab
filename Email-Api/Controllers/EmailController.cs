@@ -18,6 +18,7 @@ public class EmailController : ControllerBase
         this.smtpConnection = smtpConnection;
         this.emailService = emailService;
     }
+    
     [HttpPost("send")]
 
     public async Task<IActionResult> SendSingleEmail([FromBody]SingleEmailModel singleEmailModel)
@@ -68,5 +69,6 @@ public class EmailController : ControllerBase
             return NotFound(new { message = e.Message });
         }
     }
+    
     
 }

@@ -6,6 +6,8 @@ namespace Email_Api.Service;
 public class TemplateManager : ITemplateManager
 {
     Dictionary<string, EmailTemplate> fileContents = new();
+    List<Template> templates = new();
+    
     private readonly string _folderPath = "./Templates";
     
     
@@ -38,6 +40,77 @@ public class TemplateManager : ITemplateManager
         throw new KeyNotFoundException($"Template '{templateName}' not found.");
     }
 
+    public List<Template> GetTemplates()
+    {
+        return templates;
+    }
+
+    public Template PostTemplate(Template template)
+    {
+        // Ensure the directory exists
+        if (!Directory.Exists(_folderPath))
+        {
+            Directory.CreateDirectory(_folderPath);
+        }
+
+        // Construct full file path using the provided name
+        string filePath = Path.Combine(_folderPath, template.TemplateName + ".html");
+
+        // Create and write to the file
+        File.WriteAllText(filePath, template.EmailTemplate.HtmlFormat);
+        ReadAllTxtFiles();
+        return new Template()
+        {
+            TemplateName = template.TemplateName,
+            EmailTemplate = GetTemplate(template.TemplateName)
+        };
+    }
+
+    public Template PutTemplate(string templateName, Template template)
+    {
+        // Ensure the directory exists
+        if (!Directory.Exists(_folderPath))
+        {
+            Directory.CreateDirectory(_folderPath);
+        }
+        string filePathOriginalFile = Path.Combine(_folderPath, templateName + ".html");
+        if (!File.Exists(filePathOriginalFile))
+            throw new KeyNotFoundException($"The file '{templateName}' does not exist in the specified folder.");
+        File.Delete(filePathOriginalFile);
+        
+        // Construct full file path using the provided name
+        string filePath = Path.Combine(_folderPath, template.TemplateName + ".html");
+
+        // Create and write to the file
+        File.WriteAllText(filePath, template.EmailTemplate.HtmlFormat);
+        ReadAllTxtFiles();
+        return new Template()
+        {
+            TemplateName = template.TemplateName,
+            EmailTemplate = GetTemplate(template.TemplateName)
+        };
+    }
+
+    public Template DeleteTemplate(string templateName)
+    {
+        // Ensure the directory exists
+        if (!Directory.Exists(_folderPath))
+        {
+            Directory.CreateDirectory(_folderPath);
+        }
+        string filePathOriginalFile = Path.Combine(_folderPath, templateName + ".html");
+        if (!File.Exists(filePathOriginalFile))
+            throw new KeyNotFoundException($"The file '{templateName}' does not exist in the specified folder.");
+        Template previousTemplate = new Template()
+        {
+            TemplateName = templateName,
+            EmailTemplate = GetTemplate(templateName)
+        };
+        File.Delete(filePathOriginalFile);
+        ReadAllTxtFiles();
+        return previousTemplate;
+    }
+
     public void ReadAllTxtFiles()
     {
         Debug.WriteLine($"Absolute Path: {Path.GetFullPath(_folderPath)}");
@@ -46,6 +119,18 @@ public class TemplateManager : ITemplateManager
             string fileName = Path.GetFileNameWithoutExtension(filePath);
             fileContents[fileName] = new EmailTemplate(File.ReadAllText(filePath));
             Debug.WriteLine($"Added TEMPLATE : {fileName}");
+        }
+
+        templates = new List<Template>();
+        foreach (var file in fileContents)
+        {
+            templates.Add(new Template()
+                {
+                    TemplateName = file.Key, 
+                    EmailTemplate = file.Value
+                }
+            );
+            
         }
     }
 }

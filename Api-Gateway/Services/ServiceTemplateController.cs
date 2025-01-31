@@ -10,6 +10,11 @@ public class ServiceTemplateController
     private readonly IHttpClientFactory _httpClientFactory; // Use IHttpClientFactory instead of HttpClient directly
     private readonly string BASE_URL; // Your base URL for Shopify API
 
+    public ServiceTemplateController()
+    {
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_EMAIL_API")??"http://localhost:5092";
+    }
+
     // Constructor that takes in IHttpClientFactory via Dependency Injection
     public ServiceTemplateController(IHttpClientFactory httpClientFactory)
     {

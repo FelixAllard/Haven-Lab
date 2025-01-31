@@ -10,6 +10,7 @@ namespace Api_Gateway.Controller;
 public class ProxyTemplateApiController : ControllerBase
 {
     private readonly ServiceTemplateController _serviceTemplateController;
+    
 
     // Constructor injects the ServicePromoController
     public ProxyTemplateApiController(ServiceTemplateController serviceTemplateController)

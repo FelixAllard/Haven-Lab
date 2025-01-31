@@ -6,7 +6,7 @@ namespace Api_Gateway.Services;
 
 public class ServiceEmailApiController
 {
-     private readonly IHttpClientFactory _httpClientFactory; // Use IHttpClientFactory instead of HttpClient directly
+    private readonly IHttpClientFactory _httpClientFactory; // Use IHttpClientFactory instead of HttpClient directly
     private readonly string BASE_URL; // Your base URL for Shopify API
 
     // Constructor that takes in IHttpClientFactory via Dependency Injection
@@ -17,7 +17,7 @@ public class ServiceEmailApiController
     }
 
     // Method to make the API call to Shopify and return the result
-    public virtual async Task<(int StatusCode, string Content)> PostDraftOrder(DirectEmailModel directEmailModel)
+    public virtual async Task<(int StatusCode, string Content)> PostEmail(DirectEmailModel directEmailModel)
     {
         try
         {

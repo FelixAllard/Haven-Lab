@@ -19,7 +19,7 @@ public class ProxyEmailApiController : ControllerBase
 
     public async Task<IActionResult> SendSingleEmailWithTemplate([FromBody]DirectEmailModel directEmailModel)
     {
-        var response = serviceEmailApiController.PostDraftOrder(directEmailModel);
+        var response = serviceEmailApiController.PostEmail(directEmailModel);
         
         
         return StatusCode(response.Result.StatusCode, response.Result.Content);

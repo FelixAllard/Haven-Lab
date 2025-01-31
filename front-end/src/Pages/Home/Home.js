@@ -134,9 +134,7 @@ const Home = () => {
         </video>
         <div className="logo-container">
           <img src={Logo} alt="Logo" />
-          <h1 className="headline">
-            Luxury Hair Products
-          </h1>
+          <h1 className="headline">Luxury Hair Products</h1>
         </div>
         <div
           className="arrow-container"

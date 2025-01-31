@@ -27,9 +27,9 @@ import AppointmentUpdate from './Pages/Appointments/AppointmentUpdate.js';
 import AppointmentCreate from './Pages/Appointments/AppointmentCreate.js';
 import PriceRules from './Pages/Promos/PriceRules';
 import PriceRuleDetail from './Pages/Promos/PriceRuleDetail.js';
-import {EmailPage} from "./Pages/Email/EmailPage";
-import AddTemplatePage from "./Pages/Email/Template/AddTemplatePage";
-import ModifyTemplatePage from "./Pages/Email/Template/ModifyTemplatePage";
+import { EmailPage } from './Pages/Email/EmailPage';
+import AddTemplatePage from './Pages/Email/Template/AddTemplatePage';
+import ModifyTemplatePage from './Pages/Email/Template/ModifyTemplatePage';
 
 function App() {
   console.log(process.env.REACT_APP_API_GATEWAY_HOST);
@@ -50,7 +50,6 @@ function App() {
               />
               <Route path="/cart" element={<Cart />} />
               <Route path="/admin/login" element={<OwnerLogin />} />
-
               {/* Protected routes - Owner access */}
               <Route
                 path="/admin/product/update/:productId"
@@ -68,7 +67,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/admin/email/send"
                 element={
@@ -77,24 +75,23 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-            <Route
+              <Route
                 path="/admin/email/template/add"
                 element={
-                    <ProtectedRoute>
-                        <AddTemplatePage />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <AddTemplatePage />
+                  </ProtectedRoute>
                 }
-            />
-                //TODO just fix this rq
-            <Route
+              />
+              //TODO just fix this rq
+              <Route
                 path="/admin/email/template/modify/:templatename"
                 element={
-                    <ProtectedRoute>
-                        <ModifyTemplatePage />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <ModifyTemplatePage />
+                  </ProtectedRoute>
                 }
-            />
-
+              />
               {/* Orders */}
               <Route
                 path="/orders"
@@ -104,7 +101,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/orders/:orderId"
                 element={
@@ -113,7 +109,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/admin/order/update/:orderId"
                 element={
@@ -122,7 +117,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               {/* Appointments */}
               <Route
                 path="/appointments"
@@ -132,7 +126,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/appointments/:appointmentId"
                 element={
@@ -141,7 +134,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/appointments/update/:appointmentId"
                 element={
@@ -150,7 +142,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/appointments/create"
                 element={
@@ -159,7 +150,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               {/* Promo */}
               <Route
                 path="/promo/pricerules"
@@ -169,7 +159,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
               <Route
                 path="/promo/pricerules/:priceruleId"
                 element={

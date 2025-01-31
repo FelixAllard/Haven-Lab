@@ -38,3 +38,31 @@ test('SendEmailWithTemplate', async ({ page }) => {
 
   
 });
+test('RESTTemplates', async ({ page }) => {
+  await page.goto('http://localhost:3000/');
+  await page.getByLabel('Toggle navigation').click();
+  await page.getByLabel('Close').click();
+  await page.getByRole('button', { name: 'Owner Login' }).click();
+  await page.getByLabel('Username').click();
+  await page.getByLabel('Username').fill('Andrei');
+  await page.getByLabel('Password').click();
+  await page.getByLabel('Password').fill('Password1!');
+  await page.getByRole('button', { name: 'Login', exact: true }).click();
+  await page.getByLabel('Toggle navigation').click();
+  await page.getByRole('link', { name: 'Emails' }).click();
+
+  await page.getByRole('link', { name: 'Emails' }).click();
+  await page.getByLabel('Close').click();
+  await page.getByRole('link', { name: 'Add Template' }).click();
+  await page.getByLabel('Template Name:').click();
+  await page.getByLabel('Template Name:').fill('playfun');
+
+  await page.getByLabel('HTML Format:').click();
+  await page.getByLabel('HTML Format:').fill('s');
+  await page.getByRole('button', { name: 'Send Template' }).click();
+  await page.getByRole('link', { name: 'Go back' }).click();
+  await expect(page.getByText('Owner', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
+  await page.getByRole('button', { name: 'Logout' }).click();
+
+});

@@ -135,7 +135,7 @@ const Home = () => {
         <div className="logo-container">
           <img src={Logo} alt="Logo" />
           <h1 className="headline">
-            Luxury Hair Productsssssssssssssssssssssssssssssssssssssssssss
+            Luxury Hair Products
           </h1>
         </div>
         <div

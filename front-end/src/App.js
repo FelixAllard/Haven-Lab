@@ -21,7 +21,6 @@ import OwnerLogin from './Pages/Admin/Authentification/OwnerLogin.js';
 import OrderUpdatePage from './Pages/Orders/OrderUpdatePage.js';
 import ProtectedRoute from './AXIOS/ProtectedRoute.js';
 import Appointments from './Pages/Appointments/Appointments.js';
-import EmailSendPage from './Pages/Email/EmailSendPage';
 import AppointmentDetails from './Pages/Appointments/AppointmentDetails.js';
 import AppointmentUpdate from './Pages/Appointments/AppointmentUpdate.js';
 import AppointmentCreate from './Pages/Appointments/AppointmentCreate.js';
@@ -83,7 +82,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              //TODO just fix this rq
               <Route
                 path="/admin/email/template/modify/:templatename"
                 element={

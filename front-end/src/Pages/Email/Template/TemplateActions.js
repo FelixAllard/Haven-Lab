@@ -17,7 +17,7 @@ const TemplateActions = ({
       {/* Modify Template Button */}
       <Link
         className="btn btn-warning"
-        to={`/modify-template/${selectedTemplate}`}
+        to={`/admin/email/template/modify/${selectedTemplate}`}
         disabled={!selectedTemplate}
       >
         <i className="fas fa-edit me-2"></i>Modify Template

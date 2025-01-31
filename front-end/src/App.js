@@ -27,6 +27,9 @@ import AppointmentUpdate from './Pages/Appointments/AppointmentUpdate.js';
 import AppointmentCreate from './Pages/Appointments/AppointmentCreate.js';
 import PriceRules from './Pages/Promos/PriceRules';
 import PriceRuleDetail from './Pages/Promos/PriceRuleDetail.js';
+import {EmailPage} from "./Pages/Email/EmailPage";
+import AddTemplatePage from "./Pages/Email/Template/AddTemplatePage";
+import ModifyTemplatePage from "./Pages/Email/Template/ModifyTemplatePage";
 
 function App() {
   console.log(process.env.REACT_APP_API_GATEWAY_HOST);
@@ -70,10 +73,27 @@ function App() {
                 path="/admin/email/send"
                 element={
                   <ProtectedRoute>
-                    <EmailSendPage />
+                    <EmailPage />
                   </ProtectedRoute>
                 }
               />
+            <Route
+                path="/admin/email/template/add"
+                element={
+                    <ProtectedRoute>
+                        <AddTemplatePage />
+                    </ProtectedRoute>
+                }
+            />
+                //TODO just fix this rq
+            <Route
+                path="/admin/email/template/modify/:templatename"
+                element={
+                    <ProtectedRoute>
+                        <ModifyTemplatePage />
+                    </ProtectedRoute>
+                }
+            />
 
               {/* Orders */}
               <Route

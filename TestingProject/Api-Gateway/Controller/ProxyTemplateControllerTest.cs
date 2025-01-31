@@ -10,14 +10,14 @@ namespace TestingProject.Api_Gateway.Controller;
 [TestFixture]
 public class ProxyTemplateControllerTest
 {
-    private ProxyTemplateApiController _controller;
+    private ProxyTemplateController _controller;
     private Mock<ServiceTemplateController> _mockService;
 
     [SetUp]
     public void Setup()
     {
         _mockService = new Mock<ServiceTemplateController>();
-        _controller = new ProxyTemplateApiController(_mockService.Object);
+        _controller = new ProxyTemplateController(_mockService.Object);
     }
 
     [Test]

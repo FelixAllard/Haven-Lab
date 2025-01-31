@@ -3,12 +3,15 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const PriceRules = () => {
   const [priceRules, setPriceRules] = useState([]); // Updated state name for clarity
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [itemsPerPage] = useState(9); // Number of items per page (set to 9)
   const navigate = useNavigate();
 
   // Fetch price rules on component mount
@@ -40,6 +43,17 @@ const PriceRules = () => {
     fetchPriceRules();
   }, []);
 
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentPriceRules = priceRules.slice(indexOfFirstItem, indexOfLastItem); // Slice price rules for current page
+  const totalPages = Math.ceil(priceRules.length / itemsPerPage); // Calculate total pages
+
+  // Handle page change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   // Render loading or error states
   if (loading) {
     return <div className="text-center mt-5">Loading...</div>;
@@ -56,8 +70,8 @@ const PriceRules = () => {
         Promo Price Rules
       </h1>
       <div className="row">
-        {priceRules.length > 0 ? (
-          priceRules.map((rule, index) => (
+        {currentPriceRules.length > 0 ? (
+          currentPriceRules.map((rule, index) => (
             <motion.div
               className="col-md-4 mb-4"
               key={rule.id}
@@ -84,7 +98,7 @@ const PriceRules = () => {
                   </p>
                   <button
                     className="btn btn-primary mt-3"
-                    onClick={() => navigate(`/promo/pricerules/${rule.id}`)} // Adjust the path based on your routing structure
+                    onClick={() => navigate(`/promo/pricerules/${rule.id}`)}
                   >
                     View Promo
                   </button>
@@ -98,6 +112,39 @@ const PriceRules = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {priceRules.length > itemsPerPage && (
+        <div className="pagination d-flex justify-content-center mt-4">
+          <button
+            className="btn btn-outline-secondary mx-1"
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            Previous
+          </button>
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              className={`btn mx-1 ${
+                currentPage === i + 1
+                  ? 'btn-secondary'
+                  : 'btn-outline-secondary'
+              }`}
+              onClick={() => handlePageChange(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            className="btn btn-outline-secondary mx-1"
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const EmailForm = () => {
@@ -12,6 +12,12 @@ const EmailForm = () => {
   const [senderName, setSenderName] = useState('');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+
+
+
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +58,19 @@ const EmailForm = () => {
       setMessageType('error');
     }
   };
+  useEffect(() => {
+    // Replace with your actual API endpoint
+    fetch(`${environment}/gateway/api/ProxyTemplate/names`)
+        .then((response) => response.json())
+        .then((data) => {
+          setTemplates(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError('Failed to load templates');
+          setLoading(false);
+        });
+  }, []);
 
   return (
     <div className="container mt-7 mb-5">
@@ -80,12 +99,25 @@ const EmailForm = () => {
 
           <Form.Group controlId="templateName">
             <Form.Label>Template Name</Form.Label>
-            <Form.Control
-              type="text"
-              value={templateName}
-              onChange={(e) => setTemplateName(e.target.value)}
-              required
-            />
+            {loading ? (
+                <div>Loading...</div>
+            ) : error ? (
+                <div>{error}</div>
+            ) : (
+                <Form.Control
+                    as="select"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    required
+                >
+                  <option value="">Select a Template</option>
+                  {templates.map((template, index) => (
+                      <option key={index} value={template}>
+                        {template}
+                      </option>
+                  ))}
+                </Form.Control>
+            )}
           </Form.Group>
 
           <Form.Group controlId="header">

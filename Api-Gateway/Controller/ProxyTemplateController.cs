@@ -7,13 +7,13 @@ namespace Api_Gateway.Controller;
 
 [Route("gateway/api/[controller]")]
 [ApiController]
-public class ProxyTemplateApiController : ControllerBase
+public class ProxyTemplateController : ControllerBase
 {
     private readonly ServiceTemplateController _serviceTemplateController;
     
 
     // Constructor injects the ServicePromoController
-    public ProxyTemplateApiController(ServiceTemplateController serviceTemplateController)
+    public ProxyTemplateController(ServiceTemplateController serviceTemplateController)
     {
         _serviceTemplateController = serviceTemplateController;
     }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Spinner, Alert } from 'react-bootstrap';
+import {Spinner, Alert, Container} from 'react-bootstrap';
 import TemplateList from './TemplateList'; // Import TemplateList
 import TemplateActions from './TemplateActions'; // Import TemplateActions
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
@@ -38,12 +38,22 @@ const TemplateManager = () => {
     };
 
     return (
-        <div className="container">
+        <Container
+            className="p-4 rounded-3"
+            style={{
+                backgroundColor: '#000', // Black background
+                color: '#fff', // White text for contrast
+            }}
+        >
             <h2>Template Manager</h2>
 
-            {loading && <Spinner animation="border" />}
+            {/* Loading Spinner */}
+            {loading && <Spinner animation="border" variant="light" />}
+
+            {/* Error Alert */}
             {error && <Alert variant="danger">{error}</Alert>}
 
+            {/* Template List */}
             <TemplateList
                 templates={templates} // Pass templates to TemplateList
                 setTemplates={setTemplates}
@@ -52,12 +62,13 @@ const TemplateManager = () => {
                 setSelectedTemplate={setSelectedTemplate}
             />
 
+            {/* Template Actions */}
             <TemplateActions
                 selectedTemplate={selectedTemplate}
                 handleDelete={handleDelete}
                 handleViewTemplate={handleViewTemplate}
             />
-        </div>
+        </Container>
     );
 };
 

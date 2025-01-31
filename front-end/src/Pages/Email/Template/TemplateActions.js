@@ -1,32 +1,45 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 const TemplateActions = ({ selectedTemplate, handleDelete, handleViewTemplate }) => {
     return (
-        <div>
-            <Link className="btn btn-primary me-2" to="/admin/email/template/add">
-                Add Template
-            </Link>
+        <ButtonGroup aria-label="Template Actions" className="mb-3">
+            {/* Add Template Button */}
             <Link
-                className="btn btn-warning me-2"
+                className="btn btn-primary"
+                to="/admin/email/template/add"
+            >
+                <i className="fas fa-plus me-2"></i>Add Template
+            </Link>
+
+            {/* Modify Template Button */}
+            <Link
+                className="btn btn-warning"
                 to={`/modify-template/${selectedTemplate}`}
                 disabled={!selectedTemplate}
             >
-                Modify Template
+                <i className="fas fa-edit me-2"></i>Modify Template
             </Link>
+
+            {/* View Template Button */}
             <Button
                 variant="info"
                 onClick={handleViewTemplate}
-                className="me-2"
                 disabled={!selectedTemplate}
             >
-                View Template
+                <i className="fas fa-eye me-2"></i>View Template
             </Button>
-            <Button variant="danger" onClick={handleDelete} disabled={!selectedTemplate}>
-                Delete Template
+
+            {/* Delete Template Button */}
+            <Button
+                variant="danger"
+                onClick={handleDelete}
+                disabled={!selectedTemplate}
+            >
+                <i className="fas fa-trash me-2"></i>Delete Template
             </Button>
-        </div>
+        </ButtonGroup>
     );
 };
 

@@ -20,11 +20,39 @@ namespace AppointmentsService.Controllers
 
         // GET: api/Appointments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetAll([FromQuery] AppointmentSearchArguments searchArguments)
         {
-            var appointments = await _context.Appointments.ToListAsync();
+            var query = _context.Appointments.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchArguments.Title))
+            {
+                query = query.Where(a => a.Title.Contains(searchArguments.Title));
+            }
+            if (!string.IsNullOrWhiteSpace(searchArguments.CustomerName))
+            {
+                query = query.Where(a => a.CustomerName.Contains(searchArguments.CustomerName));
+            }
+            if (!string.IsNullOrWhiteSpace(searchArguments.CustomerEmail))
+            {
+                query = query.Where(a => a.CustomerEmail.Contains(searchArguments.CustomerEmail));
+            }
+            if (!string.IsNullOrWhiteSpace(searchArguments.Status))
+            {
+                query = query.Where(a => a.Status == searchArguments.Status);
+            }
+            if (searchArguments.StartDate.HasValue)
+            {
+                query = query.Where(a => a.AppointmentDate >= searchArguments.StartDate.Value);
+            }
+            if (searchArguments.EndDate.HasValue)
+            {
+                query = query.Where(a => a.AppointmentDate <= searchArguments.EndDate.Value);
+            }
+
+            var appointments = await query.ToListAsync();
             return Ok(appointments);
         }
+
 
         // GET: api/Appointments/{appointmentId}
         [HttpGet("{appointmentId}")]

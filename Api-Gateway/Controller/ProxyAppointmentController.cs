@@ -19,25 +19,29 @@ namespace Api_Gateway.Controller
 
         // GET: gateway/api/ProxyAppointment/all
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllAppointments()
+        public async Task<IActionResult> GetAllAppointments([FromQuery] AppointmentSearchArguments searchArguments)
         {
             try
             {
-                var result = await _serviceAppointmentController.GetAllAppointmentsAsync();
+                var result = await _serviceAppointmentController.GetAllAppointmentsAsync(searchArguments);
 
-                if (result.StartsWith("Error"))
+                if (result is BadRequestObjectResult badRequest)
                 {
-                    return BadRequest(new { Message = result });
+                    return BadRequest(badRequest.Value);
                 }
-
+                if (result is StatusCodeResult statusCodeResult)
+                {
+                    return StatusCode(statusCodeResult.StatusCode);
+                }
                 return Ok(result);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return StatusCode(500, new { Message = e.Message });
+                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = e.Message });
             }
         }
+
 
         // GET: gateway/api/ProxyAppointment/{appointmentId}
         [HttpGet("{appointmentId}")]

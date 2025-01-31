@@ -1,24 +1,20 @@
-/* Card Styling */
 .card {
-  background-color: #000000; /* Black background */
-  color: white; /* White text */
-  border: none; /* Remove border */
+  background-color: #000000;
+  color: white;
+  border: none;
   border-radius: 10px;
 }
 
-/* Card Layout with Image on Left */
 .card-img-left {
   height: 100%;
   object-fit: cover;
 }
 
-/* Left and Right Column Layout */
 .row.no-gutters {
   display: flex;
   flex-wrap: nowrap;
 }
 
-/* Toast container at the bottom-right corner */
 .toast-container {
   position: fixed;
   bottom: 10px;

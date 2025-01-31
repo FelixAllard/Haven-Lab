@@ -21,6 +21,7 @@ builder.Services.AddTransient<ISmtpConnection, SmtpConnection>();
 builder.Services.AddSingleton<ITemplateManager,TemplateManager>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<ISmtpClient, SmtpClient>();
+builder.Services.AddTransient<ITemplateService, TemplateService>();
 
 //--------------------------
 var app = builder.Build();

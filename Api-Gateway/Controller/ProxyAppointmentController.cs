@@ -25,20 +25,61 @@ namespace Api_Gateway.Controller
             {
                 var result = await _serviceAppointmentController.GetAllAppointmentsAsync(searchArguments);
 
-                if (result is BadRequestObjectResult badRequest)
+                switch (result)
                 {
-                    return BadRequest(badRequest.Value);
+                    case OkObjectResult okResult:
+                        return Ok(okResult.Value);
+            
+                    case BadRequestObjectResult badRequest:
+                        return BadRequest(new 
+                        { 
+                            Message = "Invalid request parameters",
+                            Details = badRequest.Value 
+                        });
+            
+                    case NotFoundResult _:
+                        return NotFound(new 
+                        { 
+                            Message = "No appointments found matching the criteria" 
+                        });
+            
+                    case ObjectResult objectResult when objectResult.StatusCode >= 400:
+                        return StatusCode(objectResult.StatusCode ?? 500, new 
+                        { 
+                            Message = "Request failed",
+                            Details = objectResult.Value 
+                        });
+            
+                    case StatusCodeResult statusCodeResult when statusCodeResult.StatusCode >= 400:
+                        return StatusCode(statusCodeResult.StatusCode, new 
+                        { 
+                            Message = "Request failed",
+                            StatusCode = statusCodeResult.StatusCode 
+                        });
+            
+                    default:
+                        return StatusCode(500, new 
+                        { 
+                            Message = "Unexpected response format from service" 
+                        });
                 }
-                if (result is StatusCodeResult statusCodeResult)
-                {
-                    return StatusCode(statusCodeResult.StatusCode);
-                }
-                return Ok(result);
             }
-            catch (Exception e)
+            catch (HttpRequestException ex)
             {
-                Console.WriteLine(e);
-                return StatusCode(500, new { Message = "An unexpected error occurred.", Details = e.Message });
+                return StatusCode(503, new 
+                { 
+                    Message = "Service unavailable",
+                    Details = ex.Message 
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new 
+                { 
+                    Message = "Internal server error",
+                    Details = ex.Message,
+                    StackTrace = ex.StackTrace // Only include in development environment
+                });
             }
         }
 

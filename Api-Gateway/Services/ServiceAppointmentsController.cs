@@ -21,38 +21,40 @@ public class ServiceAppointmentsController
     }
 
     public virtual async Task<IActionResult> GetAllAppointmentsAsync(AppointmentSearchArguments searchArguments = null)
-{
-    try
     {
-        var client = _httpClientFactory.CreateClient();
-        var queryString = searchArguments != null ? AppointmentSearchArguments.BuildQueryString(searchArguments) : string.Empty;
-        var requestUrl = $"{BASE_URL}/api/Appointments{queryString}";
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var queryString = searchArguments != null 
+                ? AppointmentSearchArguments.BuildQueryString(searchArguments) 
+                : string.Empty;
+            var requestUrl = $"{BASE_URL}/api/Appointments{queryString}";
 
-        var response = await client.GetAsync(requestUrl);
+            var response = await client.GetAsync(requestUrl);
 
-        if (response.IsSuccessStatusCode)
-        {
-            var content = await response.Content.ReadAsStringAsync();
-            return new OkObjectResult(content);
+            if (response.IsSuccessStatusCode)
+            {
+                var appointments = await response.Content.ReadFromJsonAsync<List<Appointment>>();
+                return new OkObjectResult(appointments);
+            }
+            else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
+            {
+                return new BadRequestObjectResult(new { Message = $"Client Error: {response.ReasonPhrase}" });
+            }
+            else
+            {
+                return new StatusCodeResult((int)response.StatusCode);
+            }
         }
-        else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
+        catch (HttpRequestException ex)
         {
-            return new BadRequestObjectResult(new { Message = $"Client Error: {response.ReasonPhrase}" });
+            return new StatusCodeResult(503);
         }
-        else
+        catch (Exception ex)
         {
-            return new StatusCodeResult((int)response.StatusCode);
+            return new ObjectResult(new { Message = "Internal Server Error", Details = ex.Message }) { StatusCode = 500 };
         }
     }
-    catch (HttpRequestException ex)
-    {
-        return new StatusCodeResult(503);
-    }
-    catch (Exception ex)
-    {
-        return new ObjectResult(new { Message = "Internal Server Error", Details = ex.Message }) { StatusCode = 500 };
-    }
-}
     
     public virtual async Task<string> GetAppointmentByIdAsync(Guid appointmentId)
     {

@@ -36,7 +36,7 @@ public class TemplateManagerTest
             Directory.Delete(_testFolderPath, true);
     }
     //This test doesn't work on gitflow idk why
-    /*[Test]
+    [Test]
     public void CountTxtFiles_ReturnsCorrectCount()
     {
         
@@ -76,7 +76,7 @@ public class TemplateManagerTest
         var count = _templateManager.CountTxtFiles();
         
         Assert.That(count, Is.EqualTo(0));
-    }*/
+    }
 
     [Test]
     public void ReadTxtFile_ReturnsFileContent()
@@ -151,6 +151,40 @@ public class TemplateManagerTest
     [Test]
     public void GetTemplates_ReturnsListOfTemplates()
     {
+        try
+        {
+            // Check if the directory exists
+            if (Directory.Exists(_testFolderPath))
+            {
+                // Get all files in the directory
+                string[] files = Directory.GetFiles(_testFolderPath);
+
+                // Loop through each file and delete it
+                foreach (string file in files)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                        Console.WriteLine($"Deleted file: {file}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error deleting file {file}: {ex.Message}");
+                    }
+                }
+
+                Console.WriteLine("All files deleted successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Directory does not exist.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        
         File.WriteAllText(Path.Combine(_testFolderPath, "Template1.html"), "<html>Template 1</html>");
         File.WriteAllText(Path.Combine(_testFolderPath, "Template2.html"), "<html>Template 2</html>");
 
@@ -158,7 +192,7 @@ public class TemplateManagerTest
 
         var result = templateManager.GetTemplates();
 
-        Assert.That(result.Count, Is.EqualTo(3));
+        Assert.That(result.Count, Is.EqualTo(2));
 
         // Clean up after test
         Directory.Delete(_testFolderPath, true);

@@ -28,6 +28,7 @@ builder.Services.AddTransient<ServiceAppointmentsController>();
 builder.Services.AddTransient<ServiceEmailApiController>();
 builder.Services.AddTransient<ServicePromoController>();
 builder.Services.AddTransient<ServiceCustomerController>();
+builder.Services.AddTransient<ServiceTemplateController>();
 
 
 // ENABLE CORS

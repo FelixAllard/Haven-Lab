@@ -32,8 +32,7 @@ public class TemplateManager : ITemplateManager
 
     public EmailTemplate GetTemplate(string templateName)
     {
-        if (CountTxtFiles() != fileContents.Count)
-            ReadAllTxtFiles(); // Ensure fileContents is updated
+        ReadAllTxtFiles();
 
         if (fileContents.TryGetValue(templateName, out EmailTemplate content))
             return content;
@@ -43,15 +42,13 @@ public class TemplateManager : ITemplateManager
 
     public List<Template> GetTemplates()
     {
-        if (CountTxtFiles() != fileContents.Count)
-            ReadAllTxtFiles();
+        ReadAllTxtFiles();
         return templates;
     }
 
     public Template PostTemplate(Template template)
     {
-        if (CountTxtFiles() != fileContents.Count)
-            ReadAllTxtFiles();
+        ReadAllTxtFiles();
         // Ensure the directory exists
         if (!Directory.Exists(_folderPath))
             Directory.CreateDirectory(_folderPath);
@@ -75,8 +72,7 @@ public class TemplateManager : ITemplateManager
 
     public Template PutTemplate(string templateName, Template template)
     {
-        if (CountTxtFiles() != fileContents.Count)
-            ReadAllTxtFiles();
+        ReadAllTxtFiles();
         // Ensure the directory exists
         if (!Directory.Exists(_folderPath))
         {
@@ -102,8 +98,7 @@ public class TemplateManager : ITemplateManager
 
     public Template DeleteTemplate(string templateName)
     {
-        if (CountTxtFiles() != fileContents.Count)
-            ReadAllTxtFiles();
+        ReadAllTxtFiles();
         // Ensure the directory exists
         if (!Directory.Exists(_folderPath))
         {
@@ -125,6 +120,7 @@ public class TemplateManager : ITemplateManager
     public void ReadAllTxtFiles()
     {
         Debug.WriteLine($"Absolute Path: {Path.GetFullPath(_folderPath)}");
+        fileContents.Clear();
         foreach (string filePath in Directory.GetFiles(_folderPath, "*.html"))
         {
             string fileName = Path.GetFileNameWithoutExtension(filePath);
@@ -133,6 +129,7 @@ public class TemplateManager : ITemplateManager
         }
 
         templates = new List<Template>();
+        templates.Clear();
         foreach (var file in fileContents)
         {
             templates.Add(new Template()

@@ -3,20 +3,22 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(9);
   const navigate = useNavigate();
 
   // Fetch appointments on component mount
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await axios.get(
-          `${environment}/gateway/api/ProxyAppointment/all`,
-        );
+        const response = await axios.get(`${environment}/gateway/api/ProxyAppointment/all`);
         setAppointments(response.data || []);
       } catch (err) {
         if (err.response) {
@@ -35,6 +37,15 @@ const Appointments = () => {
 
     fetchAppointments();
   }, []);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentAppointments = appointments.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(appointments.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   // Render loading or error states
   if (loading) {
@@ -60,8 +71,8 @@ const Appointments = () => {
         Create Appointment
       </button>
       <div className="row">
-        {appointments.length > 0 ? (
-          appointments.map((appointment, index) => (
+        {currentAppointments.length > 0 ? (
+          currentAppointments.map((appointment, index) => (
             <motion.div
               className="col-md-4 mb-4"
               key={appointment.appointmentId}
@@ -100,6 +111,37 @@ const Appointments = () => {
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {appointments.length > itemsPerPage && (
+        <div className="pagination d-flex justify-content-center mt-4">
+          <button
+            className="btn btn-outline-secondary mx-1"
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            Previous
+          </button>
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              className={`btn mx-1 ${
+                currentPage === i + 1 ? 'btn-secondary' : 'btn-outline-secondary'
+              }`}
+              onClick={() => handlePageChange(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            className="btn btn-outline-secondary mx-1"
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

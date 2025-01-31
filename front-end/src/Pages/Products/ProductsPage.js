@@ -23,7 +23,9 @@ const ProductPage = () => {
   const fetchProducts = async (params = '') => {
     try {
       setLoading(true);
-      const response = await axios.get(`${environment}/gateway/api/ProxyProduct${params}`);
+      const response = await axios.get(
+        `${environment}/gateway/api/ProxyProduct${params}`,
+      );
       setProducts(response.data.items);
     } catch (err) {
       setError(err.message);
@@ -58,7 +60,10 @@ const ProductPage = () => {
 
   // Pagination Logic
   const totalPages = Math.ceil(products.length / itemsPerPage);
-  const paginatedProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedProducts = products.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   return (
     <div className="products-page">
@@ -94,7 +99,10 @@ const ProductPage = () => {
                 />
                 <label className="form-check-label">Available</label>
               </div>
-              <button className="btn btn-secondary btn-block" onClick={handleSearch}>
+              <button
+                className="btn btn-secondary btn-block"
+                onClick={handleSearch}
+              >
                 Apply Filter
               </button>
             </div>
@@ -131,14 +139,20 @@ const ProductPage = () => {
                     >
                       <div className="card product-card">
                         <img
-                          src={product.images[0]?.src || require('../../Shared/imageNotFound.jpg')}
+                          src={
+                            product.images[0]?.src ||
+                            require('../../Shared/imageNotFound.jpg')
+                          }
                           className="card-img-top"
                           alt={product.title}
                         />
                         <div className="card-body">
                           <h5 className="card-title">{product.title}</h5>
                           <p className="price">${product.variants[0]?.price}</p>
-                          <Link to={`/product/${product.id}`} className="btn btn-secondary btn-block">
+                          <Link
+                            to={`/product/${product.id}`}
+                            className="btn btn-secondary btn-block"
+                          >
                             View Product
                           </Link>
                         </div>

@@ -18,13 +18,16 @@ const PriceRules = () => {
   useEffect(() => {
     const fetchPriceRules = async () => {
       try {
-        const response = await axios.get(`${environment}/gateway/api/ProxyPromo/PriceRules`);
+        const response = await axios.get(
+          `${environment}/gateway/api/ProxyPromo/PriceRules`,
+        );
         setPriceRules(response.data.items || []); // Ensure fallback to empty array if no items
       } catch (err) {
         if (err.response) {
           setError(
             `Server Error: ${err.response.status} - ${
-              err.response.data.message || 'An error occurred while fetching price rules'
+              err.response.data.message ||
+              'An error occurred while fetching price rules'
             }`,
           );
         } else if (err.request) {
@@ -124,7 +127,9 @@ const PriceRules = () => {
             <button
               key={i}
               className={`btn mx-1 ${
-                currentPage === i + 1 ? 'btn-secondary' : 'btn-outline-secondary'
+                currentPage === i + 1
+                  ? 'btn-secondary'
+                  : 'btn-outline-secondary'
               }`}
               onClick={() => handlePageChange(i + 1)}
             >

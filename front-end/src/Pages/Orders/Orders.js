@@ -18,13 +18,16 @@ const OrderPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`${environment}/gateway/api/ProxyOrder`);
+        const response = await axios.get(
+          `${environment}/gateway/api/ProxyOrder`,
+        );
         setOrders(response.data.items || []); // Ensure fallback to empty array if no items
       } catch (err) {
         if (err.response) {
           setError(
             `Server Error: ${err.response.status} - ${
-              err.response.data.message || 'An error occurred while fetching orders'
+              err.response.data.message ||
+              'An error occurred while fetching orders'
             }`,
           );
         } else if (err.request) {
@@ -122,7 +125,9 @@ const OrderPage = () => {
             <button
               key={i}
               className={`btn mx-1 ${
-                currentPage === i + 1 ? 'btn-secondary' : 'btn-outline-secondary'
+                currentPage === i + 1
+                  ? 'btn-secondary'
+                  : 'btn-outline-secondary'
               }`}
               onClick={() => handlePageChange(i + 1)}
             >

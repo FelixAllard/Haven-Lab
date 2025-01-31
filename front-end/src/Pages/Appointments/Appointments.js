@@ -18,7 +18,9 @@ const Appointments = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await axios.get(`${environment}/gateway/api/ProxyAppointment/all`);
+        const response = await axios.get(
+          `${environment}/gateway/api/ProxyAppointment/all`,
+        );
         setAppointments(response.data || []);
       } catch (err) {
         if (err.response) {
@@ -40,7 +42,10 @@ const Appointments = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAppointments = appointments.slice(indexOfFirstItem, indexOfLastItem);
+  const currentAppointments = appointments.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
   const totalPages = Math.ceil(appointments.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
@@ -126,7 +131,9 @@ const Appointments = () => {
             <button
               key={i}
               className={`btn mx-1 ${
-                currentPage === i + 1 ? 'btn-secondary' : 'btn-outline-secondary'
+                currentPage === i + 1
+                  ? 'btn-secondary'
+                  : 'btn-outline-secondary'
               }`}
               onClick={() => handlePageChange(i + 1)}
             >

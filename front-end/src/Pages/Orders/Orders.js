@@ -21,7 +21,7 @@ const OrderPage = () => {
         setLoading(true);
         setError(null); // Clear any previous errors
         const response = await axios.get(
-          `${environment}/gateway/api/ProxyOrder`
+          `${environment}/gateway/api/ProxyOrder`,
         );
         setOrders(response.data.items || []); // Ensure fallback to empty array if no items
       } catch (err) {
@@ -30,7 +30,7 @@ const OrderPage = () => {
             `Server Error: ${err.response.status} - ${
               err.response.data.message ||
               'An error occurred while fetching orders'
-            }`
+            }`,
           );
         } else if (err.request) {
           setError('Network Error: No response received from the server.');

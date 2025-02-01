@@ -28,7 +28,7 @@ const Appointments = () => {
       setLoading(true);
       setError(null); // Clear any previous errors
       const response = await axios.get(
-        `${environment}/gateway/api/ProxyAppointment/all${query}`
+        `${environment}/gateway/api/ProxyAppointment/all${query}`,
       );
 
       // Sort appointments by appointmentDate (earliest to oldest)
@@ -41,11 +41,13 @@ const Appointments = () => {
       if (err.response) {
         // Server responded with a status code outside 2xx
         setError(
-          `Server Error: ${err.response.status} - ${err.response.data.message || 'An error occurred'}`
+          `Server Error: ${err.response.status} - ${err.response.data.message || 'An error occurred'}`,
         );
       } else if (err.request) {
         // The request was made but no response was received
-        setError('Network Error: Unable to connect to the server. Please check your connection or try again later.');
+        setError(
+          'Network Error: Unable to connect to the server. Please check your connection or try again later.',
+        );
       } else {
         // Something else happened
         setError(`Error: ${err.message}`);
@@ -65,7 +67,8 @@ const Appointments = () => {
 
     if (titleSearch) params.append('Title', titleSearch);
     if (customerNameSearch) params.append('CustomerName', customerNameSearch);
-    if (customerEmailSearch) params.append('CustomerEmail', customerEmailSearch);
+    if (customerEmailSearch)
+      params.append('CustomerEmail', customerEmailSearch);
     if (statusSearch) params.append('Status', statusSearch);
     if (startDateSearch) params.append('StartDate', startDateSearch);
     if (endDateSearch) params.append('EndDate', endDateSearch);
@@ -89,7 +92,10 @@ const Appointments = () => {
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAppointments = appointments.slice(indexOfFirstItem, indexOfLastItem);
+  const currentAppointments = appointments.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
   const totalPages = Math.ceil(appointments.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
@@ -170,10 +176,7 @@ const Appointments = () => {
                   />
                 </div>
                 <div className="d-flex justify-content-between gap-3">
-                  <button 
-                    type="submit" 
-                    className="btn btn-primary flex-grow-1"
-                  >
+                  <button type="submit" className="btn btn-primary flex-grow-1">
                     Apply Filters
                   </button>
                   <button
@@ -186,7 +189,10 @@ const Appointments = () => {
                 </div>
               </form>
             </div>
-            <button className="btn btn-success mb-3 mt-4" onClick={handleCreateClick}>
+            <button
+              className="btn btn-success mb-3 mt-4"
+              onClick={handleCreateClick}
+            >
               New Appointment
             </button>
           </div>
@@ -204,10 +210,7 @@ const Appointments = () => {
                   onChange={(e) => setTitleSearch(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
                 />
-                <button
-                  className="search-icon-button"
-                  onClick={handleSearch}
-                >
+                <button className="search-icon-button" onClick={handleSearch}>
                   <FaSearch />
                 </button>
               </div>
@@ -226,13 +229,23 @@ const Appointments = () => {
                   >
                     <div className="card">
                       <div className="card-body">
-                        <p className="card-text"><strong>Title:</strong> {appointment.title || 'N/A'}</p>
                         <p className="card-text">
-                          <strong>Date:</strong> {new Date(appointment.appointmentDate).toLocaleString()}
+                          <strong>Title:</strong> {appointment.title || 'N/A'}
                         </p>
-                        <p className="card-text"><strong>Customer:</strong> {appointment.customerName || 'N/A'}</p>
+                        <p className="card-text">
+                          <strong>Date:</strong>{' '}
+                          {new Date(
+                            appointment.appointmentDate,
+                          ).toLocaleString()}
+                        </p>
+                        <p className="card-text">
+                          <strong>Customer:</strong>{' '}
+                          {appointment.customerName || 'N/A'}
+                        </p>
                         <button
-                          onClick={() => handleViewClick(appointment.appointmentId)}
+                          onClick={() =>
+                            handleViewClick(appointment.appointmentId)
+                          }
                           className="btn btn-primary mt-3"
                         >
                           View Details

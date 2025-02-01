@@ -13,8 +13,8 @@
 }
 
 .appointments-page .text-muted {
-    color: white !important;
-  }
+  color: white !important;
+}
 
 /* Filter section styles */
 .appointments-page .filter-section {
@@ -82,7 +82,7 @@
 }
 
 /* Date picker styles */
-.appointments-page input[type="datetime-local"] {
+.appointments-page input[type='datetime-local'] {
   background-color: black;
   color: white;
   border: 1px solid white;
@@ -91,57 +91,57 @@
 }
 /* Search bar container */
 .appointments-page .search-bar-container {
-    display: flex;
-    align-items: center;
-    position: relative;
-    margin-bottom: 20px;
-    margin-top: 20px; /* Adjust as needed */
-  }
-  
-  /* Search input field */
-  .appointments-page .search-bar {
-    width: 100%; /* Full width */
-    padding: 0.5rem 1rem; /* Comfortable padding */
-    padding-right: 40px; /* Space for the icon */
-    border-radius: 25px !important; /* Force rounded corners */
-    background-color: black; /* Dark background */
-    color: white; /* White text */
-    border: 1px solid white; /* White border */
-    font-size: 1rem; /* Consistent font size */
-  }
-  
-  /* Override Bootstrap's input-group styles */
-  .appointments-page .input-group {
-    border-radius: 25px !important; /* Force rounded corners */
-  }
-  
-  .appointments-page .input-group .form-control {
-    border-radius: 25px !important; /* Force rounded corners */
-  }
-  
-  /* Search input placeholder */
-  .appointments-page .search-bar::placeholder {
-    color: grey; /* Light grey placeholder */
-  }
-  
-  /* Search icon button */
-  .appointments-page .search-icon-button {
-    position: absolute;
-    right: 10px; /* Position from the right */
-    top: 50%; /* Center vertically */
-    transform: translateY(-50%); /* Perfect vertical alignment */
-    background: none;
-    border: none;
-    color: white; /* White icon */
-    cursor: pointer;
-    font-size: 1.2rem; /* Icon size */
-    z-index: 1; /* Ensure it's above the input */
-  }
-  
-  /* Search icon hover effect */
-  .appointments-page .search-icon-button:hover {
-    color: grey; /* Grey on hover */
-  }
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 20px;
+  margin-top: 20px; /* Adjust as needed */
+}
+
+/* Search input field */
+.appointments-page .search-bar {
+  width: 100%; /* Full width */
+  padding: 0.5rem 1rem; /* Comfortable padding */
+  padding-right: 40px; /* Space for the icon */
+  border-radius: 25px !important; /* Force rounded corners */
+  background-color: black; /* Dark background */
+  color: white; /* White text */
+  border: 1px solid white; /* White border */
+  font-size: 1rem; /* Consistent font size */
+}
+
+/* Override Bootstrap's input-group styles */
+.appointments-page .input-group {
+  border-radius: 25px !important; /* Force rounded corners */
+}
+
+.appointments-page .input-group .form-control {
+  border-radius: 25px !important; /* Force rounded corners */
+}
+
+/* Search input placeholder */
+.appointments-page .search-bar::placeholder {
+  color: grey; /* Light grey placeholder */
+}
+
+/* Search icon button */
+.appointments-page .search-icon-button {
+  position: absolute;
+  right: 10px; /* Position from the right */
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%); /* Perfect vertical alignment */
+  background: none;
+  border: none;
+  color: white; /* White icon */
+  cursor: pointer;
+  font-size: 1.2rem; /* Icon size */
+  z-index: 1; /* Ensure it's above the input */
+}
+
+/* Search icon hover effect */
+.appointments-page .search-icon-button:hover {
+  color: grey; /* Grey on hover */
+}
 /* Pagination styles */
 .appointments-page .pagination {
   margin-top: 2rem;
@@ -156,54 +156,55 @@
   .appointments-page .filter-section {
     margin-top: 20px;
   }
-  
+
   .appointments-page .search-bar {
     width: 100%;
   }
-  
+
   .appointments-page .search-icon-button {
     right: 10px;
   }
 }
 
 /* Style for datetime-local input */
-.appointments-page input[type="datetime-local"] {
-    background-color: black;
-    color: white;
-    border: 1px solid white;
-    padding: 0.375rem 0.75rem;
-    border-radius: 0.25rem;
-  }
-  
-  /* Change calendar icon color */
-.appointments-page input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    filter: invert(1); /* Inverts the icon color to white */
-    cursor: pointer;
-  }
-  
-  /* Change text color in the calendar dropdown */
-.appointments-page input[type="datetime-local"]::-webkit-datetime-edit {
-    color: white;
-  }
-  
-  /* Change placeholder text color */
-.appointments-page input[type="datetime-local"]::placeholder {
-    color: lightgray;
-  }
+.appointments-page input[type='datetime-local'] {
+  background-color: black;
+  color: white;
+  border: 1px solid white;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+}
 
-  /* Error message container */
+/* Change calendar icon color */
+.appointments-page
+  input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Inverts the icon color to white */
+  cursor: pointer;
+}
+
+/* Change text color in the calendar dropdown */
+.appointments-page input[type='datetime-local']::-webkit-datetime-edit {
+  color: white;
+}
+
+/* Change placeholder text color */
+.appointments-page input[type='datetime-local']::placeholder {
+  color: lightgray;
+}
+
+/* Error message container */
 .appointments-page .error-container {
-    margin-top: 80px; /* Adjust based on your navbar height */
-    z-index: 1; /* Ensure it's above other content */
-    position: relative; /* Ensure z-index works */
-  }
-  
-  /* Error alert */
+  margin-top: 80px; /* Adjust based on your navbar height */
+  z-index: 1; /* Ensure it's above other content */
+  position: relative; /* Ensure z-index works */
+}
+
+/* Error alert */
 .appointments-page .alert-danger {
-    margin-top: 20px; /* Add some space below the navbar */
-    border-radius: 8px; /* Rounded corners */
-    padding: 15px; /* Comfortable padding */
-    background-color: #dc3545; /* Bootstrap danger color */
-    color: white; /* White text */
-    border: 1px solid #c82333; /* Darker border */
-  }
+  margin-top: 20px; /* Add some space below the navbar */
+  border-radius: 8px; /* Rounded corners */
+  padding: 15px; /* Comfortable padding */
+  background-color: #dc3545; /* Bootstrap danger color */
+  color: white; /* White text */
+  border: 1px solid #c82333; /* Darker border */
+}

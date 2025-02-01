@@ -21,7 +21,7 @@ const PriceRules = () => {
         setLoading(true);
         setError(null); // Clear any previous errors
         const response = await axios.get(
-          `${environment}/gateway/api/ProxyPromo/PriceRules`
+          `${environment}/gateway/api/ProxyPromo/PriceRules`,
         );
         setPriceRules(response.data.items || []); // Ensure fallback to empty array if no items
       } catch (err) {
@@ -30,7 +30,7 @@ const PriceRules = () => {
             `Server Error: ${err.response.status} - ${
               err.response.data.message ||
               'An error occurred while fetching price rules'
-            }`
+            }`,
           );
         } else if (err.request) {
           setError('Network Error: No response received from the server.');

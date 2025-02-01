@@ -490,5 +490,33 @@ public class ProxyAppointmentControllerTest
         var message = badRequestResult.Value.GetType().GetProperty("Message").GetValue(badRequestResult.Value, null);
         Assert.That(message, Is.EqualTo("Error 404: Appointment not found"));
     }
+    
+    [Test]
+    public void BuildQueryString_ReturnsCorrectQueryString_WhenAllParamsAreProvided()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments
+        {
+            Title = "Haircut",
+            CustomerName = "John Doe",
+            CustomerEmail = "john.doe@example.com",
+            Status = "Confirmed",
+            StartDate = new DateTime(2025, 1, 20, 10, 0, 0),
+            EndDate = new DateTime(2025, 1, 21, 10, 0, 0)
+        };
+
+        // Act
+        var queryString = AppointmentSearchArguments.BuildQueryString(searchArguments);
+
+        // Assert
+        Assert.IsNotNull(queryString);
+        Assert.IsTrue(queryString.Contains("Title=Haircut"));
+        Assert.IsTrue(queryString.Contains("CustomerName=John%20Doe"));
+        Assert.IsTrue(queryString.Contains("CustomerEmail=john.doe%40example.com"));
+        Assert.IsTrue(queryString.Contains("Status=Confirmed"));
+        Assert.IsTrue(queryString.Contains("StartDate=2025-01-20T10:00:00"));
+        Assert.IsTrue(queryString.Contains("EndDate=2025-01-21T10:00:00"));
+    }
+    
 
 }

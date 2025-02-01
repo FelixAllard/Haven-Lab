@@ -523,8 +523,232 @@ public class ServiceAppointmentsControllerTests
         // Assert
         Assert.AreEqual(result, "Error deleting appointment: Internal Server Error");
     }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByTitle_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { Title = "Haircut" };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
 
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
 
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.Title.Contains("Haircut")));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByCustomerName_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { CustomerName = "John Doe" };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.CustomerName.Contains("John Doe")));
+    }
+
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByCustomerEmail_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { CustomerEmail = "john.doe@example.com" };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.CustomerEmail.Contains("john.doe@example.com")));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByStatus_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { Status = "Upcoming" };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.Status == "Upcoming"));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByStartDate_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { StartDate = new DateTime(2025, 1, 20) };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.AppointmentDate >= new DateTime(2025, 1, 20)));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByEndDate_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { EndDate = new DateTime(2025, 1, 21) };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.AppointmentDate <= new DateTime(2025, 1, 21)));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByMultipleParameters_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments
+        {
+            Title = "Haircut",
+            CustomerName = "John Doe",
+            Status = "Upcoming",
+            StartDate = new DateTime(2025, 1, 20),
+            EndDate = new DateTime(2025, 1, 21)
+        };
+
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => 
+            a.Title.Contains("Haircut") &&
+            a.CustomerName.Contains("John Doe") &&
+            a.Status == "Upcoming" &&
+            a.AppointmentDate >= new DateTime(2025, 1, 20) &&
+            a.AppointmentDate <= new DateTime(2025, 1, 21)
+        ));
+    }
+    
+    
 
     // Helper class to mock HttpMessageHandler
     public class FakeHttpMessageHandler : HttpMessageHandler

@@ -176,17 +176,34 @@
   }
   
   /* Change calendar icon color */
-  .appointments-page input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+.appointments-page input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     filter: invert(1); /* Inverts the icon color to white */
     cursor: pointer;
   }
   
   /* Change text color in the calendar dropdown */
-  .appointments-page input[type="datetime-local"]::-webkit-datetime-edit {
+.appointments-page input[type="datetime-local"]::-webkit-datetime-edit {
     color: white;
   }
   
   /* Change placeholder text color */
-  .appointments-page input[type="datetime-local"]::placeholder {
+.appointments-page input[type="datetime-local"]::placeholder {
     color: lightgray;
+  }
+
+  /* Error message container */
+.appointments-page .error-container {
+    margin-top: 80px; /* Adjust based on your navbar height */
+    z-index: 1; /* Ensure it's above other content */
+    position: relative; /* Ensure z-index works */
+  }
+  
+  /* Error alert */
+.appointments-page .alert-danger {
+    margin-top: 20px; /* Add some space below the navbar */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Comfortable padding */
+    background-color: #dc3545; /* Bootstrap danger color */
+    color: white; /* White text */
+    border: 1px solid #c82333; /* Darker border */
   }

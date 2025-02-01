@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Api_Gateway.Services;
 using Newtonsoft.Json;
 using Api_Gateway.Models;
+using Microsoft.AspNetCore.Mvc;
 using Moq.Protected;
 
 namespace TestingProject.AppointmentsService.Tests
@@ -53,7 +54,16 @@ public class ServiceAppointmentsControllerTests
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        Assert.IsTrue(result.Contains("Test Appointment"));
+        // Cast the result to OkObjectResult
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult); // Ensure the result is OkObjectResult
+
+        // Extract the list of appointments
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments); // Ensure the value is a list of appointments
+
+        // Check if the list contains the expected appointment
+        Assert.IsTrue(appointments.Any(a => a.Title == "Test Appointment"));
     }
 
     [Test]
@@ -63,16 +73,23 @@ public class ServiceAppointmentsControllerTests
         var errorResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.BadRequest,
-            Content = new StringContent("Bad Request")
+            Content = new StringContent("{\"Message\": \"Client Error: Bad Request\"}", Encoding.UTF8, "application/json")
         };
 
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
 
         // Act
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        Assert.AreEqual(result, "Error fetching appointments: Bad Request");
+        var objectResult = result as BadRequestObjectResult;
+        Assert.IsNotNull(objectResult);
+    
+        var responseContent = objectResult.Value as dynamic;
+        Assert.IsNotNull(responseContent);
+        Assert.AreEqual("Client Error: Bad Request", responseContent.Message);
     }
     
     [Test]
@@ -82,31 +99,47 @@ public class ServiceAppointmentsControllerTests
         var errorResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.InternalServerError,
-            Content = new StringContent("Internal Server Error")
+            Content = new StringContent("{\"Message\": \"Internal Server Error\"}", Encoding.UTF8, "application/json")
         };
 
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
 
         // Act
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        Assert.AreEqual(result, "Error fetching appointments: Internal Server Error");
-    }
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode); // Ensure it's an Internal Server Error
 
+        var responseContent = objectResult.Value as dynamic;
+        Assert.IsNotNull(responseContent);
+        Assert.AreEqual("Internal Server Error", responseContent.Message);
+    }
+    
     [Test]
     public async Task GetAllAppointmentsAsync_Exception_ReturnsErrorMessage()
     {
         // Arrange
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Throws(new Exception("Network error"));
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Throws(new Exception("Network error"));
 
         // Act
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        Assert.AreEqual(result, "Error 500: Internal Server Error - Network error");
-    }
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode); // Ensure it's an Internal Server Error
 
+        var responseContent = objectResult.Value as dynamic;
+        Assert.IsNotNull(responseContent);
+        Assert.AreEqual("Internal Server Error", responseContent.Message);
+        Assert.AreEqual("Network error", responseContent.Details);
+    }
 
     [Test]
     public async Task GetAppointmentByIdAsync_Success_ReturnsAppointmentDetails()

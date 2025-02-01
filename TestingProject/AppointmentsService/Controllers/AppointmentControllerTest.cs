@@ -75,7 +75,7 @@ namespace TestingProject.AppointmentsService.Controllers
         public async Task GetAll_ReturnsOkResult_WhenAppointmentsExist()
         {
             // Act: Call the method under test
-            var result = await _controller.GetAll();
+            var result = await _controller.GetAll(null);
 
             // Assert: Ensure result is of type ActionResult
             Assert.IsInstanceOf<ActionResult<IEnumerable<Appointment>>>(result);
@@ -101,7 +101,7 @@ namespace TestingProject.AppointmentsService.Controllers
             await _context.SaveChangesAsync();
 
             // Act: Call the method under test
-            var result = await _controller.GetAll();
+            var result = await _controller.GetAll(null);
 
             // Assert: Ensure result is OkObjectResult with status code 200 and empty list
             var okResult = result.Result as OkObjectResult;

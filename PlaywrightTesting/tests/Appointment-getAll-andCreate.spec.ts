@@ -11,9 +11,9 @@ test('AppointmentGetAllAndCreate', async ({ page }) => {
   await page.getByLabel('Toggle navigation').click();
   await page.getByRole('link', { name: 'Appointments' }).click();
   await page.getByLabel('Close').click();
-  await expect(page.getByRole('heading', { name: 'Appointments' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Create Appointment' })).toBeVisible();
-  await page.getByRole('button', { name: 'Create Appointment' }).click();
+  await expect(page.getByRole('heading', { name: 'Appointments', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'New Appointment' })).toBeVisible();
+  await page.getByRole('button', { name: 'New Appointment' }).click();
   await page.locator('div').filter({ hasText: /^Title$/ }).getByRole('textbox').click();
   await page.locator('div').filter({ hasText: /^Title$/ }).getByRole('textbox').fill('Title');
   await page.locator('div').filter({ hasText: /^Customer Name$/ }).getByRole('textbox').click();
@@ -31,3 +31,4 @@ test('AppointmentGetAllAndCreate', async ({ page }) => {
   await expect(page.locator('.card-body > .btn').first()).toBeVisible();
   await page.getByRole('button', { name: 'Logout' }).click();
 });
+

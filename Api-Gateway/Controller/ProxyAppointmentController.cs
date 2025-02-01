@@ -78,7 +78,6 @@ namespace Api_Gateway.Controller
                 { 
                     Message = "Internal server error",
                     Details = ex.Message,
-                    StackTrace = ex.StackTrace // Only include in development environment
                 });
             }
         }

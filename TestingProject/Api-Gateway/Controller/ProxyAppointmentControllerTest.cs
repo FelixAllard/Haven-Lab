@@ -3,6 +3,7 @@ using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Newtonsoft.Json;
 
 namespace TestingProject.Api_Gateway.Controller;
 
@@ -67,19 +68,20 @@ public class ProxyAppointmentControllerTest
                 }
             ]";
 
-        // Mock the ServiceAppointmentsController to return mock data
+        // Arrange: Deserialize the mock JSON into a List<Appointment>
+        var mockAppointments = JsonConvert.DeserializeObject<List<Appointment>>(mockResult);
+
         _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync(null))
-            .ReturnsAsync(new OkObjectResult(mockResult)); // Return an OkObjectResult with the mock data
+            .ReturnsAsync(new OkObjectResult(mockAppointments)); // Return a List<Appointment>
 
         // Act: Call the method under test
         var result = await _proxyAppointmentController.GetAllAppointments(null);
 
-        // Assert: Verify that the response is Ok with the expected data
+        // Assert: Ensure result is OkObjectResult and check response content
         var okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
         Assert.That(okResult.StatusCode, Is.EqualTo(200));
 
-        // Verify the returned data
         var returnedAppointments = okResult.Value as List<Appointment>;
         Assert.IsNotNull(returnedAppointments);
         Assert.That(returnedAppointments.Count, Is.EqualTo(2));
@@ -91,7 +93,7 @@ public class ProxyAppointmentControllerTest
     public async Task GetAllAppointments_ReturnsBadRequest_WhenServiceReturnsErrorMessage()
     {
         // Arrange: Prepare the error message
-        var errorMessage = "Error fetching appointments: Some error occurred";
+        var errorMessage = "Invalid request parameters";
 
         // Mock the ServiceAppointmentsController to return the error message
         _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync(null))
@@ -115,7 +117,7 @@ public class ProxyAppointmentControllerTest
     {
         // Arrange: Mock an exception when calling GetAllAppointmentsAsync
         _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync(null))
-            .ThrowsAsync(new HttpRequestException("Internal server error"));
+            .ThrowsAsync(new HttpRequestException("Service unavailable"));
 
         // Act: Call the method under test
         var result = await _proxyAppointmentController.GetAllAppointments(null);
@@ -123,11 +125,11 @@ public class ProxyAppointmentControllerTest
         // Assert: Verify that the response is Internal Server Error (500)
         var internalServerErrorResult = result as ObjectResult;
         Assert.IsNotNull(internalServerErrorResult);
-        Assert.That(internalServerErrorResult.StatusCode, Is.EqualTo(500));
+        Assert.That(internalServerErrorResult.StatusCode, Is.EqualTo(503));
 
         // Extract the message from the response for comparison
         var message = internalServerErrorResult.Value.GetType().GetProperty("Message").GetValue(internalServerErrorResult.Value, null);
-        Assert.That(message, Is.EqualTo("Internal server error"));
+        Assert.That(message, Is.EqualTo("Service unavailable"));
     }
     
     [Test]

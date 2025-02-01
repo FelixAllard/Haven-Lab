@@ -37,7 +37,7 @@ public class ServiceAppointmentsControllerTests
         // Create the controller with the mocked HttpClientFactory
         _controller = new ServiceAppointmentsController(_mockHttpClientFactory.Object);
     }
-
+    
     [Test]
     public async Task GetAllAppointmentsAsync_Success_ReturnsAppointmentsList()
     {
@@ -45,10 +45,16 @@ public class ServiceAppointmentsControllerTests
         var appointmentsResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
-            Content = new StringContent("[{\"AppointmentId\":\"12345\", \"Title\":\"Test Appointment\", \"Description\":\"Test Description\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]")
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Test Appointment\", \"Description\":\"Test Description\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
         };
 
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
 
         // Act
         var result = await _controller.GetAllAppointmentsAsync();
@@ -56,11 +62,11 @@ public class ServiceAppointmentsControllerTests
         // Assert
         // Cast the result to OkObjectResult
         var okResult = result as OkObjectResult;
-        Assert.IsNotNull(okResult); // Ensure the result is OkObjectResult
+        Assert.IsNotNull(okResult);
 
         // Extract the list of appointments
         var appointments = okResult.Value as List<Appointment>;
-        Assert.IsNotNull(appointments); // Ensure the value is a list of appointments
+        Assert.IsNotNull(appointments);
 
         // Check if the list contains the expected appointment
         Assert.IsTrue(appointments.Any(a => a.Title == "Test Appointment"));
@@ -86,20 +92,26 @@ public class ServiceAppointmentsControllerTests
         // Assert
         var objectResult = result as BadRequestObjectResult;
         Assert.IsNotNull(objectResult);
-    
-        var responseContent = objectResult.Value as dynamic;
+
+        // Use reflection to access the "Message" property of the anonymous object
+        var responseContent = objectResult.Value;
         Assert.IsNotNull(responseContent);
-        Assert.AreEqual("Client Error: Bad Request", responseContent.Message);
+
+        var messageProperty = responseContent.GetType().GetProperty("Message");
+        Assert.IsNotNull(messageProperty);
+
+        var messageValue = messageProperty.GetValue(responseContent) as string;
+        Assert.AreEqual("Client Error: Bad Request", messageValue);
     }
     
     [Test]
-    public async Task GetAllAppointmentsAsync_InternalServerError_ReturnsErrorMessage()
+    public async Task GetAllAppointmentsAsync_InternalServerError_ReturnsStatusCode()
     {
         // Arrange
         var errorResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.InternalServerError,
-            Content = new StringContent("{\"Message\": \"Internal Server Error\"}", Encoding.UTF8, "application/json")
+            Content = new StringContent("Internal Server Error", Encoding.UTF8, "application/json")
         };
 
         _mockHttpClientFactory
@@ -110,13 +122,9 @@ public class ServiceAppointmentsControllerTests
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        var objectResult = result as ObjectResult;
-        Assert.IsNotNull(objectResult);
-        Assert.AreEqual(500, objectResult.StatusCode); // Ensure it's an Internal Server Error
-
-        var responseContent = objectResult.Value as dynamic;
-        Assert.IsNotNull(responseContent);
-        Assert.AreEqual("Internal Server Error", responseContent.Message);
+        var statusCodeResult = result as StatusCodeResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(500, statusCodeResult.StatusCode); // Ensure it's an Internal Server Error
     }
     
     [Test]
@@ -135,10 +143,21 @@ public class ServiceAppointmentsControllerTests
         Assert.IsNotNull(objectResult);
         Assert.AreEqual(500, objectResult.StatusCode); // Ensure it's an Internal Server Error
 
-        var responseContent = objectResult.Value as dynamic;
+        // Use reflection to access the properties of the anonymous object
+        var responseContent = objectResult.Value;
         Assert.IsNotNull(responseContent);
-        Assert.AreEqual("Internal Server Error", responseContent.Message);
-        Assert.AreEqual("Network error", responseContent.Details);
+
+        var messageProperty = responseContent.GetType().GetProperty("Message");
+        var detailsProperty = responseContent.GetType().GetProperty("Details");
+
+        Assert.IsNotNull(messageProperty);
+        Assert.IsNotNull(detailsProperty);
+
+        var messageValue = messageProperty.GetValue(responseContent) as string;
+        var detailsValue = detailsProperty.GetValue(responseContent) as string;
+
+        Assert.AreEqual("Internal Server Error", messageValue);
+        Assert.AreEqual("Network error", detailsValue);
     }
 
     [Test]

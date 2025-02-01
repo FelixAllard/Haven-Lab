@@ -11,7 +11,8 @@ const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); // General error state
+  const [filterError, setFilterError] = useState(null); // Filter-specific error state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(9);
   const navigate = useNavigate();
@@ -63,6 +64,38 @@ const Appointments = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+
+    // Clear previous filter errors
+    setFilterError(null);
+
+    // Validate year length for start date
+    if (startDateSearch) {
+      const startYear = new Date(startDateSearch).getFullYear().toString();
+      if (startYear.length !== 4) {
+        setFilterError('Year in start date must be exactly 4 characters.');
+        return;
+      }
+    }
+
+    // Validate year length for end date
+    if (endDateSearch) {
+      const endYear = new Date(endDateSearch).getFullYear().toString();
+      if (endYear.length !== 4) {
+        setFilterError('Year in end date must be exactly 4 characters.');
+        return;
+      }
+    }
+
+    // Validate dates
+    if (
+      startDateSearch &&
+      endDateSearch &&
+      new Date(startDateSearch) > new Date(endDateSearch)
+    ) {
+      setFilterError('Start date cannot be after end date.');
+      return;
+    }
+
     const params = new URLSearchParams();
 
     if (titleSearch) params.append('Title', titleSearch);
@@ -85,6 +118,7 @@ const Appointments = () => {
     setStatusSearch('');
     setStartDateSearch('');
     setEndDateSearch('');
+    setFilterError(null); // Clear filter errors
     fetchAppointments();
     setCurrentPage(1);
   };
@@ -132,7 +166,10 @@ const Appointments = () => {
                     className="form-control"
                     placeholder="Customer Name"
                     value={customerNameSearch}
-                    onChange={(e) => setCustomerNameSearch(e.target.value)}
+                    onChange={(e) =>
+                      setCustomerNameSearch(e.target.value.slice(0, 50))
+                    } // Limit to 50 characters
+                    maxLength={50}
                   />
                 </div>
                 <div className="form-group mb-3">
@@ -141,7 +178,10 @@ const Appointments = () => {
                     className="form-control"
                     placeholder="Customer Email"
                     value={customerEmailSearch}
-                    onChange={(e) => setCustomerEmailSearch(e.target.value)}
+                    onChange={(e) =>
+                      setCustomerEmailSearch(e.target.value.slice(0, 100))
+                    } // Limit to 100 characters
+                    maxLength={100}
                   />
                 </div>
                 <div className="form-group mb-3">
@@ -173,6 +213,7 @@ const Appointments = () => {
                     className="form-control"
                     value={endDateSearch}
                     onChange={(e) => setEndDateSearch(e.target.value)}
+                    min={startDateSearch}
                   />
                 </div>
                 <div className="d-flex justify-content-between gap-3">
@@ -187,6 +228,12 @@ const Appointments = () => {
                     Clear Filters
                   </button>
                 </div>
+                {/* Display filter-specific errors here */}
+                {filterError && (
+                  <div className="alert alert-danger mt-3" role="alert">
+                    {filterError}
+                  </div>
+                )}
               </form>
             </div>
             <button
@@ -207,7 +254,8 @@ const Appointments = () => {
                   className="form-control search-bar"
                   placeholder="Search by Title..."
                   value={titleSearch}
-                  onChange={(e) => setTitleSearch(e.target.value)}
+                  onChange={(e) => setTitleSearch(e.target.value.slice(0, 100))} // Limit to 100 characters
+                  maxLength={100}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
                 />
                 <button className="search-icon-button" onClick={handleSearch}>

@@ -74,15 +74,18 @@ namespace TestingProject.AppointmentsService.Controllers
         [Test]
         public async Task GetAll_ReturnsOkResult_WhenAppointmentsExist()
         {
+            // Arrange: Create a default search argument instead of passing null
+            var searchArguments = new AppointmentSearchArguments(); // 🔹 Avoids NullReferenceException
+
             // Act: Call the method under test
-            var result = await _controller.GetAll(null);
+            var result = await _controller.GetAll(searchArguments);
 
             // Assert: Ensure result is of type ActionResult
             Assert.IsInstanceOf<ActionResult<IEnumerable<Appointment>>>(result);
 
             // Check if the result is OkObjectResult
             var okResult = result.Result as OkObjectResult;
-            Assert.IsNotNull(okResult, "The result should not be null"); // Check that it's not null
+            Assert.IsNotNull(okResult, "The result should not be null");
 
             // Assert status code
             Assert.AreEqual(200, okResult.StatusCode);
@@ -92,16 +95,17 @@ namespace TestingProject.AppointmentsService.Controllers
             Assert.IsNotNull(returnedAppointments, "Returned appointments should not be null");
             Assert.AreEqual(2, returnedAppointments.Count(), "The number of appointments returned should be 2");
         }
-        
+
         [Test]
         public async Task GetAll_ReturnsOkResult_WhenNoAppointmentsExist()
         {
-            // Arrange: Clear the appointments in the context (simulating an empty database)
             _context.Appointments.RemoveRange(_context.Appointments);
             await _context.SaveChangesAsync();
+            
+            var searchArguments = new AppointmentSearchArguments();
 
             // Act: Call the method under test
-            var result = await _controller.GetAll(null);
+            var result = await _controller.GetAll(searchArguments);
 
             // Assert: Ensure result is OkObjectResult with status code 200 and empty list
             var okResult = result.Result as OkObjectResult;
@@ -113,7 +117,7 @@ namespace TestingProject.AppointmentsService.Controllers
             Assert.IsNotNull(returnedAppointments, "Returned appointments should not be null");
             Assert.AreEqual(0, returnedAppointments.Count(), "The number of appointments returned should be 0 when none exist");
         }
-        
+
         [Test]
         public async Task GetByAppointmentId_ReturnsOkResult_WhenAppointmentExists()
         {

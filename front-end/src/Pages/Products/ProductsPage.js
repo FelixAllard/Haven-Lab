@@ -125,7 +125,7 @@ const ProductPage = () => {
             {loading ? (
               <div className="text-center">Loading...</div>
             ) : error ? (
-              <div className="text-center text-danger">Error: {error}</div>
+              <div className="alert alert-danger" role="alert">Error: {error}</div>
             ) : (
               <>
                 <div className="row">

@@ -319,5 +319,158 @@ namespace TestingProject.AppointmentsService.Controllers
             Assert.IsNotNull(notFoundResult);
             Assert.AreEqual(404, notFoundResult.StatusCode);
         }
+        
+        [Test]
+        public void BuildQueryString_ReturnsCorrectQueryString_WhenAllParamsAreProvided()
+        {
+            // Arrange
+            var searchArguments = new AppointmentSearchArguments
+            {
+                Title = "Haircut",
+                CustomerName = "John Doe",
+                CustomerEmail = "john.doe@example.com",
+                Status = "Confirmed",
+                StartDate = new DateTime(2025, 1, 20, 10, 0, 0),
+                EndDate = new DateTime(2025, 1, 21, 10, 0, 0)
+            };
+
+            // Act
+            var queryString = AppointmentSearchArguments.BuildQueryString(searchArguments);
+
+            // Assert
+            Assert.IsNotNull(queryString);
+            Assert.IsTrue(queryString.Contains("Title=Haircut"));
+            Assert.IsTrue(queryString.Contains("CustomerName=John%20Doe"));
+            Assert.IsTrue(queryString.Contains("CustomerEmail=john.doe%40example.com"));
+            Assert.IsTrue(queryString.Contains("Status=Confirmed"));
+            Assert.IsTrue(queryString.Contains("StartDate=2025-01-20T10:00:00"));
+            Assert.IsTrue(queryString.Contains("EndDate=2025-01-21T10:00:00"));
+        }
+        
+        [Test]
+        public async Task GetAll_FiltersByTitle_ReturnsFilteredAppointments()
+        {
+            // Arrange
+            var searchArguments = new AppointmentSearchArguments { Title = "Haircut" };
+
+            // Act
+            var result = await _controller.GetAll(searchArguments);
+
+            // Assert
+            var okResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            var appointments = okResult.Value as List<Appointment>;
+            Assert.IsNotNull(appointments);
+            Assert.IsTrue(appointments.All(a => a.Title.Contains("Haircut")));
+        }
+
+        [Test]
+        public async Task GetAll_FiltersByCustomerName_ReturnsFilteredAppointments()
+        {
+            // Arrange
+            var searchArguments = new AppointmentSearchArguments { CustomerName = "John Doe" };
+
+            // Act
+            var result = await _controller.GetAll(searchArguments);
+
+            // Assert
+            var okResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            var appointments = okResult.Value as List<Appointment>;
+            Assert.IsNotNull(appointments);
+            Assert.IsTrue(appointments.All(a => a.CustomerName.Contains("John Doe")));
+        }
+
+        [Test]
+        public async Task GetAll_FiltersByCustomerEmail_ReturnsFilteredAppointments()
+        {
+            // Arrange
+            var searchArguments = new AppointmentSearchArguments { CustomerEmail = "john.doe@example.com" };
+
+            // Act
+            var result = await _controller.GetAll(searchArguments);
+
+            // Assert
+            var okResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            var appointments = okResult.Value as List<Appointment>;
+            Assert.IsNotNull(appointments);
+            Assert.IsTrue(appointments.All(a => a.CustomerEmail.Contains("john.doe@example.com")));
+        }
+
+        [Test]
+        public async Task GetAll_FiltersByStatus_ReturnsFilteredAppointments()
+        {
+            // Arrange
+            var searchArguments = new AppointmentSearchArguments { Status = "Confirmed" };
+
+            // Act
+            var result = await _controller.GetAll(searchArguments);
+
+            // Assert
+            var okResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            var appointments = okResult.Value as List<Appointment>;
+            Assert.IsNotNull(appointments);
+            Assert.IsTrue(appointments.All(a => a.Status == "Confirmed"));
+        }
+
+        [Test]
+        public async Task GetAll_FiltersByStartDate_ReturnsFilteredAppointments()
+        {
+            // Arrange
+            var searchArguments = new AppointmentSearchArguments { StartDate = DateTime.Now };
+
+            // Act
+            var result = await _controller.GetAll(searchArguments);
+
+            // Assert
+            var okResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            var appointments = okResult.Value as List<Appointment>;
+            Assert.IsNotNull(appointments);
+            Assert.IsTrue(appointments.All(a => a.AppointmentDate >= DateTime.Now));
+        }
+
+        [Test]
+        public async Task GetAll_FiltersByEndDate_ReturnsFilteredAppointments()
+        {
+            // Arrange
+            var searchArguments = new AppointmentSearchArguments { EndDate = DateTime.Now.AddDays(1) };
+
+            // Act
+            var result = await _controller.GetAll(searchArguments);
+
+            // Assert
+            var okResult = result.Result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            var appointments = okResult.Value as List<Appointment>;
+            Assert.IsNotNull(appointments);
+            Assert.IsTrue(appointments.All(a => a.AppointmentDate <= DateTime.Now.AddDays(1)));
+        }
+        
+        [Test]
+        public void Appointment_Id_CanBeSetAndRetrieved()
+        {
+            // Arrange
+            var appointment = new Appointment
+            {
+                Id = 1, // Set the Id
+                AppointmentId = Guid.NewGuid(),
+                Title = "Test Appointment",
+                Description = "Test Description",
+                AppointmentDate = DateTime.Now,
+                CustomerName = "John Doe",
+                CustomerEmail = "john.doe@example.com",
+                Status = "Upcoming",
+                CreatedAt = DateTime.Now
+            };
+
+            // Act
+            var retrievedId = appointment.Id;
+
+            // Assert
+            Assert.AreEqual(1, retrievedId);
+        }
     }
 }

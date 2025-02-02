@@ -2,6 +2,8 @@ using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Api_Gateway.Controller;
 
@@ -16,7 +18,6 @@ public class ProxyAuthController : ControllerBase
         _serviceAuthController = serviceAuthController;
     }
 
-    // Login endpoint
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] Login model)
     {
@@ -24,20 +25,22 @@ public class ProxyAuthController : ControllerBase
         {
             var result = await _serviceAuthController.LoginAsync(model);
 
-            // Use switch to handle the response based on status code
-            switch (result.StatusCode)
+            // Read the raw content from the response
+            var responseContent = await result.Content.ReadAsStringAsync();
+
+            // Try to parse the response as a JSON object and get the token from it
+            var tokenResponse = JsonConvert.DeserializeObject<JObject>(responseContent);
+            var token = tokenResponse["token"]?.ToString(); // Extract the token value
+
+            if (!string.IsNullOrEmpty(token))
             {
-                case HttpStatusCode.OK:
-                    return Ok(new { Token = await result.Content.ReadAsStringAsync() });
-
-                case HttpStatusCode.Unauthorized:
-                    return Unauthorized(new { Message = "Invalid username or password" });
-
-                case HttpStatusCode.NotFound:
-                    return NotFound(new { Message = "Login endpoint not found." });
-
-                default:
-                    return StatusCode((int)result.StatusCode, new { Message = result.ReasonPhrase });
+                // Return the token directly
+                return Ok(new { Token = token });
+            }
+            else
+            {
+                // In case there's no token in the response
+                return Unauthorized(new { Message = "Invalid login response." });
             }
         }
         catch (Exception ex)
@@ -46,6 +49,8 @@ public class ProxyAuthController : ControllerBase
             return StatusCode(500, new { Message = "Internal server error", Details = ex.Message });
         }
     }
+
+
 
     // Logout endpoint
     [HttpPost("logout")]

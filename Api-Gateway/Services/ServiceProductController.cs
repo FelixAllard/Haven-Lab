@@ -214,42 +214,4 @@ public class ServiceProductController
         }
     }
     
-    public virtual async Task<string> GetVariantByProductIdAsync(long productId)
-    {
-        try
-        {
-            var client = _httpClientFactory.CreateClient();
-            var requestUrl = $"{BASE_URL}/api/Products/{productId}";
-
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-            var response = await client.SendAsync(requestMessage);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var productJson = await response.Content.ReadAsStringAsync();
-                var product = JsonConvert.DeserializeObject<dynamic>(productJson);
-            
-                if (product?.variants == null || product.variants.Count == 0)
-                {
-                    return "Product has no variants available.";
-                }
-            
-                return JsonConvert.SerializeObject(product.variants);
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return "404 Not Found: Product not found";
-            }
-            else
-            {
-                return $"Error fetching product variants: {response.ReasonPhrase}";
-            }
-        }
-        catch (Exception ex)
-        {
-            return $"Error: {ex.Message}";
-        }
-    }
-
-    
 }

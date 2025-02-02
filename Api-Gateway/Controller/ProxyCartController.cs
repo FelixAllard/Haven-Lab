@@ -9,8 +9,6 @@ namespace Api_Gateway.Controller;
 [ApiController]
 public class ProxyCartController : ControllerBase
 {
-    private const string CartCookieName = "Cart";
-    
     private readonly ServiceProductController _serviceProductController;
     private readonly ServiceCartController _serviceCartController;
 
@@ -23,25 +21,13 @@ public class ProxyCartController : ControllerBase
     [HttpGet]
     public IActionResult GetCart()
     {
-        var cart = GetCartFromCookies();
+        var cart = _serviceCartController.GetCartFromCookies();
         return Ok(cart);
     }
 
     [HttpPost("add/{productId}")]
     public async Task<IActionResult> AddToCart(long productId)
     {
-        long? variantId = await _serviceCartController.GetFirstVariantId(productId);
-        if (variantId == null)
-        {
-            return NotFound(new { Message = "Variant not found for the specified product ID." });
-        }
-        
-        int? inventoryQuantity = await _serviceCartController.GetVariantInventoryQuantity(productId);
-        if (inventoryQuantity == null || inventoryQuantity <= 0)
-        {
-            return BadRequest(new { Message = "Product is out of stock." });
-        }
-
         var productData = await _serviceProductController.GetProductByIdAsync(productId);
         if (string.IsNullOrEmpty(productData) || productData.Contains("404 Not Found"))
         {
@@ -51,8 +37,15 @@ public class ProxyCartController : ControllerBase
         var product = JsonConvert.DeserializeObject<dynamic>(productData);
         string productTitle = product?.title;
         decimal price = product?.variants[0]?.price ?? 0;
+        long? variantId = product?.variants[0]?.id;
+        int? inventoryQuantity = product?.variants[0]?.inventory_quantity ?? 0;
+        
+        if (inventoryQuantity <= 0)
+        {
+            return BadRequest(new { Message = "Product is out of stock." });
+        }
 
-        var cart = GetCartFromCookies();
+        var cart = _serviceCartController.GetCartFromCookies();
         var cartItem = cart.FirstOrDefault(x => x.VariantId == variantId);
         if (cartItem != null)
         {
@@ -77,28 +70,58 @@ public class ProxyCartController : ControllerBase
             });
         }
 
-        SaveCartToCookies(cart);
+        _serviceCartController.SaveCartToCookies(cart);
         return Ok(cart);
     }
 
     [HttpPost("remove/{variantId}")]
     public IActionResult RemoveFromCart(long variantId)
     {
-        var cart = GetCartFromCookies();
+        var cart = _serviceCartController.GetCartFromCookies();
         var cartItem = cart.FirstOrDefault(x => x.VariantId == variantId);
         if (cartItem != null)
         {
             cart.Remove(cartItem);
-            SaveCartToCookies(cart);
+            _serviceCartController.SaveCartToCookies(cart);
             return Ok(cart);
         }
         return NotFound(new { Message = "Variant not found in cart." });
     }
 
+    [HttpPost("addbyone/{variantId}")]
+    public async Task<IActionResult> AddByOne(long variantId)
+    {
+        var cart = _serviceCartController.GetCartFromCookies();
+        var cartItem = cart.FirstOrDefault(x => x.VariantId == variantId);
+        if (cartItem != null)
+        {
+            var productData = await _serviceProductController.GetProductByIdAsync(cartItem.ProductId);
+            if (string.IsNullOrEmpty(productData) || productData.Contains("404 Not Found"))
+            {
+                return NotFound(new { Message = "Product not found." });
+            }
+
+            var product = JsonConvert.DeserializeObject<dynamic>(productData);
+            int? inventoryQuantity = product?.variants[0]?.inventory_quantity ?? 0;
+
+            if (cartItem.Quantity < inventoryQuantity)
+            {
+                cartItem.Quantity += 1;
+                _serviceCartController.SaveCartToCookies(cart);
+                return Ok(cart);
+            }
+            else
+            {
+                return BadRequest(new { Message = "Not enough stock available." });
+            }
+        }
+        return NotFound(new { Message = "Variant not found in cart." });
+    }
+    
     [HttpPost("removebyone/{variantId}")]
     public IActionResult RemoveByOne(long variantId)
     {
-        var cart = GetCartFromCookies();
+        var cart = _serviceCartController.GetCartFromCookies();
         var cartItem = cart.FirstOrDefault(x => x.VariantId == variantId);
         if (cartItem != null)
         {
@@ -107,45 +130,10 @@ public class ProxyCartController : ControllerBase
             {
                 cart.Remove(cartItem);
             }
-            SaveCartToCookies(cart);
+            _serviceCartController.SaveCartToCookies(cart);
             return Ok(cart);
         }
         return NotFound(new { Message = "Variant not found in cart." });
     }
-
-    private List<CartItem> GetCartFromCookies()
-    {
-        if (Request.Cookies.ContainsKey(CartCookieName))
-        {
-            var cartJson = Request.Cookies[CartCookieName];
-            if (string.IsNullOrEmpty(cartJson) || cartJson == "{}")
-            {
-                return new List<CartItem>();
-            }
-
-            try
-            {
-                return JsonConvert.DeserializeObject<List<CartItem>>(cartJson) ?? new List<CartItem>();
-            }
-            catch (JsonSerializationException ex)
-            {
-                Console.WriteLine($"Error deserializing cart: {ex.Message}");
-                return new List<CartItem>();
-            }
-        }
-
-        return new List<CartItem>();
-    }
-
-    private void SaveCartToCookies(List<CartItem> cart)
-    {
-        string cartJson = cart.Count > 0 ? JsonConvert.SerializeObject(cart) : "[]";
-        Response.Cookies.Append(CartCookieName, cartJson, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddDays(7)
-        });
-    }
+    
 }

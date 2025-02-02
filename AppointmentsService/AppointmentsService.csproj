@@ -30,6 +30,27 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+      <Content Remove="obj\**" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Remove="obj\**" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <EmbeddedResource Remove="obj\**" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <None Remove="obj\**" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\AppointmentsService.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\AppointmentsService.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.json" />
     </ItemGroup>
 
 </Project>

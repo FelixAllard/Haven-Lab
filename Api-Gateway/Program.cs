@@ -29,6 +29,7 @@ builder.Services.AddTransient<ServiceEmailApiController>();
 builder.Services.AddTransient<ServicePromoController>();
 builder.Services.AddTransient<ServiceCustomerController>();
 builder.Services.AddTransient<ServiceTemplateController>();
+builder.Services.AddTransient<ServiceEmailLogController>();
 
 
 // ENABLE CORS

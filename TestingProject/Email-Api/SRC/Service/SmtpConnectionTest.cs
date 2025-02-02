@@ -11,6 +11,7 @@ public class SmtpConnectionTest
 {
     private Mock<IConfiguration> _mockConfiguration;
     private Mock<ISmtpClient> _mockSmtpClient;
+    private Mock<IEmailLogService> _mockEmailLogService;
     private SmtpConnection _smtpConnection;
 
 
@@ -19,13 +20,16 @@ public class SmtpConnectionTest
     {
         _mockConfiguration = new Mock<IConfiguration>();
         _mockSmtpClient = new Mock<ISmtpClient>();
+        _mockEmailLogService = new Mock<IEmailLogService>();
 
         _mockConfiguration.Setup(config => config["Smtp:Host"]).Returns("smtp.testserver.com");
         _mockConfiguration.Setup(config => config["Smtp:Port"]).Returns("1025");
 
         _smtpConnection = new SmtpConnection(
             _mockConfiguration.Object, 
-            _mockSmtpClient.Object);
+            _mockSmtpClient.Object,
+            _mockEmailLogService.Object
+            );
     }
 
     [Test]

@@ -3,7 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const CartPage = () => {
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     fetchCart();
@@ -11,12 +11,19 @@ const CartPage = () => {
 
   const fetchCart = async () => {
     try {
-      const response = await axios.get(`${environment}/gateway/api/Cart`, {
+      const response = await axios.get(`${environment}/gateway/api/ProxyCart`, {
         withCredentials: true,
       });
       if (response.status === 200) {
         console.log('Cart fetched successfully:', response.data);
-        setCart(response.data);
+
+        // Ensure cart is an array
+        if (Array.isArray(response.data)) {
+          setCart(response.data);
+        } else {
+          setCart([]);
+        }
+
         return response.data;
       } else {
         console.error('Failed to fetch cart.');
@@ -26,10 +33,11 @@ const CartPage = () => {
     }
   };
 
+
   const removeByOne = async (variantId) => {
     try {
       const response = await axios.post(
-        `${environment}/gateway/api/Cart/removebyone/${variantId}`,
+        `${environment}/gateway/api/ProxyCart/removebyone/${variantId}`,
         null,
         { withCredentials: true },
       );
@@ -56,7 +64,7 @@ const CartPage = () => {
     } else {
       try {
         const response = await axios.post(
-          `${environment}/gateway/api/Cart/addbyone/${variantId}`,
+          `${environment}/gateway/api/ProxyCart/add/${variantId}`,
           null,
           { withCredentials: true },
         );
@@ -96,16 +104,16 @@ const CartPage = () => {
       const cartResponse = await fetchCart();
       console.log('Cart Response:', cartResponse);
 
-      // Check if the cart is not empty
-      if (!cartResponse || Object.keys(cartResponse).length === 0) {
+      // Ensure cart is an array
+      if (!Array.isArray(cartResponse) || cartResponse.length === 0) {
         console.log('Cart is empty, no draft order to create.');
         return;
       }
 
-      // Map the cart items to the draft order format with individual objects
-      const lineItems = Object.keys(cartResponse).map((variantId) => ({
-        variant_id: parseInt(variantId), // Ensure variant_id is a number
-        quantity: cartResponse[variantId],
+      // Map cart items to only include variant_id and quantity
+      const lineItems = cartResponse.map((item) => ({
+        variant_id: item.variantId, // Ensure we're using the correct property
+        quantity: item.quantity,
       }));
 
       const draftOrderData = {
@@ -137,26 +145,20 @@ const CartPage = () => {
     }
   };
 
+
   return (
     <div className="cart-page mt-6">
       <h1>Your Cart</h1>
       <ul>
-        {Object.keys(cart).map((productId) => (
-          <li key={productId} className="cart-item">
-            <span>Product ID: {productId}</span>
+        {cart.map((item) => (
+          <li key={item.variantId} className="cart-item">
+            <span>{item.productTitle}</span>
+            <span>Price: ${item.price}</span>
             <span>Quantity: </span>
-            <button
-              onClick={() => updateQuantity(productId, cart[productId] - 1)}
-            >
-              -
-            </button>
-            <span>{cart[productId]}</span>
-            <button
-              onClick={() => updateQuantity(productId, cart[productId] + 1)}
-            >
-              +
-            </button>
-            <button onClick={() => removeFromCart(productId)}>Remove</button>
+            <button onClick={() => updateQuantity(item.variantId, item.quantity - 1)}> -</button>
+            <span>{item.quantity}</span>
+            <button onClick={() => updateQuantity(item.variantId, item.quantity + 1)}> +</button>
+            <button onClick={() => removeFromCart(item.variantId)}>Remove</button>
           </li>
         ))}
       </ul>

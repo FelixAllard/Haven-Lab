@@ -63,6 +63,46 @@ public class ProxyPromoController : ControllerBase
             return StatusCode(500, new { Message = e.Message });
         }
     }
+    
+    [HttpPost("PriceRules")]
+    public async Task<IActionResult> PostPriceRule([FromBody] PriceRule priceRule)
+    {
+        try
+        {
+            var response = await _servicePromoController.CreatePriceRuleAsync(priceRule);
+            if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                return StatusCode(503, new { message = "Service is currently unavailable, please try again later." });
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, content);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred", details = ex.Message });
+        }
+    }
+    
+    [HttpPut("PriceRules/{id}")]
+    public async Task<IActionResult> PutPriceRule([FromRoute]long id, [FromBody] PriceRule priceRule)
+    {
+        try
+        {
+            var response = await _servicePromoController.PutPriceRuleAsync(id, priceRule);
+            if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                return StatusCode(503, new { message = "Service is currently unavailable, please try again later." });
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, content);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred", details = ex.Message });
+        }
+    }
 
     [HttpDelete("PriceRules/{id}")]
     public async Task<IActionResult> DeletePriceRule([FromRoute] long id)

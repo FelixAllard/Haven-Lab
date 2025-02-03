@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Spinner, Alert, Container } from 'react-bootstrap';
 import TemplateList from './TemplateList'; // Import TemplateList
-import TemplateActions from './TemplateActions'; // Import TemplateActions
+import TemplateActions from './TemplateActions';
+import { Link } from 'react-router-dom'; // Import TemplateActions
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const TemplateManager = () => {
@@ -74,6 +75,10 @@ const TemplateManager = () => {
         handleDelete={handleDelete}
         handleViewTemplate={handleViewTemplate}
       />
+      <h1>Logs</h1>
+      <Link className="btn btn-primary" to="/admin/email/sent">
+        <i className="fas fa-plus me-2"></i>View Sent Emails
+      </Link>
     </Container>
   );
 };

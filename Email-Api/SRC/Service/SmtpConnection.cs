@@ -56,8 +56,8 @@ public class SmtpConnection : ISmtpConnection
     public async Task SendEmailAsync(string toEmail, string subject, string body, string fromName = "HavenLabs", string fromEmail = "havenlabs@havenlabs.com")
     {
         _emailLogService.CreateEmailLog(
-            fromEmail, 
-            fromEmail, 
+            toEmail, 
+            subject, 
             body
         );
         var email = new MimeMessage();

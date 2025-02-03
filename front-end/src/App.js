@@ -29,7 +29,7 @@ import PriceRuleDetail from './Pages/Promos/PriceRuleDetail.js';
 import { EmailPage } from './Pages/Email/EmailPage';
 import AddTemplatePage from './Pages/Email/Template/AddTemplatePage';
 import ModifyTemplatePage from './Pages/Email/Template/ModifyTemplatePage';
-import EmailSentPage from "./Pages/Email/Logs/EmailSentPage";
+import EmailSentPage from './Pages/Email/Logs/EmailSentPage';
 
 function App() {
   console.log(process.env.REACT_APP_API_GATEWAY_HOST);
@@ -91,14 +91,14 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-            <Route
+              <Route
                 path="/admin/email/sent"
                 element={
-                    <ProtectedRoute>
-                        <EmailSentPage />
-                    </ProtectedRoute>
+                  <ProtectedRoute>
+                    <EmailSentPage />
+                  </ProtectedRoute>
                 }
-            />
+              />
               {/* Orders */}
               <Route
                 path="/orders"

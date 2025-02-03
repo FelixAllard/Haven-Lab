@@ -137,40 +137,70 @@ const CartPage = () => {
 
   return (
     <div className="container mt-7 position-relative">
-      <h1>Your Cart</h1>
-      <div className="cart-container">
-        {cart.map((item) => (
-          <div key={item.variantId} className="cart-item-card">
+      <h1 className="text-center">Your Cart</h1>
+      {cart.length === 0 ? (
+        <h1 className="empty-cart-message text-center">
+          Your cart is currently empty.
+        </h1>
+      ) : (
+        <div className="cart-container">
+          <hr className="cart-divider" />
+          {cart.map((item, index) => (
+            <React.Fragment key={item.variantId}>
+              <div className="cart-item-card">
+                {/* Product Image */}
+                <img
+                  src={
+                    item.imageSrc || require('../../Shared/imageNotFound.jpg')
+                  }
+                  alt={item.productTitle}
+                  className="cart-item-image"
+                />
 
-            {/* Product Image */}
-            <img src={
-              item.imageSrc ||
-              require('../../Shared/imageNotFound.jpg')}
-                 alt={item.productTitle}
-                 className="cart-item-image" />
+                {/* Product Info */}
+                <div className="cart-item-details">
+                  <h2>{item.productTitle}</h2>
+                  <button
+                    className="remove-btn"
+                    onClick={() => removeFromCart(item.variantId)}
+                  >
+                    Remove
+                  </button>
+                </div>
 
-            {/* Product Info */}
-            <div className="cart-item-details">
-              <h3>{item.productTitle}</h3>
-              <button className="remove-btn" onClick={() => removeFromCart(item.variantId)}>
-                Remove
-              </button>
-            </div>
+                {/* Quantity Controls */}
+                <div className="cart-item-quantity">
+                  <button
+                    className="quantity-btn-left"
+                    onClick={() => removeByOne(item.variantId)}
+                  >
+                    {' '}
+                    -
+                  </button>
+                  <span className="quantity">{item.quantity}</span>
+                  <button
+                    className="quantity-btn-right"
+                    onClick={() => addByOne(item.variantId)}
+                  >
+                    {' '}
+                    +
+                  </button>
+                </div>
 
-            {/* Quantity Controls */}
-            <div className="cart-item-quantity">
-              <button className="quantity-btn" onClick={() => removeByOne(item.variantId)}> -</button>
-              <span className="quantity">{item.quantity}</span>
-              <button className="quantity-btn" onClick={() => addByOne(item.variantId)}> +</button>
-            </div>
+                {/* Price */}
+                <div className="cart-item-price">
+                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              </div>
 
-            {/* Price */}
-            <div className="cart-item-price">
-              <span>${item.price.toFixed(2)}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+              {/* Add White Divider Between Items */}
+              {index < cart.length - 1 && <hr className="cart-divider"></hr>}
+            </React.Fragment>
+          ))}
+
+          <hr className="cart-divider" />
+        </div>
+      )}
 
       {/* Subtotal Calculation */}
       <h3 className="subtotal">
@@ -180,7 +210,10 @@ const CartPage = () => {
           .toFixed(2)}
       </h3>
 
-      <button onClick={handleCreateDraftOrder} className="checkout-btn">
+      <button
+        onClick={handleCreateDraftOrder}
+        className="checkout-btn justify-content-end"
+      >
         Create Draft Order
       </button>
     </div>

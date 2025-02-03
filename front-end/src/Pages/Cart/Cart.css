@@ -1,5 +1,4 @@
 .cart-page {
-
     margin: 40px auto;
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -19,15 +18,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #f9f9f9;
     padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .cart-item-image {
-    width: 80px;
-    height: 80px;
+    width: 6rem;
+    height: 6rem;
     border-radius: 8px;
     object-fit: cover;
 }
@@ -42,19 +38,22 @@
     font-size: 18px;
 }
 
-.remove-btn {
-    margin-top: 5px;
-    padding: 5px 10px;
-    font-size: 14px;
-    border: none;
-    background-color: #ff4d4d;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
+.cart-divider {
+    width: 100%;
+    height: 2px;
+    background-color: white;
+    margin: 10px 0;
 }
 
-.remove-btn:hover {
-    background-color: #cc0000;
+.remove-btn {
+    margin-left: -3px;
+    font-size: 1rem;
+    background-color: TRANSPARENT;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-align: left;
 }
 
 .cart-item-quantity {
@@ -62,18 +61,26 @@
     align-items: center;
 }
 
-.quantity-btn {
+.quantity-btn-left {
     padding: 5px 10px;
     border: none;
-    background-color: #007bff;
+    background-color: transparent;
     color: white;
-    font-size: 16px;
+    font-size: 25px;
     cursor: pointer;
     border-radius: 5px;
+    outline: none;
 }
 
-.quantity-btn:hover {
-    background-color: #0056b3;
+.quantity-btn-right {
+    padding: 5px 10px;
+    border: none;
+    background-color: transparent;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    outline: none;
 }
 
 .quantity {
@@ -84,6 +91,7 @@
 .cart-item-price {
     font-size: 18px;
     font-weight: bold;
+    margin-left: 10%;
 }
 
 .subtotal {
@@ -98,7 +106,7 @@
     background-color: #333;
     color: white;
     border: none;
-    border-radius: 0 5px 5px 0;
+    border-radius: 0.5rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }

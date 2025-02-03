@@ -1,4 +1,5 @@
 using System.Text;
+using Api_Gateway.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ShopifySharp;
@@ -18,14 +19,15 @@ public class ServiceOrderController
     }
 
     // Method to make the API call to Shopify and return the result
-    public virtual async Task<string> GetAllOrdersAsync()
+    public virtual async Task<string> GetAllOrdersAsync(OrderSearchArgument searchArgument=null)
     {
         try
         {
             // Create the HttpClient instance using the factory
             var client = _httpClientFactory.CreateClient(); // Uses default HttpClient configuration
 
-            var requestUrl = $"{BASE_URL}/api/Order"; // Shopify endpoint for orders
+            var queryString = searchArgument != null ? OrderSearchArgument.BuildQueryString(searchArgument) : string.Empty;
+            var requestUrl = $"{BASE_URL}/api/Order{queryString}"; // Shopify endpoint for orders
 
             // Create the request message
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);

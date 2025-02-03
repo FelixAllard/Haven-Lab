@@ -1,6 +1,7 @@
 using System.Text;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api_Gateway.Models;
 using ShopifySharp;
 
 namespace Api_Gateway.Controller;
@@ -17,11 +18,11 @@ public class ProxyOrderController : ControllerBase
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> GetAllOrders()
+    public async Task<IActionResult> GetAllOrders([FromQuery] OrderSearchArgument searchArguments = null)
     {
         try 
         {
-            var result = await _serviceOrderController.GetAllOrdersAsync();
+            var result = await _serviceOrderController.GetAllOrdersAsync(searchArguments);
             if (result.StartsWith("Error"))
             {
                 // Return 500 Internal Server Error with error message

@@ -5,9 +5,11 @@ using Newtonsoft.Json.Linq;
 using Shopify_Api;
 using Shopify_Api.Controllers;
 using Shopify_Api.Exceptions;
+using Shopify_Api.Model;
 using ShopifySharp;
 using ShopifySharp.Credentials;
 using ShopifySharp.Factories;
+using ShopifySharp.Lists;
 
 namespace TestingProject.Shopify_Api.Controllers;
 
@@ -68,8 +70,191 @@ public class OrderControllerTest
             Assert.That(returnedOrders, Is.EqualTo(orderList));
         }
 
+        [TestCase("Customer1")]
+        [TestCase("Customer2")]
+        [TestCase("Customer3")]
 
+        [Test]
+        public async Task GetAllOrders_FiltersByCustomerName_ReturnsMatchingOrders(string searchTerm)
+        {
+            // Arrange: Create a list of orders with different customer names
+            IEnumerable<Order> orders = new List<Order>
+            {
+                new Order
+                {
+                    Id = 1,
+                    ShippingAddress = new Address { Name = "Customer1" },
+                    FinancialStatus = "paid",
+                    CreatedAt = DateTime.Now
+                },
+                new Order
+                {
+                    Id = 2,
+                    ShippingAddress = new Address { Name = "Customer2" },
+                    FinancialStatus = "voided",
+                    CreatedAt = DateTime.Now
+                },
+                new Order
+                {
+                    Id = 3,
+                    ShippingAddress = new Address { Name = "Customer3" },
+                    FinancialStatus = "paid",
+                    CreatedAt = DateTime.Now
+                }
+            };
 
+            var finalOrders = new ShopifySharp.Lists.ListResult<Order>(orders, default);
+
+            // Mock the service to return a list of orders
+            _mockOrderService.Setup(s => s.ListAsync(null, default)).ReturnsAsync(finalOrders);
+
+            var searchArguments = new OrderSearchArgument { CustomerName = searchTerm };
+
+            // Act: Call the controller method
+            var result = await _controller.GetAllOrders(searchArguments) as OkObjectResult;
+            var filteredOrders = (result.Value as ListResult<Order>).Items;
+
+            // Assert: Verify the filtered results
+            Assert.That(filteredOrders.Count, Is.EqualTo(1));  // Only one order should match the search term
+            Assert.That(filteredOrders.First().ShippingAddress.Name, Is.EqualTo(searchTerm));
+        }
+        
+        [TestCase("paid")]
+ 
+        [Test]
+        public async Task GetAllOrders_FiltersByStatus_ReturnsMatchingOrders(string status)
+        {
+            // Arrange: Create a list of orders with different statuses
+            IEnumerable<Order> orders = new List<Order>
+            {
+                new Order
+                {
+                    Id = 1,
+                    ShippingAddress = new Address { Name = "Customer1" },
+                    FinancialStatus = "paid",
+                    CreatedAt = DateTime.Now
+                },
+                new Order
+                {
+                    Id = 2,
+                    ShippingAddress = new Address { Name = "Customer2" },
+                    FinancialStatus = "voided",
+                    CreatedAt = DateTime.Now
+                },
+                new Order
+                {
+                    Id = 3,
+                    ShippingAddress = new Address { Name = "Customer3" },
+                    FinancialStatus = "paid",
+                    CreatedAt = DateTime.Now
+                }
+            };
+
+            var finalOrders = new ShopifySharp.Lists.ListResult<Order>(orders, default);
+
+            // Mock the service to return the list of orders
+            _mockOrderService.Setup(s => s.ListAsync(null, default)).ReturnsAsync(finalOrders);
+
+            var searchArguments = new OrderSearchArgument { Status = status };
+
+            // Act: Call the controller method
+            var result = await _controller.GetAllOrders(searchArguments) as OkObjectResult;
+            var filteredOrders = (result.Value as ListResult<Order>).Items;
+
+            // Assert: Verify the filtered results
+            Assert.That(filteredOrders.Count, Is.EqualTo(2));  // Two orders should match the status
+            Assert.That(filteredOrders.All(o => o.FinancialStatus == status), Is.True);
+        }
+        
+        [TestCase("2024-01-02")]
+        public async Task GetAllOrders_FiltersByDateBefore_ReturnsMatchingOrders(DateTime dateBefore)
+        {
+            // Arrange: Create a list of orders with different dates
+            IEnumerable<Order> orders = new List<Order>
+            {
+                new Order
+                {
+                    Id = 1,
+                    ShippingAddress = new Address { Name = "Customer1" },
+                    FinancialStatus = "paid",
+                    CreatedAt = new DateTime(2024, 01, 01)
+                },
+                new Order
+                {
+                    Id = 2,
+                    ShippingAddress = new Address { Name = "Customer2" },
+                    FinancialStatus = "voided",
+                    CreatedAt = new DateTime(2024, 01, 02)
+                },
+                new Order
+                {
+                    Id = 3,
+                    ShippingAddress = new Address { Name = "Customer3" },
+                    FinancialStatus = "paid",
+                    CreatedAt = new DateTime(2024, 01, 03)
+                }
+            };
+
+            var finalOrders = new ShopifySharp.Lists.ListResult<Order>(orders, default);
+
+            // Mock the service to return a list of orders
+            _mockOrderService.Setup(s => s.ListAsync(null, default)).ReturnsAsync(finalOrders);
+
+            var searchArguments = new OrderSearchArgument { DateBefore = dateBefore };
+
+            // Act: Call the controller method
+            var result = await _controller.GetAllOrders(searchArguments) as OkObjectResult;
+            var filteredOrders = (result.Value as ListResult<Order>).Items;
+
+            // Assert: Verify the filtered results
+            Assert.That(filteredOrders.Count, Is.EqualTo(2));  // Two orders should be before the given date
+            Assert.That(filteredOrders.All(o => o.CreatedAt <= dateBefore), Is.True);
+        }
+        
+        [TestCase("2024-01-02")]
+        public async Task GetAllOrders_FiltersByDateAfter_ReturnsMatchingOrders(DateTime dateAfter)
+        {
+            // Arrange: Create a list of orders with different dates
+            IEnumerable<Order> orders = new List<Order>
+            {
+                new Order
+                {
+                    Id = 1,
+                    ShippingAddress = new Address { Name = "Customer1" },
+                    FinancialStatus = "paid",
+                    CreatedAt = new DateTime(2024, 01, 01)
+                },
+                new Order
+                {
+                    Id = 2,
+                    ShippingAddress = new Address { Name = "Customer2" },
+                    FinancialStatus = "unpaid",
+                    CreatedAt = new DateTime(2024, 01, 02)
+                },
+                new Order
+                {
+                    Id = 3,
+                    ShippingAddress = new Address { Name = "Customer3" },
+                    FinancialStatus = "paid",
+                    CreatedAt = new DateTime(2024, 01, 03)
+                }
+            };
+
+            var finalOrders = new ShopifySharp.Lists.ListResult<Order>(orders, default);
+
+            // Mock the service to return a list of orders
+            _mockOrderService.Setup(s => s.ListAsync(null, default)).ReturnsAsync(finalOrders);
+            
+            var searchArguments = new OrderSearchArgument { DateAfter = dateAfter };
+
+            // Act: Call the controller method
+            var result = await _controller.GetAllOrders(searchArguments) as OkObjectResult;
+            var filteredOrders = (result.Value as ListResult<Order>).Items;
+
+            // Assert: Verify the filtered results
+            Assert.That(filteredOrders.Count, Is.EqualTo(2));  // Two orders should be after the given date
+            Assert.That(filteredOrders.All(o => o.CreatedAt >= dateAfter), Is.True);
+        }
 
         [Test]
         public async Task GetAllOrders_ReturnsInternalServerError_WhenShopifyExceptionIsThrown()

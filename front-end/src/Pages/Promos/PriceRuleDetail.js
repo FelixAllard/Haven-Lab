@@ -99,6 +99,13 @@ const PriceRuleDetail = () => {
   return (
     <div className="container mt-7 mb-5">
       <h2>Price Rule Details</h2>
+
+      <button
+        className="btn btn-primary mt-3 mb-3"
+        onClick={() => navigate(`/promo/pricerules/update/${priceRule.id}`)}
+      >
+        Edit Price Rule
+      </button>
       <p>
         <strong>ID:</strong> {priceRule.id}
       </p>

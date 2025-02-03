@@ -1,6 +1,5 @@
 import EmailSendPage from './EmailSendPage';
 import TemplateManager from './Template/TemplateManager';
-import { Link } from 'react-router-dom';
 import React from 'react';
 
 export const EmailPage = () => {

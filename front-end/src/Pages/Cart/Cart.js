@@ -200,18 +200,17 @@ const CartPage = () => {
 
           <hr className="cart-divider" />
 
-
           {/* Subtotal Calculation */}
           <h3 className="subtotal">
             Subtotal<br></br> $
             {cart
-                .reduce((total, item) => total + item.price * item.quantity, 0)
-                .toFixed(2)}
+              .reduce((total, item) => total + item.price * item.quantity, 0)
+              .toFixed(2)}
           </h3>
 
           <button
-              onClick={handleCreateDraftOrder}
-              className="checkout-btn justify-content-end"
+            onClick={handleCreateDraftOrder}
+            className="checkout-btn justify-content-end"
           >
             Checkout
           </button>

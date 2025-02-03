@@ -139,9 +139,9 @@ const CartPage = () => {
     <div className="container mt-7 position-relative">
       <h1 className="text-center">Your Cart</h1>
       {cart.length === 0 ? (
-        <h1 className="empty-cart-message text-center">
+        <h2 className="empty-cart-message text-center">
           Your cart is currently empty.
-        </h1>
+        </h2>
       ) : (
         <div className="cart-container">
           <hr className="cart-divider" />
@@ -199,23 +199,24 @@ const CartPage = () => {
           ))}
 
           <hr className="cart-divider" />
+
+
+          {/* Subtotal Calculation */}
+          <h3 className="subtotal">
+            Subtotal<br></br> $
+            {cart
+                .reduce((total, item) => total + item.price * item.quantity, 0)
+                .toFixed(2)}
+          </h3>
+
+          <button
+              onClick={handleCreateDraftOrder}
+              className="checkout-btn justify-content-end"
+          >
+            Checkout
+          </button>
         </div>
       )}
-
-      {/* Subtotal Calculation */}
-      <h3 className="subtotal">
-        Subtotal: $
-        {cart
-          .reduce((total, item) => total + item.price * item.quantity, 0)
-          .toFixed(2)}
-      </h3>
-
-      <button
-        onClick={handleCreateDraftOrder}
-        className="checkout-btn justify-content-end"
-      >
-        Create Draft Order
-      </button>
     </div>
   );
 };

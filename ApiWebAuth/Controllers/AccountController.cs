@@ -13,14 +13,12 @@ namespace ApiWebAuth.Controllers;
 public class AccountController : Controller
 {
     private readonly UserManager<IdentityUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
 
-    public AccountController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,
+    public AccountController(UserManager<IdentityUser> userManager,
         IConfiguration configuration)
     {
         _userManager = userManager;
-        _roleManager = roleManager;
         _configuration = configuration;
     }
 
@@ -43,56 +41,105 @@ public class AccountController : Controller
         var user = await _userManager.FindByNameAsync(model.Username);
         if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
         {
-            var roles = await _userManager.GetRolesAsync(user);
             var authClaims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
-            authClaims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                expires: DateTime.Now.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!)),
-                claims : authClaims,
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)),
-            SecurityAlgorithms.HmacSha256
-                )
-            );
-            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(authClaims),
+                Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryMinutes"]!)),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _configuration["Jwt:Issuer"]
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
             
-        } 
+            await _userManager.SetAuthenticationTokenAsync(user, "JWT", "AccessToken", tokenString);
+
+            return Ok(new { token = tokenString });
+        }
         return Unauthorized();
     }
-
-    [HttpPost("add-role")]
-    public async Task<IActionResult> AddRole([FromBody] string role)
+    
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] string username)
     {
-        if (!await _roleManager.RoleExistsAsync(role))
-        {
-            var result = await _roleManager.CreateAsync(new IdentityRole(role));
-            if (result.Succeeded)
-            {
-                return Ok("Role added successfully!");
-            }
-            return BadRequest(result.Errors);
-        }
-        return BadRequest("Role already exists!");
-    }
-
-    [HttpPost("assign-role")]
-    public async Task<IActionResult> AssignRole([FromBody] UserRole model)
-    {
-        var user = await _userManager.FindByNameAsync(model.Username);
+        var user = await _userManager.FindByNameAsync(username);
         if (user == null)
-        {
-            return BadRequest("User Not Found");
-        }
-        var result = await _userManager.AddToRoleAsync(user, model.Role);
-        if (result.Succeeded)
-        {
-            return Ok("Role assigned successfully!");
-        }
-        return BadRequest(result.Errors);
+            return NotFound("User not found.");
+
+        await _userManager.RemoveAuthenticationTokenAsync(user, "JWT", "AccessToken");
+
+        return Ok("User logged out successfully.");
     }
+    
+        
+    [HttpPost("verify-token")]
+    public async Task<IActionResult> VerifyToken([FromBody] string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        try
+        {
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!);
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+            var jwtToken = validatedToken as JwtSecurityToken;
+
+            if (jwtToken == null)
+                return Unauthorized("Invalid token format.");
+            
+
+            var username = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value 
+                           ?? principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("Invalid token claims.");
+            }
+            
+            if (string.IsNullOrEmpty(username))
+                return Unauthorized("Invalid token claims.");
+            
+
+            // Check if token is stored in the database
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+                return Unauthorized("User not found.");
+
+            var storedToken = await _userManager.GetAuthenticationTokenAsync(user, "JWT", "AccessToken");
+
+            if (storedToken == token)
+                return Ok(new { message = "Token is valid" });
+            else
+                return Unauthorized("Token mismatch.");
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            return Unauthorized("Token has expired.");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Token validation failed: {ex.Message}");
+        }
+    }
+
+
 }

@@ -21,7 +21,6 @@ public class ProxyEmailLogController : ControllerBase
         try
         {
             var result = await _serviceEmailLog.GetAllEmailLogs();
-
             if (result.Contains("404 Not Found"))
             {
                 return NotFound(new { message = result });

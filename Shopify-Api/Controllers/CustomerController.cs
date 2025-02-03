@@ -41,25 +41,25 @@ public class CustomerController : ControllerBase
                 Console.WriteLine($"Customer Email: {customer.Email}");
             }
 
-        if (!existingCustomers.Any())
-        {
-            // If no customer exists, create a new one
-            var newCustomer = new Customer
+            if (!existingCustomers.Any())
             {
-                Email = email,
-                Tags = "Subscribed",
-            };
-            await _shopifyService.CreateAsync(newCustomer);
-        }
-        else
-        {
-            // If customer exists, update their marketing preference
-            var customer = existingCustomers.First();
+                // If no customer exists, create a new one
+                var newCustomer = new Customer
+                {
+                    Email = email,
+                    Tags = "Subscribed",
+                };
+                await _shopifyService.CreateAsync(newCustomer);
+            }
+            else
+            {
+                // If customer exists, update their marketing preference
+                var customer = existingCustomers.First();
 
-            customer.Tags = "Subscribed";
-            await _shopifyService.UpdateAsync(customer.Id.Value, customer);
-        }
-        return Ok(new { message = "Subscribed successfully!" });
+                customer.Tags = "Subscribed";
+                await _shopifyService.UpdateAsync(customer.Id.Value, customer);
+            }
+            return Ok(new { message = "Subscribed successfully!" });
         }
         catch (Exception ex)
         {

@@ -14,7 +14,7 @@ test('AddToCartAndCheckout', async ({ page }) => {
     await page.getByRole('button', { name: '+' }).click();
     await page.getByRole('button', { name: '-' }).click();
     await page.getByText('2', { exact: true }).click();
-    await page.getByRole('button', { name: 'Create Draft Order' }).click();
+    await page.getByRole('button', { name: 'Checkout' }).click();
     await expect(page.locator('span').filter({ hasText: 'Haven Lab' }).first()).toBeVisible();
     await page.getByPlaceholder('Email or mobile phone number').click();
     await page.getByPlaceholder('Email or mobile phone number').fill('xilef992@gmail.com');

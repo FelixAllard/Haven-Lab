@@ -24,6 +24,19 @@ public class ProxyAuthController : ControllerBase
         try
         {
             var result = await _serviceAuthController.LoginAsync(model);
+            
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized(new { Message = "Invalid credentials. Please try again." });
+            }
+            if (result.StatusCode == HttpStatusCode.NotFound)
+            {
+                return NotFound(new { Message = "404 Not Found: Endpoint not found" });
+            }
+            if (result.StatusCode == HttpStatusCode.ServiceUnavailable)
+            {
+                return StatusCode(503, new { Message = "Error 503: Service Unavailable" });
+            }
 
             // Read the raw content from the response
             var responseContent = await result.Content.ReadAsStringAsync();
@@ -39,8 +52,7 @@ public class ProxyAuthController : ControllerBase
             }
             else
             {
-                // In case there's no token in the response
-                return Unauthorized(new { Message = "Invalid login response." });
+                return StatusCode(500, new { Message = "Internal server error, status code: " + result.StatusCode });
             }
         }
         catch (Exception ex)
@@ -49,7 +61,6 @@ public class ProxyAuthController : ControllerBase
             return StatusCode(500, new { Message = "Internal server error", Details = ex.Message });
         }
     }
-
 
 
     // Logout endpoint

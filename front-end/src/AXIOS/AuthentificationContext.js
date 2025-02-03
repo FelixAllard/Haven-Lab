@@ -72,6 +72,10 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setLoading(false);
       console.error('Token verification failed:', error);
+      setAuthTokenState(null);
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('username');
+      setUsername(null);
       return false;
     }
   }, [authToken]);

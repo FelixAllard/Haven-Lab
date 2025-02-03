@@ -27,7 +27,39 @@ public class ServiceAuthController
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, requestUrl) { Content = content };
 
             var response = await client.SendAsync(requestMessage);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    Content = new StringContent("Error 401: Unauthorized - Invalid credentials.")
+                };
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                return new HttpResponseMessage(response.StatusCode)
+                {
+                    Content = new StringContent($"Error {response.StatusCode}: {errorContent}")
+                };
+            }
+
             return await HandleResponse(response);
+        }
+        catch (HttpRequestException httpEx)
+        {
+            return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Error 503: Service Unavailable - {httpEx.Message}")
+            };
+        }
+        catch (TaskCanceledException timeoutEx)
+        {
+            return new HttpResponseMessage(HttpStatusCode.RequestTimeout)
+            {
+                Content = new StringContent($"Error 408: Request Timeout - {timeoutEx.Message}")
+            };
         }
         catch (Exception ex)
         {
@@ -37,6 +69,8 @@ public class ServiceAuthController
             };
         }
     }
+
+
 
     // Logout method
     public virtual async Task<HttpResponseMessage> LogoutAsync(string username)

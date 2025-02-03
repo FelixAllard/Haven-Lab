@@ -63,6 +63,13 @@ const PriceRules = () => {
         Promo Price Rules
       </h1>
 
+      <button
+        className="btn btn-primary mt-3 mb-3"
+        onClick={() => navigate(`/promo/pricerules/create`)}
+      >
+        Create Price Rule
+      </button>
+
       {/* Show loading, error, or content */}
       {loading ? (
         <div className="text-center mt-5">Loading...</div>

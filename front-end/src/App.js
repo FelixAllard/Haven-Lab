@@ -30,6 +30,8 @@ import { EmailPage } from './Pages/Email/EmailPage';
 import AddTemplatePage from './Pages/Email/Template/AddTemplatePage';
 import ModifyTemplatePage from './Pages/Email/Template/ModifyTemplatePage';
 import EmailSentPage from './Pages/Email/Logs/EmailSentPage';
+import AddPriceRule from './Pages/Promos/AddPriceRule.js';
+import UpdatePriceRule from './Pages/Promos/UpdatePriceRule';
 
 function App() {
   console.log(process.env.REACT_APP_API_GATEWAY_HOST);
@@ -171,6 +173,24 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <PriceRuleDetail />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/promo/pricerules/create"
+                element={
+                  <ProtectedRoute>
+                    <AddPriceRule />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/promo/pricerules/update/:priceruleId"
+                element={
+                  <ProtectedRoute>
+                    <UpdatePriceRule />
                   </ProtectedRoute>
                 }
               />

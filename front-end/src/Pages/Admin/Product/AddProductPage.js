@@ -64,6 +64,7 @@ const ProductForm = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,6 +84,22 @@ const ProductForm = () => {
       };
     } else {
       updatedData[name] = value; // For other fields, just update the top-level field
+    }
+
+    // Validation for price
+    if (name.includes('price')) {
+      if (isNaN(value) || Number(value) < 0) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [name]: 'Price must be a positive number.',
+        }));
+      } else {
+        setErrors((prevErrors) => {
+          const newErrors = { ...prevErrors };
+          delete newErrors[name];
+          return newErrors;
+        });
+      }
     }
 
     setFormData(updatedData); // Update the state with the new data
@@ -240,8 +257,14 @@ const ProductForm = () => {
                 value={variant.price}
                 onChange={handleChange}
                 step="0.01"
+                min="0"
                 required
               />
+              {errors[`variants.${index}.price`] && (
+                <small className="text-danger">
+                  {errors[`variants.${index}.price`]}
+                </small>
+              )}
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Inventory Quantity</Form.Label>

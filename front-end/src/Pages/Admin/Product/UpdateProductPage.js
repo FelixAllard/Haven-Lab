@@ -67,6 +67,7 @@ const ProductForm = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [errors, setErrors] = useState({});
 
   // Fetch product data if productId exists
   useEffect(() => {
@@ -105,6 +106,22 @@ const ProductForm = () => {
       };
     } else {
       updatedData[name] = value;
+    }
+
+    // Validation for price
+    if (name.includes('price')) {
+      if (isNaN(value) || Number(value) < 0) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [name]: 'Price must be a positive number.',
+        }));
+      } else {
+        setErrors((prevErrors) => {
+          const newErrors = { ...prevErrors };
+          delete newErrors[name];
+          return newErrors;
+        });
+      }
     }
 
     setFormData(updatedData);
@@ -268,6 +285,11 @@ const ProductForm = () => {
                 step="0.01"
                 required
               />
+              {errors[`variants.${index}.price`] && (
+                <small className="text-danger">
+                  {errors[`variants.${index}.price`]}
+                </small>
+              )}
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Inventory Quantity</Form.Label>

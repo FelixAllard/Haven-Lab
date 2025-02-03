@@ -338,6 +338,21 @@
   background-color: #555;
 }
 
+.unsubscribe-btn {
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  background-color: #999;
+  color: white;
+  border: none;
+  border-radius: 5px 5px 5px 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.unsubscribe-btn:hover {
+  background-color: #777;
+}
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
   .newsletter-container {

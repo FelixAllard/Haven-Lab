@@ -16,25 +16,30 @@ const Home = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch product details for bestsellers
+  //Fetch products containing "bestseller" in its tags
   useEffect(() => {
-    const fetchBestsellers = async () => {
-      const bestsellerIds = [8073775972397, 8073606660141, 8073606889517];
-      try {
-        const requests = bestsellerIds.map((productId) =>
-          axios.get(`${environment}/gateway/api/ProxyProduct/${productId}`),
-        );
-        const responses = await Promise.all(requests);
-        setBestsellers(responses.map((response) => response.data));
-      } catch (err) {
-        setError('Failed to fetch bestsellers.');
-      } finally {
+    fetch(`${environment}/gateway/api/ProxyProduct`)
+      .then(response => response.json())
+      .then(data => {
+        console.log("API Response:", data);
+        // Ensure data.items is an array before filtering
+        if (Array.isArray(data.items)) {
+          const bestsellerProducts = data.items.filter(product => 
+            product.tags && product.tags.includes("bestseller")
+          );
+          setBestsellers(bestsellerProducts);
+        } else {
+          console.error("Unexpected API response format", data);
+        }
         setLoading(false);
-      }
-    };
-
-    fetchBestsellers();
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error);
+        setError(error);
+        setLoading(false);
+      });
   }, []);
+  
 
   const handleViewProduct = (id) => {
     navigate(`/product/${id}`);

@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using Shopify_Api.Exceptions;
+using Shopify_Api.Model;
 using ShopifySharp;
 using ShopifySharp.Factories;
 using ShopifySharp.Filters;
+using ShopifySharp.Lists;
 
 namespace Shopify_Api.Controllers;
 
@@ -32,12 +34,42 @@ public class OrderController : ControllerBase
         //_shopifyService = new ShopifyService(shopUrl, accessToken);
     }
     [HttpGet("")]
-    public async Task<IActionResult> GetAllOrders()
+    public async Task<IActionResult> GetAllOrders([FromQuery] OrderSearchArgument searchArguments = null)
     {
         try
         {
-            var products = await _shopifyService.ListAsync();
-            return Ok(products);
+            var orders = await _shopifyService.ListAsync();
+
+            if (searchArguments == null)
+            {
+                return Ok(orders);
+            }
+            
+            var filteredItems = orders.Items.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchArguments.CustomerName))
+            {
+                filteredItems = filteredItems.Where(x => 
+                    x.ShippingAddress != null && 
+                    !string.IsNullOrWhiteSpace(x.ShippingAddress.Name) && 
+                    x.ShippingAddress.Name.ToLower().Contains(searchArguments.CustomerName.ToLower()));
+            }
+            
+            if (!string.IsNullOrWhiteSpace(searchArguments.Status))
+            {
+                filteredItems = filteredItems.Where(a => a.FinancialStatus == searchArguments.Status.ToLower());
+            }
+            
+            if (searchArguments.DateBefore.HasValue)
+            {
+                filteredItems = filteredItems.Where(a => a.CreatedAt <= searchArguments.DateBefore.Value);
+            }
+            
+            if (searchArguments.DateAfter.HasValue)
+            {
+                filteredItems = filteredItems.Where(a => a.CreatedAt >= searchArguments.DateAfter.Value);
+            }
+            return Ok(new ListResult<Order>(filteredItems.ToList(), null));
         }
         catch (ShopifyException ex)
         {

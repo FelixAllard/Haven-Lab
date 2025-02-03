@@ -244,6 +244,29 @@ const ProductForm = () => {
           </Form.Control>
         </Form.Group>
 
+        {/* Bestseller Checkbox */}
+      <Form.Group className="mb-3">
+        <Form.Check
+          type="checkbox"
+          label="Bestseller"
+          checked={formData.tags?.includes("bestseller")}
+          onChange={(e) => {
+            let updatedTags = formData.tags || "";
+            if (e.target.checked) {
+              if (!updatedTags.includes("bestseller")) {
+                updatedTags += updatedTags ? ",bestseller" : "bestseller";
+              }
+            } else {
+              updatedTags = updatedTags
+                .split(",")
+                .filter((tag) => tag.trim() !== "bestseller")
+                .join(",");
+            }
+            setFormData({ ...formData, tags: updatedTags });
+          }}
+        />
+      </Form.Group>
+
         {/* Variant Fields */}
         <h4>Variants</h4>
         {formData.variants.map((variant, index) => (

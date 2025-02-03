@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import BackgroundVideo from './Assets/wavesloop.mp4';
 import Logo from '../../Shared/Logo.svg';
 import Arrow from './Assets/arrow.png';
@@ -19,27 +18,26 @@ const Home = () => {
   //Fetch products containing "bestseller" in its tags
   useEffect(() => {
     fetch(`${environment}/gateway/api/ProxyProduct`)
-      .then(response => response.json())
-      .then(data => {
-        console.log("API Response:", data);
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('API Response:', data);
         // Ensure data.items is an array before filtering
         if (Array.isArray(data.items)) {
-          const bestsellerProducts = data.items.filter(product => 
-            product.tags && product.tags.includes("bestseller")
+          const bestsellerProducts = data.items.filter(
+            (product) => product.tags && product.tags.includes('bestseller'),
           );
           setBestsellers(bestsellerProducts);
         } else {
-          console.error("Unexpected API response format", data);
+          console.error('Unexpected API response format', data);
         }
         setLoading(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching products:', error);
         setError(error);
         setLoading(false);
       });
   }, []);
-  
 
   const handleViewProduct = (id) => {
     navigate(`/product/${id}`);

@@ -14,7 +14,7 @@ const OrderPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(9); // Number of items per page
   const navigate = useNavigate();
-  
+
   const [customerNameSearch, setCustomerNameSearch] = useState('');
   const [statusSearch, setStatusSearch] = useState('');
   const [dateBeforeSearch, setDateBeforeSearch] = useState('');
@@ -24,7 +24,9 @@ const OrderPage = () => {
   const fetchOrders = async (params = '') => {
     try {
       setLoading(true);
-      const response = await axios.get(`${environment}/gateway/api/ProxyOrder${params}`);
+      const response = await axios.get(
+        `${environment}/gateway/api/ProxyOrder${params}`,
+      );
       setOrders(response.data.items || []);
     } catch (err) {
       setError(err.message);
@@ -37,10 +39,11 @@ const OrderPage = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
-  
+
   const buildQueryParams = () => {
     const queryParams = new URLSearchParams();
-    if (customerNameSearch) queryParams.append('CustomerName', customerNameSearch);
+    if (customerNameSearch)
+      queryParams.append('CustomerName', customerNameSearch);
     if (dateBeforeSearch) queryParams.append('DateBefore', dateBeforeSearch);
     if (dateAfterSearch) queryParams.append('DateAfter', dateAfterSearch);
     if (statusSearch) queryParams.append('Status', statusSearch);
@@ -115,7 +118,10 @@ const OrderPage = () => {
                 <option value="voided">Voided</option>
               </select>
             </div>
-            <button className="btn btn-secondary btn-block" onClick={handleSearch}>
+            <button
+              className="btn btn-secondary btn-block"
+              onClick={handleSearch}
+            >
               Apply Filter
             </button>
           </div>
@@ -139,87 +145,87 @@ const OrderPage = () => {
           </div>
 
           {/* Show loading, error, or content */}
-      {loading ? (
-        <div className="text-center mt-5">Loading...</div>
-      ) : error ? (
-        <div className="alert alert-danger" role="alert">
-          {error}
-        </div>
-      ) : orders.length === 0 ? (
-        <div className="text-center mt-5">No Orders Found</div>
-      ) : (
-        <div className="row">
-          {currentOrders.length > 0 ? (
-            currentOrders.map((order, index) => (
-              <motion.div
-                className="col-md-4 mb-4"
-                key={order.id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="card shadow-sm border-light">
-                  <div className="card-body">
-                    <p>
-                      <strong>Order ID:</strong> {order.id || 'N/A'}
-                    </p>
-                    <p>
-                      <strong>Timestamp:</strong>{' '}
-                      {order.created_at
-                        ? new Date(order.created_at).toLocaleString()
-                        : 'N/A'}
-                    </p>
-                    <button
-                      onClick={() => handleViewClick(order.id)}
-                      className="btn btn-primary mt-3"
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))
+          {loading ? (
+            <div className="text-center mt-5">Loading...</div>
+          ) : error ? (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="text-center mt-5">No Orders Found</div>
           ) : (
-            <div className="text-center w-100">
-              <p className="text-muted">No orders available.</p>
+            <div className="row">
+              {currentOrders.length > 0 ? (
+                currentOrders.map((order, index) => (
+                  <motion.div
+                    className="col-md-4 mb-4"
+                    key={order.id}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <div className="card shadow-sm border-light">
+                      <div className="card-body">
+                        <p>
+                          <strong>Order ID:</strong> {order.id || 'N/A'}
+                        </p>
+                        <p>
+                          <strong>Timestamp:</strong>{' '}
+                          {order.created_at
+                            ? new Date(order.created_at).toLocaleString()
+                            : 'N/A'}
+                        </p>
+                        <button
+                          onClick={() => handleViewClick(order.id)}
+                          className="btn btn-primary mt-3"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="text-center w-100">
+                  <p className="text-muted">No orders available.</p>
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
-      </div>
-          
-          {/* Pagination Controls */}
-          {!error && orders.length > itemsPerPage && (
-              <div className="pagination d-flex justify-content-center mt-4">
-                  <button
-                      className="btn btn-outline-secondary mx-1"
-                      disabled={currentPage === 1}
-                      onClick={() => handlePageChange(currentPage - 1)}
-                  >
-                      Previous
-                  </button>
-                  {[...Array(totalPages)].map((_, i) => (
-                      <button
-                          key={i}
-                          className={`btn mx-1 ${
-                              currentPage === i + 1
-                                  ? 'btn-secondary'
-                                  : 'btn-outline-secondary'
-                          }`}
-                          onClick={() => handlePageChange(i + 1)}
-                      >
-                          {i + 1}
-                      </button>
-                  ))}
-                  <button
-                      className="btn btn-outline-secondary mx-1"
-                      disabled={currentPage === totalPages}
-                      onClick={() => handlePageChange(currentPage + 1)}
-                  >
-                      Next
-                  </button>
-              </div>
-          )}
+
+        {/* Pagination Controls */}
+        {!error && orders.length > itemsPerPage && (
+          <div className="pagination d-flex justify-content-center mt-4">
+            <button
+              className="btn btn-outline-secondary mx-1"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              Previous
+            </button>
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i}
+                className={`btn mx-1 ${
+                  currentPage === i + 1
+                    ? 'btn-secondary'
+                    : 'btn-outline-secondary'
+                }`}
+                onClick={() => handlePageChange(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              className="btn btn-outline-secondary mx-1"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

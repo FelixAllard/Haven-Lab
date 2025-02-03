@@ -52,10 +52,10 @@ const CartPage = () => {
     }
   };
 
-  const addByOne = async (productId) => {
+  const addByOne = async (variantId) => {
       try {
         const response = await axios.post(
-          `${environment}/gateway/api/ProxyCart/addbyone/${productId}`,
+          `${environment}/gateway/api/ProxyCart/addbyone/${variantId}`,
           null,
           { withCredentials: true },
         );
@@ -148,7 +148,7 @@ const CartPage = () => {
             <span>Quantity: </span>
             <button onClick={() => removeByOne(item.variantId)}> - </button>
             <span>{item.quantity}</span>
-            <button onClick={() => addByOne(item.productId)}> + </button>
+            <button onClick={() => addByOne(item.variantId)}> + </button>
             <button onClick={() => removeFromCart(item.variantId)}>Remove</button>
           </li>
         ))}

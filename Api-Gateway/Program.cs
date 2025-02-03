@@ -31,6 +31,7 @@ builder.Services.AddTransient<ServicePromoController>();
 builder.Services.AddTransient<ServiceCustomerController>();
 builder.Services.AddTransient<ServiceTemplateController>();
 builder.Services.AddTransient<ServiceCartController>();
+builder.Services.AddTransient<ServiceEmailLogController>();
 
 
 

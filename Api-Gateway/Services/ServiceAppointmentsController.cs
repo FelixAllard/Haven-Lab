@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Api_Gateway.Services;
 
 using System.Net;
@@ -18,27 +20,39 @@ public class ServiceAppointmentsController
         BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_APPOINTMENT_API") ?? "http://localhost:5114";
     }
 
-    public virtual async Task<string> GetAllAppointmentsAsync()
+    public virtual async Task<IActionResult> GetAllAppointmentsAsync(AppointmentSearchArguments searchArguments = null)
     {
         try
         {
             var client = _httpClientFactory.CreateClient();
-            var requestUrl = $"{BASE_URL}/api/Appointments";
+            var queryString = searchArguments != null 
+                ? AppointmentSearchArguments.BuildQueryString(searchArguments) 
+                : string.Empty;
+            var requestUrl = $"{BASE_URL}/api/Appointments{queryString}";
 
             var response = await client.GetAsync(requestUrl);
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStringAsync();
+                var appointments = await response.Content.ReadFromJsonAsync<List<Appointment>>();
+                return new OkObjectResult(appointments);
+            }
+            else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
+            {
+                return new BadRequestObjectResult(new { Message = $"Client Error: {response.ReasonPhrase}" });
             }
             else
             {
-                return $"Error fetching appointments: {response.ReasonPhrase}";
+                return new StatusCodeResult((int)response.StatusCode);
             }
+        }
+        catch (HttpRequestException ex)
+        {
+            return new StatusCodeResult(503);
         }
         catch (Exception ex)
         {
-            return $"Error 500: Internal Server Error - {ex.Message}";
+            return new ObjectResult(new { Message = "Internal Server Error", Details = ex.Message }) { StatusCode = 500 };
         }
     }
     

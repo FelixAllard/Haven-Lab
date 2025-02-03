@@ -17,6 +17,7 @@ builder.Services.AddSwaggerGen();
 
 // For Remote API calls
 builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<ServiceProductController>();
 builder.Services.AddTransient<ServiceProductController>();
 builder.Services.AddTransient<ServiceOrderController>();
@@ -29,6 +30,9 @@ builder.Services.AddTransient<ServiceEmailApiController>();
 builder.Services.AddTransient<ServicePromoController>();
 builder.Services.AddTransient<ServiceCustomerController>();
 builder.Services.AddTransient<ServiceTemplateController>();
+builder.Services.AddTransient<ServiceCartController>();
+builder.Services.AddTransient<ServiceEmailLogController>();
+
 
 
 // ENABLE CORS

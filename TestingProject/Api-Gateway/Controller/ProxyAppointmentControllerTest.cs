@@ -3,6 +3,7 @@ using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Newtonsoft.Json;
 
 namespace TestingProject.Api_Gateway.Controller;
 
@@ -42,57 +43,64 @@ public class ProxyAppointmentControllerTest
     {
         // Arrange: Prepare the mock response data
         var mockResult = @"
-        [
-            {
-                ""id"": 1,
-                ""appointment_id"": ""f47ac10b-58cc-4372-a567-0e02b2c3d479"",
-                ""title"": ""Haircut1"",
-                ""description"": ""Routine checkup"",
-                ""appointment_date"": ""2025-01-25T09:00:00"",
-                ""customer_name"": ""John Doe"",
-                ""customer_email"": ""john.doe@example.com"",
-                ""status"": ""Confirmed"",
-                ""created_at"": ""2025-01-10T10:30:00""
-            },
-            {
-                ""id"": 2,
-                ""appointment_id"": ""a4f1f0c0-06f1-4b77-b5b5-9872b0d9f124"",
-                ""title"": ""Haircut2"",
-                ""description"": ""Comprehensive exam"",
-                ""appointment_date"": ""2025-01-26T11:00:00"",
-                ""customer_name"": ""Jane Smith"",
-                ""customer_email"": ""jane.smith@example.com"",
-                ""status"": ""Pending"",
-                ""created_at"": ""2025-01-11T11:45:00""
-            }
-        ]";
+            [
+                {
+                    ""id"": 1,
+                    ""appointment_id"": ""f47ac10b-58cc-4372-a567-0e02b2c3d479"",
+                    ""title"": ""Haircut1"",
+                    ""description"": ""Routine checkup"",
+                    ""appointment_date"": ""2025-01-25T09:00:00"",
+                    ""customer_name"": ""John Doe"",
+                    ""customer_email"": ""john.doe@example.com"",
+                    ""status"": ""Confirmed"",
+                    ""created_at"": ""2025-01-10T10:30:00""
+                },
+                {
+                    ""id"": 2,
+                    ""appointment_id"": ""a4f1f0c0-06f1-4b77-b5b5-9872b0d9f124"",
+                    ""title"": ""Haircut2"",
+                    ""description"": ""Comprehensive exam"",
+                    ""appointment_date"": ""2025-01-26T11:00:00"",
+                    ""customer_name"": ""Jane Smith"",
+                    ""customer_email"": ""jane.smith@example.com"",
+                    ""status"": ""Pending"",
+                    ""created_at"": ""2025-01-11T11:45:00""
+                }
+            ]";
 
-        // Mock the ServiceAppointmentsController to return mock data
-        _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync())
-            .ReturnsAsync(mockResult);
+        // Arrange: Deserialize the mock JSON into a List<Appointment>
+        var mockAppointments = JsonConvert.DeserializeObject<List<Appointment>>(mockResult);
+
+        _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync(null))
+            .ReturnsAsync(new OkObjectResult(mockAppointments)); // Return a List<Appointment>
 
         // Act: Call the method under test
-        var result = await _proxyAppointmentController.GetAllAppointments();
+        var result = await _proxyAppointmentController.GetAllAppointments(null);
 
-        // Assert: Verify that the response is Ok with the expected data
+        // Assert: Ensure result is OkObjectResult and check response content
         var okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
-        Assert.That(okResult.Value, Is.EqualTo(mockResult));
         Assert.That(okResult.StatusCode, Is.EqualTo(200));
+
+        var returnedAppointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(returnedAppointments);
+        Assert.That(returnedAppointments.Count, Is.EqualTo(2));
+        Assert.That(returnedAppointments[0].Title, Is.EqualTo("Haircut1"));
+        Assert.That(returnedAppointments[1].Title, Is.EqualTo("Haircut2"));
     }
     
     [Test]
     public async Task GetAllAppointments_ReturnsBadRequest_WhenServiceReturnsErrorMessage()
     {
         // Arrange: Prepare the error message
-        var errorMessage = "Error fetching appointments: Some error occurred";
+        var errorMessage = "Invalid request parameters";
 
         // Mock the ServiceAppointmentsController to return the error message
-        _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync())
-            .ReturnsAsync(errorMessage);
+        _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync(null))
+            .ReturnsAsync(new BadRequestObjectResult("Invalid request"));
 
         // Act: Call the method under test
-        var result = await _proxyAppointmentController.GetAllAppointments();
+        var result = await _proxyAppointmentController.GetAllAppointments(null);
 
         // Assert: Verify that the response is BadRequest with the expected error message
         var badRequestResult = result as BadRequestObjectResult;
@@ -108,20 +116,20 @@ public class ProxyAppointmentControllerTest
     public async Task GetAllAppointments_ReturnsInternalServerError_WhenExceptionIsThrown()
     {
         // Arrange: Mock an exception when calling GetAllAppointmentsAsync
-        _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync())
-            .ThrowsAsync(new HttpRequestException("Internal server error"));
+        _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync(null))
+            .ThrowsAsync(new HttpRequestException("Service unavailable"));
 
         // Act: Call the method under test
-        var result = await _proxyAppointmentController.GetAllAppointments();
+        var result = await _proxyAppointmentController.GetAllAppointments(null);
 
         // Assert: Verify that the response is Internal Server Error (500)
         var internalServerErrorResult = result as ObjectResult;
         Assert.IsNotNull(internalServerErrorResult);
-        Assert.That(internalServerErrorResult.StatusCode, Is.EqualTo(500));
+        Assert.That(internalServerErrorResult.StatusCode, Is.EqualTo(503));
 
         // Extract the message from the response for comparison
         var message = internalServerErrorResult.Value.GetType().GetProperty("Message").GetValue(internalServerErrorResult.Value, null);
-        Assert.That(message, Is.EqualTo("Internal server error"));
+        Assert.That(message, Is.EqualTo("Service unavailable"));
     }
     
     [Test]
@@ -482,5 +490,33 @@ public class ProxyAppointmentControllerTest
         var message = badRequestResult.Value.GetType().GetProperty("Message").GetValue(badRequestResult.Value, null);
         Assert.That(message, Is.EqualTo("Error 404: Appointment not found"));
     }
+    
+    [Test]
+    public void BuildQueryString_ReturnsCorrectQueryString_WhenAllParamsAreProvided()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments
+        {
+            Title = "Haircut",
+            CustomerName = "John Doe",
+            CustomerEmail = "john.doe@example.com",
+            Status = "Confirmed",
+            StartDate = new DateTime(2025, 1, 20, 10, 0, 0),
+            EndDate = new DateTime(2025, 1, 21, 10, 0, 0)
+        };
+
+        // Act
+        var queryString = AppointmentSearchArguments.BuildQueryString(searchArguments);
+
+        // Assert
+        Assert.IsNotNull(queryString);
+        Assert.IsTrue(queryString.Contains("Title=Haircut"));
+        Assert.IsTrue(queryString.Contains("CustomerName=John%20Doe"));
+        Assert.IsTrue(queryString.Contains("CustomerEmail=john.doe%40example.com"));
+        Assert.IsTrue(queryString.Contains("Status=Confirmed"));
+        Assert.IsTrue(queryString.Contains("StartDate=2025-01-20T10:00:00"));
+        Assert.IsTrue(queryString.Contains("EndDate=2025-01-21T10:00:00"));
+    }
+    
 
 }

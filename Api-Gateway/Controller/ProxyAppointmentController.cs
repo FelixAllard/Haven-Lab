@@ -19,25 +19,69 @@ namespace Api_Gateway.Controller
 
         // GET: gateway/api/ProxyAppointment/all
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllAppointments()
+        public async Task<IActionResult> GetAllAppointments([FromQuery] AppointmentSearchArguments searchArguments)
         {
             try
             {
-                var result = await _serviceAppointmentController.GetAllAppointmentsAsync();
+                var result = await _serviceAppointmentController.GetAllAppointmentsAsync(searchArguments);
 
-                if (result.StartsWith("Error"))
+                switch (result)
                 {
-                    return BadRequest(new { Message = result });
+                    case OkObjectResult okResult:
+                        return Ok(okResult.Value);
+            
+                    case BadRequestObjectResult badRequest:
+                        return BadRequest(new 
+                        { 
+                            Message = "Invalid request parameters",
+                            Details = badRequest.Value 
+                        });
+            
+                    case NotFoundResult _:
+                        return NotFound(new 
+                        { 
+                            Message = "No appointments found matching the criteria" 
+                        });
+            
+                    case ObjectResult objectResult when objectResult.StatusCode >= 400:
+                        return StatusCode(objectResult.StatusCode ?? 500, new 
+                        { 
+                            Message = "Request failed",
+                            Details = objectResult.Value 
+                        });
+            
+                    case StatusCodeResult statusCodeResult when statusCodeResult.StatusCode >= 400:
+                        return StatusCode(statusCodeResult.StatusCode, new 
+                        { 
+                            Message = "Request failed",
+                            StatusCode = statusCodeResult.StatusCode 
+                        });
+            
+                    default:
+                        return StatusCode(500, new 
+                        { 
+                            Message = "Unexpected response format from service" 
+                        });
                 }
-
-                return Ok(result);
             }
-            catch (Exception e)
+            catch (HttpRequestException ex)
             {
-                Console.WriteLine(e);
-                return StatusCode(500, new { Message = e.Message });
+                return StatusCode(503, new 
+                { 
+                    Message = "Service unavailable",
+                    Details = ex.Message 
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new 
+                { 
+                    Message = "Internal server error",
+                    Details = ex.Message,
+                });
             }
         }
+
 
         // GET: gateway/api/ProxyAppointment/{appointmentId}
         [HttpGet("{appointmentId}")]

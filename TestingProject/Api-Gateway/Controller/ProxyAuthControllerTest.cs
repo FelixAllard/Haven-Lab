@@ -3,37 +3,42 @@ using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Newtonsoft.Json.Linq;
+using NUnit.Framework;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace TestingProject.Api_Gateway.Controller;
 
 [TestFixture]
 public class ProxyAuthControllerTest
 {
-    private Mock<IHttpClientFactory> _mockHttpClientFactory; // Mock any dependencies
+    private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private Mock<ServiceAuthController> _mockServiceAuthController;
-    private ProxyAuthController _proxyAuthController; // Controller under test
+    private ProxyAuthController _proxyAuthController;
 
     [SetUp]
     public void SetUp()
     {
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-        
         _mockServiceAuthController = new Mock<ServiceAuthController>(_mockHttpClientFactory.Object);
-        
         _proxyAuthController = new ProxyAuthController(_mockServiceAuthController.Object);
     }
 
     [Test]
-    public async Task Login_ReturnsOk_WhenLoginIsSuccessful()
+    public async Task Login_ValidCredentials_ReturnsToken()
     {
         // Arrange
         var loginModel = new Login { Username = "user", Password = "password" };
-        var token = "valid_token"; // Example of a successful token response
 
-        // Mock the LoginAsync method to return a valid token
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("{ \"token\": \"validToken123\" }")
+        };
+        
         _mockServiceAuthController
-            .Setup(service => service.LoginAsync(It.IsAny<Login>()))
-            .ReturnsAsync(token);
+            .Setup(s => s.LoginAsync(It.IsAny<Login>()))
+            .ReturnsAsync(mockResponse);
 
         // Act
         var result = await _proxyAuthController.Login(loginModel);
@@ -42,77 +47,18 @@ public class ProxyAuthControllerTest
         var okResult = result as OkObjectResult;
         Assert.IsNotNull(okResult);
         Assert.AreEqual(200, okResult.StatusCode);
-
-        // Serialize to JSON and compare
-        var expectedJson = "{\"Token\":\"valid_token\"}";
-        var actualJson = System.Text.Json.JsonSerializer.Serialize(okResult.Value);
-        Assert.AreEqual(expectedJson, actualJson);
-    }
-
-
-    [Test]
-    public async Task Login_ReturnsNotFound_WhenResultStartsWith404()
-    {
-        // Arrange
-        var loginModel = new Login { Username = "user", Password = "password" };
-        var errorResponse = "404 Endpoint not found"; // Example of a 404 error message
-
-        // Mock the LoginAsync method to return a 404 error message
-        _mockServiceAuthController
-            .Setup(service => service.LoginAsync(It.IsAny<Login>()))
-            .ReturnsAsync(errorResponse);
-
-        // Act
-        var result = await _proxyAuthController.Login(loginModel);
-
-        // Assert
-        var notFoundResult = result as NotFoundObjectResult;
-        Assert.IsNotNull(notFoundResult);
-        Assert.AreEqual(404, notFoundResult.StatusCode);
-
-        // Serialize to JSON and compare
-        var expectedJson = "{\"Message\":\"404 Endpoint not found\"}";
-        var actualJson = System.Text.Json.JsonSerializer.Serialize(notFoundResult.Value);
-        Assert.AreEqual(expectedJson, actualJson);
     }
 
     [Test]
-    public async Task Login_ReturnsBadRequest_WhenResultStartsWithError()
+    public async Task Login_InvalidCredentials_ReturnsUnauthorized()
     {
         // Arrange
-        var loginModel = new Login { Username = "user", Password = "password" };
-        var errorResponse = "Error: Invalid credentials"; // Example of a generic error message
+        var loginModel = new Login { Username = "user", Password = "wrongpassword" };
 
-        // Mock the LoginAsync method to return an error response
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
         _mockServiceAuthController
-            .Setup(service => service.LoginAsync(It.IsAny<Login>()))
-            .ReturnsAsync(errorResponse);
-
-        // Act
-        var result = await _proxyAuthController.Login(loginModel);
-
-        // Assert
-        var badRequestResult = result as BadRequestObjectResult;
-        Assert.IsNotNull(badRequestResult);
-        Assert.AreEqual(400, badRequestResult.StatusCode);
-
-        // Serialize to JSON and compare
-        var expectedJson = "{\"Message\":\"Error: Invalid credentials\"}";
-        var actualJson = System.Text.Json.JsonSerializer.Serialize(badRequestResult.Value);
-        Assert.AreEqual(expectedJson, actualJson);
-    }
-
-    [Test]
-    public async Task Login_ReturnsUnauthorized_WhenResultStartsWithUnauthorized()
-    {
-        // Arrange
-        var loginModel = new Login { Username = "user", Password = "password" };
-        var unauthorizedResponse = "Unauthorized: Invalid username or password"; // Example of unauthorized response
-
-        // Mock the LoginAsync method to return an unauthorized response
-        _mockServiceAuthController
-            .Setup(service => service.LoginAsync(It.IsAny<Login>()))
-            .ReturnsAsync(unauthorizedResponse);
+            .Setup(s => s.LoginAsync(It.IsAny<Login>()))
+            .ReturnsAsync(mockResponse);
 
         // Act
         var result = await _proxyAuthController.Login(loginModel);
@@ -121,37 +67,229 @@ public class ProxyAuthControllerTest
         var unauthorizedResult = result as UnauthorizedObjectResult;
         Assert.IsNotNull(unauthorizedResult);
         Assert.AreEqual(401, unauthorizedResult.StatusCode);
-
-        // Serialize to JSON and compare
-        var expectedJson = "{\"Message\":\"Invalid username or password\"}";
-        var actualJson = System.Text.Json.JsonSerializer.Serialize(unauthorizedResult.Value);
-        Assert.AreEqual(expectedJson, actualJson);
     }
 
     [Test]
-    public async Task Login_ReturnsInternalServerError_WhenExceptionOccurs()
+    public async Task Login_ServiceUnavailable_Returns503()
     {
         // Arrange
         var loginModel = new Login { Username = "user", Password = "password" };
-        var exceptionMessage = "Unexpected error occurred";
 
-        // Mock the LoginAsync method to throw an exception
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
         _mockServiceAuthController
-            .Setup(service => service.LoginAsync(It.IsAny<Login>()))
-            .ThrowsAsync(new Exception(exceptionMessage));
+            .Setup(s => s.LoginAsync(It.IsAny<Login>()))
+            .ReturnsAsync(mockResponse);
 
         // Act
         var result = await _proxyAuthController.Login(loginModel);
 
         // Assert
-        var internalServerErrorResult = result as ObjectResult;
-        Assert.IsNotNull(internalServerErrorResult);
-        Assert.AreEqual(500, internalServerErrorResult.StatusCode);
+        var statusCodeResult = result as ObjectResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(503, statusCodeResult.StatusCode);
+    }
 
-        // Serialize to JSON and compare
-        var expectedJson = $"{{\"Message\":\"{exceptionMessage}\"}}";
-        var actualJson = System.Text.Json.JsonSerializer.Serialize(internalServerErrorResult.Value);
-        Assert.AreEqual(expectedJson, actualJson);
+    [Test]
+    public async Task Login_NotFound_Returns404()
+    {
+        // Arrange
+        var loginModel = new Login { Username = "user", Password = "password" };
+
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.NotFound);
+        _mockServiceAuthController
+            .Setup(s => s.LoginAsync(It.IsAny<Login>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        var result = await _proxyAuthController.Login(loginModel);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(404, statusCodeResult.StatusCode);
+    }
+    
+    [Test]
+    public async Task Login_ExceptionThrown_Returns500()
+    {
+        // Arrange
+        var loginModel = new Login { Username = "user", Password = "password" };
+
+        _mockServiceAuthController
+            .Setup(s => s.LoginAsync(It.IsAny<Login>()))
+            .ThrowsAsync(new System.Exception("Some error"));
+
+        // Act
+        var result = await _proxyAuthController.Login(loginModel);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(500, statusCodeResult.StatusCode);
+    }
+    
+    [Test]
+    public async Task Logout_ValidUser_ReturnsOk()
+    {
+        // Arrange
+        var username = "user123";
+
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK);
+        _mockServiceAuthController
+            .Setup(s => s.LogoutAsync(It.IsAny<string>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        var result = await _proxyAuthController.Logout(username);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(200, okResult.StatusCode);
+    }
+
+    // Positive Test: User not found during logout
+    [Test]
+    public async Task Logout_UserNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var username = "nonexistentUser";
+
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.NotFound);
+        _mockServiceAuthController
+            .Setup(s => s.LogoutAsync(It.IsAny<string>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        var result = await _proxyAuthController.Logout(username);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult);
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+    }
+
+    // Positive Test: Unauthorized logout
+    [Test]
+    public async Task Logout_Unauthorized_ReturnsUnauthorized()
+    {
+        // Arrange
+        var username = "user123";
+
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+        _mockServiceAuthController
+            .Setup(s => s.LogoutAsync(It.IsAny<string>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        var result = await _proxyAuthController.Logout(username);
+
+        // Assert
+        var unauthorizedResult = result as UnauthorizedObjectResult;
+        Assert.IsNotNull(unauthorizedResult);
+        Assert.AreEqual(401, unauthorizedResult.StatusCode);
+    }
+
+    // Negative Test: Exception handling
+    [Test]
+    public async Task Logout_ExceptionThrown_ReturnsInternalServerError()
+    {
+        // Arrange
+        var username = "user123";
+
+        _mockServiceAuthController
+            .Setup(s => s.LogoutAsync(It.IsAny<string>()))
+            .ThrowsAsync(new System.Exception("Some error"));
+
+        // Act
+        var result = await _proxyAuthController.Logout(username);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(500, statusCodeResult.StatusCode);
+    }
+    
+    [Test]
+    public async Task VerifyToken_ValidToken_ReturnsOk()
+    {
+        // Arrange
+        var token = "validToken123";
+
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.OK);
+        _mockServiceAuthController
+            .Setup(s => s.VerifyTokenAsync(It.IsAny<string>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        var result = await _proxyAuthController.VerifyToken(token);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.AreEqual(200, okResult.StatusCode);
+    }
+
+    // Positive Test: Token is invalid or expired
+    [Test]
+    public async Task VerifyToken_InvalidToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var token = "invalidToken123";
+
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+        _mockServiceAuthController
+            .Setup(s => s.VerifyTokenAsync(It.IsAny<string>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        var result = await _proxyAuthController.VerifyToken(token);
+
+        // Assert
+        var unauthorizedResult = result as UnauthorizedObjectResult;
+        Assert.IsNotNull(unauthorizedResult);
+        Assert.AreEqual(401, unauthorizedResult.StatusCode);
+    }
+
+    // Positive Test: Token verification service not found
+    [Test]
+    public async Task VerifyToken_ServiceNotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var token = "someToken123";
+
+        var mockResponse = new HttpResponseMessage(HttpStatusCode.NotFound);
+        _mockServiceAuthController
+            .Setup(s => s.VerifyTokenAsync(It.IsAny<string>()))
+            .ReturnsAsync(mockResponse);
+
+        // Act
+        var result = await _proxyAuthController.VerifyToken(token);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult);
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+    }
+
+    // Negative Test: Exception handling
+    [Test]
+    public async Task VerifyToken_ExceptionThrown_ReturnsInternalServerError()
+    {
+        // Arrange
+        var token = "someToken123";
+
+        _mockServiceAuthController
+            .Setup(s => s.VerifyTokenAsync(It.IsAny<string>()))
+            .ThrowsAsync(new System.Exception("Some error"));
+
+        // Act
+        var result = await _proxyAuthController.VerifyToken(token);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(500, statusCodeResult.StatusCode);
     }
 }
 

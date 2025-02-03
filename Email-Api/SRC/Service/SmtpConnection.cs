@@ -75,8 +75,6 @@ public class SmtpConnection : ISmtpConnection
         );
         await _smtpClient.SendAsync(email);
         await _smtpClient.DisconnectAsync(true);
-        
     }
-    
     
 }

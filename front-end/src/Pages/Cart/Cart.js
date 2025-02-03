@@ -33,6 +33,7 @@ const CartPage = () => {
     }
   };
 
+
   const removeByOne = async (variantId) => {
     try {
       const response = await axios.post(
@@ -68,6 +69,24 @@ const CartPage = () => {
       console.error('Error increasing quantity:', err);
     }
   };
+  const addByOne = async (productId) => {
+      try {
+        const response = await axios.post(
+          `${environment}/gateway/api/ProxyCart/addbyone/${productId}`,
+          null,
+          { withCredentials: true },
+        );
+        if (response.status === 200) {
+          console.log('Product quantity increased:', response.data);
+          setCart(response.data);
+        } else {
+          console.error('Failed to increase product quantity.');
+        }
+      } catch (err) {
+        console.error('Error increasing quantity:', err);
+      }
+    };
+
 
   const removeFromCart = async (variantId) => {
     try {
@@ -145,6 +164,8 @@ const CartPage = () => {
             <span>Quantity: </span>
             <button onClick={() => removeByOne(item.variantId)}> - </button>
             <span>{item.quantity}</span>
+            <button onClick={() => addByOne(item.productId)}> + </button>
+            <button onClick={() => removeFromCart(item.variantId)}>Remove</button>
             <button onClick={() => addByOne(item.variantId)}> + </button>
             <button onClick={() => removeFromCart(item.variantId)}>
               Remove
@@ -152,6 +173,12 @@ const CartPage = () => {
           </li>
         ))}
       </ul>
+
+      {/* Subtotal Calculation */}
+      <h3>
+        Subtotal: $
+        {cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
+      </h3>
 
       {/* Subtotal Calculation */}
       <h3>
@@ -166,6 +193,7 @@ const CartPage = () => {
       </button>
     </div>
   );
+
 };
 
 export default CartPage;

@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const environment = process.env.REACT_APP_API_GATEWAY_HOST
+const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 // Create an instance of Axios with default settings
 const httpClient = axios.create({
-  baseURL: environment, 
+  baseURL: environment,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import axios from 'axios';
 import { setAuthToken } from './AXIOS';
 
@@ -6,8 +12,12 @@ const AuthContext = createContext();
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 export const AuthProvider = ({ children }) => {
-  const [authToken, setAuthTokenState] = useState(localStorage.getItem('authToken') || null);
-  const [username, setUsername] = useState(localStorage.getItem('username') || null);
+  const [authToken, setAuthTokenState] = useState(
+    localStorage.getItem('authToken') || null,
+  );
+  const [username, setUsername] = useState(
+    localStorage.getItem('username') || null,
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,10 +27,13 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${environment}/gateway/api/ProxyAuth/login`, {
-        username,
-        password
-      });
+      const response = await axios.post(
+        `${environment}/gateway/api/ProxyAuth/login`,
+        {
+          username,
+          password,
+        },
+      );
 
       const token = response.data.token;
       setAuthTokenState(token);
@@ -41,12 +54,16 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const storedUsername = username || localStorage.getItem('username');
-      await axios.post(`${environment}/gateway/api/proxyAuth/logout`, storedUsername, {
-        headers: {
-          'Content-Type': 'application/json-patch+json',
-          'accept': '*/*',
-        }
-      });
+      await axios.post(
+        `${environment}/gateway/api/proxyAuth/logout`,
+        storedUsername,
+        {
+          headers: {
+            'Content-Type': 'application/json-patch+json',
+            accept: '*/*',
+          },
+        },
+      );
 
       setAuthTokenState(null);
       localStorage.removeItem('authToken');
@@ -63,9 +80,13 @@ export const AuthProvider = ({ children }) => {
   const verifyToken = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.post(`${environment}/gateway/api/proxyAuth/verify-token`, authToken, {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await axios.post(
+        `${environment}/gateway/api/proxyAuth/verify-token`,
+        authToken,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
 
       setLoading(false);
       return response.status === 200;
@@ -81,7 +102,9 @@ export const AuthProvider = ({ children }) => {
   }, [authToken]);
 
   return (
-    <AuthContext.Provider value={{ authToken, username, login, logout, verifyToken, loading }}>
+    <AuthContext.Provider
+      value={{ authToken, username, login, logout, verifyToken, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -10,26 +10,27 @@ const OwnerLogin = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    const token = await login(username, password);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const token = await login(username, password);
 
-    if (token) {
-      navigate('/');
+      if (token) {
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+
+      if (error.response) {
+        setError(
+          error.response.data?.message ||
+            'An error occurred. Please try again.',
+        );
+      } else {
+        setError('An error occurred while logging in. Please try again.');
+      }
     }
-  } catch (error) {
-    console.error('Login failed:', error);
-
-    if (error.response) {
-      setError(error.response.data?.message || 'An error occurred. Please try again.');
-    } else {
-      setError('An error occurred while logging in. Please try again.');
-    }
-  }
-};
-
-  
+  };
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">

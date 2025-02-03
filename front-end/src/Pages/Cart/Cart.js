@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Cart.css';
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const CartPage = () => {
   const [cart, setCart] = useState([]);
@@ -135,35 +136,86 @@ const CartPage = () => {
   };
 
   return (
-    <div className="cart-page mt-6">
-      <h1>Your Cart</h1>
-      <ul>
-        {cart.map((item) => (
-          <li key={item.variantId} className="cart-item">
-            <span>{item.productTitle}</span>
-            <span>Price: ${item.price.toFixed(2)}</span>
-            <span>Quantity: </span>
-            <button onClick={() => removeByOne(item.variantId)}> - </button>
-            <span>{item.quantity}</span>
-            <button onClick={() => addByOne(item.variantId)}> + </button>
-            <button onClick={() => removeFromCart(item.variantId)}>
-              Remove
-            </button>
-          </li>
-        ))}
-      </ul>
+    <div className="container mt-7 position-relative">
+      <h1 className="text-center">Your Cart</h1>
+      {cart.length === 0 ? (
+        <h2 className="empty-cart-message text-center">
+          Your cart is currently empty.
+        </h2>
+      ) : (
+        <div className="cart-container">
+          <hr className="cart-divider" />
+          {cart.map((item, index) => (
+            <React.Fragment key={item.variantId}>
+              <div className="cart-item-card">
+                {/* Product Image */}
+                <img
+                  src={
+                    item.imageSrc || require('../../Shared/imageNotFound.jpg')
+                  }
+                  alt={item.productTitle}
+                  className="cart-item-image"
+                />
 
-      {/* Subtotal Calculation */}
-      <h3>
-        Subtotal: $
-        {cart
-          .reduce((total, item) => total + item.price * item.quantity, 0)
-          .toFixed(2)}
-      </h3>
+                {/* Product Info */}
+                <div className="cart-item-details">
+                  <h2>{item.productTitle}</h2>
+                  <button
+                    className="remove-btn"
+                    onClick={() => removeFromCart(item.variantId)}
+                  >
+                    Remove
+                  </button>
+                </div>
 
-      <button onClick={handleCreateDraftOrder} className="btn btn-primary">
-        Create Draft Order
-      </button>
+                {/* Quantity Controls */}
+                <div className="cart-item-quantity">
+                  <button
+                    className="quantity-btn-left"
+                    onClick={() => removeByOne(item.variantId)}
+                  >
+                    {' '}
+                    -
+                  </button>
+                  <span className="quantity">{item.quantity}</span>
+                  <button
+                    className="quantity-btn-right"
+                    onClick={() => addByOne(item.variantId)}
+                  >
+                    {' '}
+                    +
+                  </button>
+                </div>
+
+                {/* Price */}
+                <div className="cart-item-price">
+                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* Add White Divider Between Items */}
+              {index < cart.length - 1 && <hr className="cart-divider"></hr>}
+            </React.Fragment>
+          ))}
+
+          <hr className="cart-divider" />
+
+          {/* Subtotal Calculation */}
+          <h3 className="subtotal">
+            Subtotal<br></br> $
+            {cart
+              .reduce((total, item) => total + item.price * item.quantity, 0)
+              .toFixed(2)}
+          </h3>
+
+          <button
+            onClick={handleCreateDraftOrder}
+            className="checkout-btn justify-content-end"
+          >
+            Checkout
+          </button>
+        </div>
+      )}
     </div>
   );
 };

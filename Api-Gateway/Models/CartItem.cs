@@ -7,4 +7,5 @@ public class CartItem
     public long VariantId { get; set; }
     public decimal Price { get; set; }
     public int Quantity { get; set; }
+    public string ImageSrc { get; set; }
 }

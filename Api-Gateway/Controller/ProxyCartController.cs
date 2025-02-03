@@ -39,7 +39,12 @@ public class ProxyCartController : ControllerBase
         decimal price = product?.variants[0]?.price ?? 0;
         long? variantId = product?.variants[0]?.id;
         int? inventoryQuantity = product?.variants[0]?.inventory_quantity ?? 0;
-        
+        string? imageSrc = product?.images != null && product?.images.Count > 0 ? product?.images[0]?.src : null;
+
+        if (variantId == null)
+        {
+            return NotFound(new { Message = "Variant not found for the specified product ID." });
+        }
         if (inventoryQuantity <= 0)
         {
             return BadRequest(new { Message = "Product is out of stock." });
@@ -47,6 +52,7 @@ public class ProxyCartController : ControllerBase
 
         var cart = _serviceCartController.GetCartFromCookies();
         var cartItem = cart.FirstOrDefault(x => x.VariantId == variantId);
+
         if (cartItem != null)
         {
             if (cartItem.Quantity < inventoryQuantity)
@@ -66,13 +72,15 @@ public class ProxyCartController : ControllerBase
                 ProductTitle = productTitle,
                 VariantId = variantId.Value,
                 Price = price,
-                Quantity = 1
+                Quantity = 1,
+                ImageSrc = imageSrc 
             });
         }
 
         _serviceCartController.SaveCartToCookies(cart);
         return Ok(cart);
     }
+
 
     [HttpPost("remove/{variantId}")]
     public IActionResult RemoveFromCart(long variantId)

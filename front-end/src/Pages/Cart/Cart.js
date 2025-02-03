@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Cart.css';
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const CartPage = () => {
   const [cart, setCart] = useState([]);
@@ -135,33 +136,51 @@ const CartPage = () => {
   };
 
   return (
-    <div className="cart-page mt-6">
+    <div className="container mt-7 position-relative">
       <h1>Your Cart</h1>
-      <ul>
+      <div className="cart-container">
         {cart.map((item) => (
-          <li key={item.variantId} className="cart-item">
-            <span>{item.productTitle}</span>
-            <span>Price: ${item.price.toFixed(2)}</span>
-            <span>Quantity: </span>
-            <button onClick={() => removeByOne(item.variantId)}> - </button>
-            <span>{item.quantity}</span>
-            <button onClick={() => addByOne(item.variantId)}> + </button>
-            <button onClick={() => removeFromCart(item.variantId)}>
-              Remove
-            </button>
-          </li>
+          <div key={item.variantId} className="cart-item-card">
+
+            {/* Product Image */}
+            <img src={
+              item.imageSrc ||
+              require('../../Shared/imageNotFound.jpg')}
+                 alt={item.productTitle}
+                 className="cart-item-image" />
+
+            {/* Product Info */}
+            <div className="cart-item-details">
+              <h3>{item.productTitle}</h3>
+              <button className="remove-btn" onClick={() => removeFromCart(item.variantId)}>
+                Remove
+              </button>
+            </div>
+
+            {/* Quantity Controls */}
+            <div className="cart-item-quantity">
+              <button className="quantity-btn" onClick={() => removeByOne(item.variantId)}> -</button>
+              <span className="quantity">{item.quantity}</span>
+              <button className="quantity-btn" onClick={() => addByOne(item.variantId)}> +</button>
+            </div>
+
+            {/* Price */}
+            <div className="cart-item-price">
+              <span>${item.price.toFixed(2)}</span>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
 
       {/* Subtotal Calculation */}
-      <h3>
+      <h3 className="subtotal">
         Subtotal: $
         {cart
           .reduce((total, item) => total + item.price * item.quantity, 0)
           .toFixed(2)}
       </h3>
 
-      <button onClick={handleCreateDraftOrder} className="btn btn-primary">
+      <button onClick={handleCreateDraftOrder} className="checkout-btn">
         Create Draft Order
       </button>
     </div>

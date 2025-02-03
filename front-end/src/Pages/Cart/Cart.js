@@ -33,7 +33,6 @@ const CartPage = () => {
     }
   };
 
-
   const removeByOne = async (variantId) => {
     try {
       const response = await axios.post(
@@ -53,23 +52,22 @@ const CartPage = () => {
   };
 
   const addByOne = async (variantId) => {
-      try {
-        const response = await axios.post(
-          `${environment}/gateway/api/ProxyCart/addbyone/${variantId}`,
-          null,
-          { withCredentials: true },
-        );
-        if (response.status === 200) {
-          console.log('Product quantity increased:', response.data);
-          setCart(response.data);
-        } else {
-          console.error('Failed to increase product quantity.');
-        }
-      } catch (err) {
-        console.error('Error increasing quantity:', err);
+    try {
+      const response = await axios.post(
+        `${environment}/gateway/api/ProxyCart/addbyone/${variantId}`,
+        null,
+        { withCredentials: true },
+      );
+      if (response.status === 200) {
+        console.log('Product quantity increased:', response.data);
+        setCart(response.data);
+      } else {
+        console.error('Failed to increase product quantity.');
       }
-    };
-
+    } catch (err) {
+      console.error('Error increasing quantity:', err);
+    }
+  };
 
   const removeFromCart = async (variantId) => {
     try {
@@ -136,7 +134,6 @@ const CartPage = () => {
     }
   };
 
-
   return (
     <div className="cart-page mt-6">
       <h1>Your Cart</h1>
@@ -149,7 +146,9 @@ const CartPage = () => {
             <button onClick={() => removeByOne(item.variantId)}> - </button>
             <span>{item.quantity}</span>
             <button onClick={() => addByOne(item.variantId)}> + </button>
-            <button onClick={() => removeFromCart(item.variantId)}>Remove</button>
+            <button onClick={() => removeFromCart(item.variantId)}>
+              Remove
+            </button>
           </li>
         ))}
       </ul>
@@ -157,7 +156,9 @@ const CartPage = () => {
       {/* Subtotal Calculation */}
       <h3>
         Subtotal: $
-        {cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
+        {cart
+          .reduce((total, item) => total + item.price * item.quantity, 0)
+          .toFixed(2)}
       </h3>
 
       <button onClick={handleCreateDraftOrder} className="btn btn-primary">
@@ -165,7 +166,6 @@ const CartPage = () => {
       </button>
     </div>
   );
-
 };
 
 export default CartPage;

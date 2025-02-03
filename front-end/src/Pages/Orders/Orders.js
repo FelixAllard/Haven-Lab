@@ -56,6 +56,7 @@ const OrderPage = () => {
     if (event.key === 'Enter') {
       handleSearch(event);
     }
+  };
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -137,42 +138,55 @@ const OrderPage = () => {
             </button>
           </div>
 
-          {/* Display Content */}
-          {loading ? (
-            <div className="text-center">Loading...</div>
-          ) : error ? (
-            <div className="text-center text-danger">Error: {error}</div>
-          ) : orders.length === 0 ? (
-            <div className="text-center mt-5">No Orders Found</div>
-          ) : (
-            <div className="row">
-              {orders.map((order, index) => (
-                <motion.div
-                  className="col-md-4 mb-4"
-                  key={order.id}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <div className="card order-card">
-                    <div className="card-body">
-                      <h5 className="card-title">Order ID: {order.id}</h5>
-                      <p><strong>Date:</strong> {new Date(order.created_at).toLocaleString()}</p>
-                      <p><strong>Status:</strong> {order.financial_status}</p>
-                      <button
-                        onClick={() => handleViewClick(order.id)}
-                        className="btn btn-secondary btn-block"
-                      >
-                        View Details
-                      </button>
-                    </div>
+          {/* Show loading, error, or content */}
+      {loading ? (
+        <div className="text-center mt-5">Loading...</div>
+      ) : error ? (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center mt-5">No Orders Found</div>
+      ) : (
+        <div className="row">
+          {currentOrders.length > 0 ? (
+            currentOrders.map((order, index) => (
+              <motion.div
+                className="col-md-4 mb-4"
+                key={order.id}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="card shadow-sm border-light">
+                  <div className="card-body">
+                    <p>
+                      <strong>Order ID:</strong> {order.id || 'N/A'}
+                    </p>
+                    <p>
+                      <strong>Timestamp:</strong>{' '}
+                      {order.created_at
+                        ? new Date(order.created_at).toLocaleString()
+                        : 'N/A'}
+                    </p>
+                    <button
+                      onClick={() => handleViewClick(order.id)}
+                      className="btn btn-primary mt-3"
+                    >
+                      View Details
+                    </button>
                   </div>
-                </motion.div>
-              ))}
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <div className="text-center w-100">
+              <p className="text-muted">No orders available.</p>
             </div>
           )}
         </div>
-          )}
+      )}
+      </div>
           
           {/* Pagination Controls */}
           {!error && orders.length > itemsPerPage && (

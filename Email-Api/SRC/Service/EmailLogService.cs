@@ -16,6 +16,7 @@ public class EmailLogService : IEmailLogService
         var sentEmail = new SentEmail
         {
             EmailBody = body,
+            SentDate = DateTime.Now,
             EmailSubject = subject,
             RecipientEmail = email
         };

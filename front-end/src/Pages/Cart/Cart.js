@@ -33,13 +33,12 @@ const CartPage = () => {
     }
   };
 
-
   const removeByOne = async (variantId) => {
     try {
       const response = await axios.post(
-        `${environment}/gateway/api/ProxyCart/removebyone/${variantId}`,
-        null,
-        { withCredentials: true },
+          `${environment}/gateway/api/ProxyCart/removebyone/${variantId}`,
+          null,
+          { withCredentials: true },
       );
       if (response.status === 200) {
         console.log('Product quantity reduced by one:', response.data);
@@ -55,9 +54,9 @@ const CartPage = () => {
   const addByOne = async (variantId) => {
     try {
       const response = await axios.post(
-        `${environment}/gateway/api/ProxyCart/addbyone/${variantId}`,
-        null,
-        { withCredentials: true },
+          `${environment}/gateway/api/ProxyCart/addbyone/${variantId}`,
+          null,
+          { withCredentials: true },
       );
       if (response.status === 200) {
         console.log('Product quantity increased:', response.data);
@@ -69,31 +68,13 @@ const CartPage = () => {
       console.error('Error increasing quantity:', err);
     }
   };
-  const addByOne = async (productId) => {
-      try {
-        const response = await axios.post(
-          `${environment}/gateway/api/ProxyCart/addbyone/${productId}`,
-          null,
-          { withCredentials: true },
-        );
-        if (response.status === 200) {
-          console.log('Product quantity increased:', response.data);
-          setCart(response.data);
-        } else {
-          console.error('Failed to increase product quantity.');
-        }
-      } catch (err) {
-        console.error('Error increasing quantity:', err);
-      }
-    };
-
 
   const removeFromCart = async (variantId) => {
     try {
       const response = await axios.post(
-        `${environment}/gateway/api/ProxyCart/remove/${variantId}`,
-        null,
-        { withCredentials: true },
+          `${environment}/gateway/api/ProxyCart/remove/${variantId}`,
+          null,
+          { withCredentials: true },
       );
       if (response.status === 200) {
         console.log('Product removed from cart:', response.data);
@@ -132,9 +113,9 @@ const CartPage = () => {
 
       // Send the request to create a draft order
       const response = await axios.post(
-        `${environment}/gateway/api/ProxyDraftOrder`,
-        draftOrderData,
-        { withCredentials: true },
+          `${environment}/gateway/api/ProxyDraftOrder`,
+          draftOrderData,
+          { withCredentials: true },
       );
 
       if (response.status === 200) {
@@ -154,46 +135,37 @@ const CartPage = () => {
   };
 
   return (
-    <div className="cart-page mt-6">
-      <h1>Your Cart</h1>
-      <ul>
-        {cart.map((item) => (
-          <li key={item.variantId} className="cart-item">
-            <span>{item.productTitle}</span>
-            <span>Price: ${item.price.toFixed(2)}</span>
-            <span>Quantity: </span>
-            <button onClick={() => removeByOne(item.variantId)}> - </button>
-            <span>{item.quantity}</span>
-            <button onClick={() => addByOne(item.productId)}> + </button>
-            <button onClick={() => removeFromCart(item.variantId)}>Remove</button>
-            <button onClick={() => addByOne(item.variantId)}> + </button>
-            <button onClick={() => removeFromCart(item.variantId)}>
-              Remove
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div className="cart-page mt-6">
+        <h1>Your Cart</h1>
+        <ul>
+          {cart.map((item) => (
+              <li key={item.variantId} className="cart-item">
+                <span>{item.productTitle}</span>
+                <span>Price: ${item.price.toFixed(2)}</span>
+                <span>Quantity: </span>
+                <button onClick={() => removeByOne(item.variantId)}> - </button>
+                <span>{item.quantity}</span>
+                <button onClick={() => addByOne(item.variantId)}> + </button>
+                <button onClick={() => removeFromCart(item.variantId)}>
+                  Remove
+                </button>
+              </li>
+          ))}
+        </ul>
 
-      {/* Subtotal Calculation */}
-      <h3>
-        Subtotal: $
-        {cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
-      </h3>
+        {/* Subtotal Calculation */}
+        <h3>
+          Subtotal: $
+          {cart
+              .reduce((total, item) => total + item.price * item.quantity, 0)
+              .toFixed(2)}
+        </h3>
 
-      {/* Subtotal Calculation */}
-      <h3>
-        Subtotal: $
-        {cart
-          .reduce((total, item) => total + item.price * item.quantity, 0)
-          .toFixed(2)}
-      </h3>
-
-      <button onClick={handleCreateDraftOrder} className="btn btn-primary">
-        Create Draft Order
-      </button>
-    </div>
+        <button onClick={handleCreateDraftOrder} className="btn btn-primary">
+          Create Draft Order
+        </button>
+      </div>
   );
-
 };
 
 export default CartPage;

@@ -11,6 +11,8 @@ const OrderPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(9); // Number of items per page
   const navigate = useNavigate();
 
   const [customerNameSearch, setCustomerNameSearch] = useState('');
@@ -54,6 +56,16 @@ const OrderPage = () => {
     if (event.key === 'Enter') {
       handleSearch(event);
     }
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentOrders = orders.slice(indexOfFirstItem, indexOfLastItem); // Slice orders for current page
+  const totalPages = Math.ceil(orders.length / itemsPerPage); // Calculate total pages
+
+  // Handle page change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   const handleViewClick = (orderId) => {
@@ -157,6 +169,39 @@ const OrderPage = () => {
                   </div>
                 </motion.div>
               ))}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {!error && orders.length > itemsPerPage && (
+            <div className="pagination d-flex justify-content-center mt-4">
+              <button
+                className="btn btn-outline-secondary mx-1"
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                Previous
+              </button>
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  className={`btn mx-1 ${
+                    currentPage === i + 1
+                      ? 'btn-secondary'
+                      : 'btn-outline-secondary'
+                  }`}
+                  onClick={() => handlePageChange(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                className="btn btn-outline-secondary mx-1"
+                disabled={currentPage === totalPages}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                Next
+              </button>
             </div>
           )}
         </div>

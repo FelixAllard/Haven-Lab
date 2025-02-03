@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Api_Gateway.Services;
 using Newtonsoft.Json;
 using Api_Gateway.Models;
+using Microsoft.AspNetCore.Mvc;
 using Moq.Protected;
 
 namespace TestingProject.AppointmentsService.Tests
@@ -36,7 +37,7 @@ public class ServiceAppointmentsControllerTests
         // Create the controller with the mocked HttpClientFactory
         _controller = new ServiceAppointmentsController(_mockHttpClientFactory.Object);
     }
-
+    
     [Test]
     public async Task GetAllAppointmentsAsync_Success_ReturnsAppointmentsList()
     {
@@ -44,16 +45,31 @@ public class ServiceAppointmentsControllerTests
         var appointmentsResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.OK,
-            Content = new StringContent("[{\"AppointmentId\":\"12345\", \"Title\":\"Test Appointment\", \"Description\":\"Test Description\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]")
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Test Appointment\", \"Description\":\"Test Description\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
         };
 
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
 
         // Act
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        Assert.IsTrue(result.Contains("Test Appointment"));
+        // Cast the result to OkObjectResult
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+
+        // Extract the list of appointments
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+
+        // Check if the list contains the expected appointment
+        Assert.IsTrue(appointments.Any(a => a.Title == "Test Appointment"));
     }
 
     [Test]
@@ -63,50 +79,86 @@ public class ServiceAppointmentsControllerTests
         var errorResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.BadRequest,
-            Content = new StringContent("Bad Request")
+            Content = new StringContent("{\"Message\": \"Client Error: Bad Request\"}", Encoding.UTF8, "application/json")
         };
 
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
 
         // Act
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        Assert.AreEqual(result, "Error fetching appointments: Bad Request");
+        var objectResult = result as BadRequestObjectResult;
+        Assert.IsNotNull(objectResult);
+
+        // Use reflection to access the "Message" property of the anonymous object
+        var responseContent = objectResult.Value;
+        Assert.IsNotNull(responseContent);
+
+        var messageProperty = responseContent.GetType().GetProperty("Message");
+        Assert.IsNotNull(messageProperty);
+
+        var messageValue = messageProperty.GetValue(responseContent) as string;
+        Assert.AreEqual("Client Error: Bad Request", messageValue);
     }
     
     [Test]
-    public async Task GetAllAppointmentsAsync_InternalServerError_ReturnsErrorMessage()
+    public async Task GetAllAppointmentsAsync_InternalServerError_ReturnsStatusCode()
     {
         // Arrange
         var errorResponse = new HttpResponseMessage
         {
             StatusCode = HttpStatusCode.InternalServerError,
-            Content = new StringContent("Internal Server Error")
+            Content = new StringContent("Internal Server Error", Encoding.UTF8, "application/json")
         };
 
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(errorResponse)));
 
         // Act
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        Assert.AreEqual(result, "Error fetching appointments: Internal Server Error");
+        var statusCodeResult = result as StatusCodeResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(500, statusCodeResult.StatusCode); // Ensure it's an Internal Server Error
     }
-
+    
     [Test]
     public async Task GetAllAppointmentsAsync_Exception_ReturnsErrorMessage()
     {
         // Arrange
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>())).Throws(new Exception("Network error"));
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Throws(new Exception("Network error"));
 
         // Act
         var result = await _controller.GetAllAppointmentsAsync();
 
         // Assert
-        Assert.AreEqual(result, "Error 500: Internal Server Error - Network error");
-    }
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode); // Ensure it's an Internal Server Error
 
+        // Use reflection to access the properties of the anonymous object
+        var responseContent = objectResult.Value;
+        Assert.IsNotNull(responseContent);
+
+        var messageProperty = responseContent.GetType().GetProperty("Message");
+        var detailsProperty = responseContent.GetType().GetProperty("Details");
+
+        Assert.IsNotNull(messageProperty);
+        Assert.IsNotNull(detailsProperty);
+
+        var messageValue = messageProperty.GetValue(responseContent) as string;
+        var detailsValue = detailsProperty.GetValue(responseContent) as string;
+
+        Assert.AreEqual("Internal Server Error", messageValue);
+        Assert.AreEqual("Network error", detailsValue);
+    }
 
     [Test]
     public async Task GetAppointmentByIdAsync_Success_ReturnsAppointmentDetails()
@@ -471,8 +523,232 @@ public class ServiceAppointmentsControllerTests
         // Assert
         Assert.AreEqual(result, "Error deleting appointment: Internal Server Error");
     }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByTitle_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { Title = "Haircut" };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
 
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
 
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.Title.Contains("Haircut")));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByCustomerName_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { CustomerName = "John Doe" };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.CustomerName.Contains("John Doe")));
+    }
+
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByCustomerEmail_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { CustomerEmail = "john.doe@example.com" };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.CustomerEmail.Contains("john.doe@example.com")));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByStatus_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { Status = "Upcoming" };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.Status == "Upcoming"));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByStartDate_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { StartDate = new DateTime(2025, 1, 20) };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.AppointmentDate >= new DateTime(2025, 1, 20)));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByEndDate_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments { EndDate = new DateTime(2025, 1, 21) };
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => a.AppointmentDate <= new DateTime(2025, 1, 21)));
+    }
+    
+    [Test]
+    public async Task GetAllAppointmentsAsync_FilterByMultipleParameters_ReturnsFilteredAppointments()
+    {
+        // Arrange
+        var searchArguments = new AppointmentSearchArguments
+        {
+            Title = "Haircut",
+            CustomerName = "John Doe",
+            Status = "Upcoming",
+            StartDate = new DateTime(2025, 1, 20),
+            EndDate = new DateTime(2025, 1, 21)
+        };
+
+        var appointmentsResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                "[{\"AppointmentId\":\"a3a976b7-ec4b-4ae7-beb6-c92da3b0478c\", \"Title\":\"Haircut\", \"Description\":\"Routine checkup\", \"AppointmentDate\":\"2025-01-20T10:00:00\", \"CustomerName\":\"John Doe\", \"CustomerEmail\":\"john.doe@example.com\", \"Status\":\"Upcoming\", \"CreatedAt\":\"2025-01-19T12:00:00\"}]",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        _mockHttpClientFactory
+            .Setup(client => client.CreateClient(It.IsAny<string>()))
+            .Returns(new HttpClient(new FakeHttpMessageHandler(appointmentsResponse)));
+
+        // Act
+        var result = await _controller.GetAllAppointmentsAsync(searchArguments);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        var appointments = okResult.Value as List<Appointment>;
+        Assert.IsNotNull(appointments);
+        Assert.IsTrue(appointments.All(a => 
+            a.Title.Contains("Haircut") &&
+            a.CustomerName.Contains("John Doe") &&
+            a.Status == "Upcoming" &&
+            a.AppointmentDate >= new DateTime(2025, 1, 20) &&
+            a.AppointmentDate <= new DateTime(2025, 1, 21)
+        ));
+    }
+    
+    
 
     // Helper class to mock HttpMessageHandler
     public class FakeHttpMessageHandler : HttpMessageHandler

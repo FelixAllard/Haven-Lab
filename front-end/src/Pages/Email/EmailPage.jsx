@@ -1,5 +1,6 @@
 import EmailSendPage from './EmailSendPage';
 import TemplateManager from './Template/TemplateManager';
+import React from 'react';
 
 export const EmailPage = () => {
   return (

@@ -28,7 +28,7 @@ namespace TestingProject.Api_Gateway.Controller;
         {
             // Arrange: Mock the service to return a valid result
             var mockResult = "[{\"id\":1,\"name\":\"Order1\"},{\"id\":2,\"name\":\"Order2\"}]";
-            _mockServiceOrderController.Setup(service => service.GetAllOrdersAsync())
+            _mockServiceOrderController.Setup(service => service.GetAllOrdersAsync(null))
                                        .ReturnsAsync(mockResult);
 
             // Act: Call the controller method
@@ -46,7 +46,7 @@ namespace TestingProject.Api_Gateway.Controller;
         {
             // Arrange: Mock the service to return an error message
             var mockError = "Error fetching orders: Some error occurred";
-            _mockServiceOrderController.Setup(service => service.GetAllOrdersAsync())
+            _mockServiceOrderController.Setup(service => service.GetAllOrdersAsync(null))
                                        .ReturnsAsync(mockError);
 
             // Act: Call the controller method
@@ -63,7 +63,7 @@ namespace TestingProject.Api_Gateway.Controller;
         public async Task GetAllOrders_ReturnsInternalServerError_WhenExceptionIsThrown()
         {
             // Arrange: Mock the service to throw an exception
-            _mockServiceOrderController.Setup(service => service.GetAllOrdersAsync())
+            _mockServiceOrderController.Setup(service => service.GetAllOrdersAsync(null))
                                        .ThrowsAsync(new System.Exception("Test Exception"));
 
             // Act: Call the controller method

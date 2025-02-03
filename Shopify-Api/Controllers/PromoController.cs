@@ -75,15 +75,12 @@ public class PromoController : ControllerBase
         }
     }
     
-    /*
-    [HttpPost("/PriceRules")]
+    [HttpPost("PriceRules")]
     public virtual async Task<IActionResult> PostPriceRule([FromBody] PriceRule request)
     {
         try
         {
             PriceRule tempPriceRule = request;
-            //Product tempProduct = _productValidator.FormatPostProduct(product);
-            Console.Write("We formatted!");
             var pricerule = await _priceRuleService.CreateAsync(tempPriceRule);
             return Ok(pricerule);
         }
@@ -93,15 +90,35 @@ public class PromoController : ControllerBase
         }
         catch (ShopifyException ex)
         {
-            return StatusCode(500, new { message = "Error fetching products", details = ex.Message });
+            return StatusCode(500, new { message = "Error fetching PriceRules", details = ex.Message });
         }
         catch (System.Exception ex)
         {
-            // Log the exception if necessary
-            return StatusCode(500, new { message = "Error creating product " + ex.Message });
+            return StatusCode(500, new { message = "Error creating PriceRule " + ex.Message });
         }
     }
-    */
+    
+    [HttpPut("PriceRules/{id}")]
+    public virtual async Task<IActionResult> PutProduct([FromRoute] long id,[FromBody] PriceRule priceRule)
+    {
+        try
+        {
+            var priceRules = await _priceRuleService.UpdateAsync(id, priceRule);
+            return Ok(priceRules);
+        }
+        catch (InputException ex)
+        {
+            return StatusCode(400, new { message = ex.Message });
+        }
+        catch (ShopifyException ex)
+        {
+            return StatusCode(500, new { message = "Error fetching PriceRules", details = ex.Message });
+        }
+        catch (System.Exception ex)
+        {
+            return StatusCode(500, new { message = "Error updating PriceRule " + ex.Message });
+        }
+    }
     
     [HttpDelete("PriceRules/{id}")]
     public async Task<IActionResult> DeletePriceRule([FromRoute]long id)

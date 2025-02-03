@@ -69,6 +69,78 @@ public class ServicePromoController
         }
     }
     
+    public virtual async Task<HttpResponseMessage> CreatePriceRuleAsync(PriceRule priceRule)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Promo/PriceRules";
+            
+            var jsonSettings = new Newtonsoft.Json.JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(), 
+                Formatting = Formatting.None 
+            };
+            
+            var jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(priceRule, jsonSettings);
+
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            
+            var response = await client.PostAsync(requestUrl, content);
+            return response;
+        }
+        catch (System.Net.Http.HttpRequestException ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Error: {ex.Message}")
+            };
+        }
+        catch (Exception ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent($"Error: {ex.Message}")
+            };
+        }
+    }
+    
+    public virtual async Task<HttpResponseMessage> PutPriceRuleAsync(long id, PriceRule priceRule)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Promo/PriceRules/{id}";
+
+            var jsonSettings = new Newtonsoft.Json.JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(), 
+                Formatting = Formatting.None 
+            };
+
+            var jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(priceRule, jsonSettings);
+
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            var response = await client.PutAsync(requestUrl, content);
+            return response;
+        }
+        catch (System.Net.Http.HttpRequestException ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Error: {ex.Message}")
+            };
+        }
+        catch (Exception ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent($"Error: {ex.Message}")
+            };
+        }
+    }
+    
     public virtual async Task<string> DeletePriceRuleAsync(long id)
     {
         try

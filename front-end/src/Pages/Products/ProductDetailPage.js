@@ -71,13 +71,13 @@ const ProductDetailsPage = () => {
     try {
       console.log('Adding product to cart...');
       const response = await axios.post(
-        `${environment}/gateway/api/Cart/add/${productId}`,
+        `${environment}/gateway/api/ProxyCart/add/${productId}`,
         null,
         { withCredentials: true },
       );
       if (response.status === 200) {
         const updatedCartResponse = await axios.get(
-          `${environment}/gateway/api/Cart`,
+          `${environment}/gateway/api/ProxyCart`,
           null,
           { withCredentials: true },
         );

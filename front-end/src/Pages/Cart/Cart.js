@@ -3,7 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 const CartPage = () => {
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     fetchCart();
@@ -11,12 +11,19 @@ const CartPage = () => {
 
   const fetchCart = async () => {
     try {
-      const response = await axios.get(`${environment}/gateway/api/Cart`, {
+      const response = await axios.get(`${environment}/gateway/api/ProxyCart`, {
         withCredentials: true,
       });
       if (response.status === 200) {
         console.log('Cart fetched successfully:', response.data);
-        setCart(response.data);
+
+        // Ensure cart is an array
+        if (Array.isArray(response.data)) {
+          setCart(response.data);
+        } else {
+          setCart([]);
+        }
+
         return response.data;
       } else {
         console.error('Failed to fetch cart.');
@@ -26,10 +33,11 @@ const CartPage = () => {
     }
   };
 
+
   const removeByOne = async (variantId) => {
     try {
       const response = await axios.post(
-        `${environment}/gateway/api/Cart/removebyone/${variantId}`,
+        `${environment}/gateway/api/ProxyCart/removebyone/${variantId}`,
         null,
         { withCredentials: true },
       );
@@ -44,19 +52,27 @@ const CartPage = () => {
     }
   };
 
-  const updateQuantity = async (variantId, newQuantity) => {
-    if (newQuantity < 0) {
-      console.warn('Invalid quantity. Skipping update.');
-      return;
+  const addByOne = async (variantId) => {
+    try {
+      const response = await axios.post(
+        `${environment}/gateway/api/ProxyCart/addbyone/${variantId}`,
+        null,
+        { withCredentials: true },
+      );
+      if (response.status === 200) {
+        console.log('Product quantity increased:', response.data);
+        setCart(response.data);
+      } else {
+        console.error('Failed to increase product quantity.');
+      }
+    } catch (err) {
+      console.error('Error increasing quantity:', err);
     }
-    if (newQuantity === 0) {
-      await removeFromCart(variantId);
-    } else if (newQuantity < cart[variantId]) {
-      await removeByOne(variantId);
-    } else {
+  };
+  const addByOne = async (productId) => {
       try {
         const response = await axios.post(
-          `${environment}/gateway/api/Cart/addbyone/${variantId}`,
+          `${environment}/gateway/api/ProxyCart/addbyone/${productId}`,
           null,
           { withCredentials: true },
         );
@@ -69,13 +85,13 @@ const CartPage = () => {
       } catch (err) {
         console.error('Error increasing quantity:', err);
       }
-    }
-  };
+    };
+
 
   const removeFromCart = async (variantId) => {
     try {
       const response = await axios.post(
-        `${environment}/gateway/api/Cart/remove/${variantId}`,
+        `${environment}/gateway/api/ProxyCart/remove/${variantId}`,
         null,
         { withCredentials: true },
       );
@@ -96,16 +112,16 @@ const CartPage = () => {
       const cartResponse = await fetchCart();
       console.log('Cart Response:', cartResponse);
 
-      // Check if the cart is not empty
-      if (!cartResponse || Object.keys(cartResponse).length === 0) {
+      // Ensure cart is an array
+      if (!Array.isArray(cartResponse) || cartResponse.length === 0) {
         console.log('Cart is empty, no draft order to create.');
         return;
       }
 
-      // Map the cart items to the draft order format with individual objects
-      const lineItems = Object.keys(cartResponse).map((variantId) => ({
-        variant_id: parseInt(variantId), // Ensure variant_id is a number
-        quantity: cartResponse[variantId],
+      // Map cart items to only include variant_id and quantity
+      const lineItems = cartResponse.map((item) => ({
+        variant_id: item.variantId, // Ensure we're using the correct property
+        quantity: item.quantity,
       }));
 
       const draftOrderData = {
@@ -141,31 +157,43 @@ const CartPage = () => {
     <div className="cart-page mt-6">
       <h1>Your Cart</h1>
       <ul>
-        {Object.keys(cart).map((productId) => (
-          <li key={productId} className="cart-item">
-            <span>Product ID: {productId}</span>
+        {cart.map((item) => (
+          <li key={item.variantId} className="cart-item">
+            <span>{item.productTitle}</span>
+            <span>Price: ${item.price.toFixed(2)}</span>
             <span>Quantity: </span>
-            <button
-              onClick={() => updateQuantity(productId, cart[productId] - 1)}
-            >
-              -
+            <button onClick={() => removeByOne(item.variantId)}> - </button>
+            <span>{item.quantity}</span>
+            <button onClick={() => addByOne(item.productId)}> + </button>
+            <button onClick={() => removeFromCart(item.variantId)}>Remove</button>
+            <button onClick={() => addByOne(item.variantId)}> + </button>
+            <button onClick={() => removeFromCart(item.variantId)}>
+              Remove
             </button>
-            <span>{cart[productId]}</span>
-            <button
-              onClick={() => updateQuantity(productId, cart[productId] + 1)}
-            >
-              +
-            </button>
-            <button onClick={() => removeFromCart(productId)}>Remove</button>
           </li>
         ))}
       </ul>
+
+      {/* Subtotal Calculation */}
+      <h3>
+        Subtotal: $
+        {cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
+      </h3>
+
+      {/* Subtotal Calculation */}
+      <h3>
+        Subtotal: $
+        {cart
+          .reduce((total, item) => total + item.price * item.quantity, 0)
+          .toFixed(2)}
+      </h3>
 
       <button onClick={handleCreateDraftOrder} className="btn btn-primary">
         Create Draft Order
       </button>
     </div>
   );
+
 };
 
 export default CartPage;

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css';
 import { FaSearch } from 'react-icons/fa';
+import { useAuth } from '../../AXIOS/AuthentificationContext';
 
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
@@ -19,6 +20,9 @@ const ProductPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 6;
+
+  const { authToken } = useAuth();
+  const isLoggedIn = !!authToken;
 
   const fetchProducts = async (params = '') => {
     try {
@@ -106,14 +110,16 @@ const ProductPage = () => {
                 Apply Filter
               </button>
             </div>
-            <button className="btn btn-success mb-3 mt-4">
-              <Link
-                to={`/admin/product/create`}
-                style={{ color: 'white', textDecoration: 'none' }}
-              >
-                Add Product
-              </Link>
-            </button>
+            {isLoggedIn && (
+              <button className="btn btn-success mb-3 mt-4">
+                <Link
+                  to={`/admin/product/create`}
+                  style={{ color: 'white', textDecoration: 'none' }}
+                >
+                  Add Product
+                </Link>
+              </button>
+            )}
           </div>
           <div className="col-md-9">
             <div className="search-bar-container">

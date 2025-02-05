@@ -111,14 +111,14 @@ const ProductPage = () => {
               </button>
             </div>
             {isLoggedIn && (
-            <button className="btn btn-success mb-3 mt-4">
-              <Link
-                to={`/admin/product/create`}
-                style={{ color: 'white', textDecoration: 'none' }}
-              >
-                Add Product
-              </Link>
-            </button>
+              <button className="btn btn-success mb-3 mt-4">
+                <Link
+                  to={`/admin/product/create`}
+                  style={{ color: 'white', textDecoration: 'none' }}
+                >
+                  Add Product
+                </Link>
+              </button>
             )}
           </div>
           <div className="col-md-9">

@@ -6,7 +6,6 @@ import Arrow from './Assets/arrow.png';
 import './Home.css';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-import PlaceholderImage from './Assets/placeholder.png';
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const Home = () => {
@@ -170,7 +169,10 @@ const Home = () => {
               <div key={product.id} className="bestseller-card">
                 <div className="bestseller-content">
                   <img
-                    src={PlaceholderImage}
+                    src={
+                      product.images[0]?.src ||
+                      require('../../Shared/imageNotFound.jpg')
+                    }
                     alt={product.title}
                     className="bestseller-image"
                   />

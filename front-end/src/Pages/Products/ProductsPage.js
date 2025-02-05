@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css';
 import { FaSearch } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
@@ -17,6 +18,7 @@ const ProductPage = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [available, setAvailable] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
 
   const itemsPerPage = 6;
 
@@ -65,6 +67,10 @@ const ProductPage = () => {
     currentPage * itemsPerPage,
   );
 
+  const handleCreateClick = () => {
+    navigate('/admin/product/create');
+  };
+
   return (
     <div className="products-page">
       <div className="container mt-5">
@@ -104,6 +110,12 @@ const ProductPage = () => {
                 onClick={handleSearch}
               >
                 Apply Filter
+              </button>
+              <button
+                className="btn btn-success mb-3 mt-4"
+                onClick={handleCreateClick}
+              >
+                Add Product
               </button>
             </div>
           </div>

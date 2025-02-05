@@ -169,8 +169,10 @@ const Home = () => {
               <div key={product.id} className="bestseller-card">
                 <div className="bestseller-content">
                   <img
-                    src={product.images[0]?.src ||
-                      require('../../Shared/imageNotFound.jpg')}
+                    src={
+                      product.images[0]?.src ||
+                      require('../../Shared/imageNotFound.jpg')
+                    }
                     alt={product.title}
                     className="bestseller-image"
                   />

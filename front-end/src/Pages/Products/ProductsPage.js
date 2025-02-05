@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css';
 import { FaSearch } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
 
 const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
@@ -18,7 +17,6 @@ const ProductPage = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [available, setAvailable] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const navigate = useNavigate();
 
   const itemsPerPage = 6;
 

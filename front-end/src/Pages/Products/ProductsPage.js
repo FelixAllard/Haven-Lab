@@ -67,10 +67,6 @@ const ProductPage = () => {
     currentPage * itemsPerPage,
   );
 
-  const handleCreateClick = () => {
-    navigate('/admin/product/create');
-  };
-
   return (
     <div className="products-page">
       <div className="container mt-5">
@@ -111,13 +107,15 @@ const ProductPage = () => {
               >
                 Apply Filter
               </button>
-              <button
-                className="btn btn-success mb-3 mt-4"
-                onClick={handleCreateClick}
+            </div>
+            <button className="btn btn-success mb-3 mt-4">
+              <Link
+                to={`/admin/product/create`}
+                style={{ color: 'white', textDecoration: 'none' }}
               >
                 Add Product
-              </button>
-            </div>
+              </Link>
+            </button>
           </div>
           <div className="col-md-9">
             <div className="search-bar-container">

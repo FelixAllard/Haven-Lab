@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Appointments.css';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -28,8 +26,8 @@ const Appointments = () => {
     try {
       setLoading(true);
       setError(null); // Clear any previous errors
-      const response = await axios.get(
-        `${environment}/gateway/api/ProxyAppointment/all${query}`,
+      const response = await httpClient.get(
+        `/gateway/api/ProxyAppointment/all${query}`,
       );
 
       // Sort appointments by appointmentDate (earliest to oldest)

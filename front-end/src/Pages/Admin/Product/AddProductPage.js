@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import httpClient from '../../../AXIOS/AXIOS.js';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AddProductPage.css';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const ProductForm = () => {
   const [formData, setFormData] = useState({
@@ -102,14 +101,14 @@ const ProductForm = () => {
       }
     }
 
-    setFormData(updatedData); // Update the state with the new data
+    setFormData(updatedData);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${environment}/gateway/api/ProxyProduct`,
+      const response = await httpClient.post(
+        `/gateway/api/ProxyProduct`,
         formData,
       );
       if (response.status === 200) {

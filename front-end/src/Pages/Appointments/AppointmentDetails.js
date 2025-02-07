@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useParams, useNavigate } from 'react-router-dom';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 const AppointmentDetail = () => {
   const { appointmentId } = useParams(); // Get the appointmentId from the URL
   const [appointment, setAppointment] = useState(null);
@@ -14,8 +13,8 @@ const AppointmentDetail = () => {
   useEffect(() => {
     const fetchAppointmentDetails = async () => {
       try {
-        const response = await axios.get(
-          `${environment}/gateway/api/ProxyAppointment/${appointmentId}`,
+        const response = await httpClient.get(
+          `/gateway/api/ProxyAppointment/${appointmentId}`,
         );
         setAppointment(response.data);
       } catch (err) {
@@ -42,8 +41,8 @@ const AppointmentDetail = () => {
   // Handle delete
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(
-        `${environment}/gateway/api/ProxyAppointment/${appointmentId}`,
+      const response = await httpClient.delete(
+        `/gateway/api/ProxyAppointment/${appointmentId}`,
       );
       if (response.status === 200) {
         // Redirect to appointments list after deleting

@@ -6,7 +6,7 @@ import Arrow from './Assets/arrow.png';
 import './Home.css';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 
 const Home = () => {
   const [bestsellers, setBestsellers] = useState([]);
@@ -14,21 +14,22 @@ const Home = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  //Fetch products containing "bestseller" in its tags
   useEffect(() => {
-    fetch(`${environment}/gateway/api/ProxyProduct`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('API Response:', data);
+    httpClient
+      .get('/gateway/api/ProxyProduct')
+      .then((response) => {
+        console.log('API Response:', response.data);
+  
         // Ensure data.items is an array before filtering
-        if (Array.isArray(data.items)) {
-          const bestsellerProducts = data.items.filter(
-            (product) => product.tags && product.tags.includes('bestseller'),
+        if (Array.isArray(response.data.items)) {
+          const bestsellerProducts = response.data.items.filter(
+            (product) => product.tags && product.tags.includes('bestseller')
           );
           setBestsellers(bestsellerProducts);
         } else {
-          console.error('Unexpected API response format', data);
+          console.error('Unexpected API response format', response.data);
         }
+  
         setLoading(false);
       })
       .catch((error) => {
@@ -37,6 +38,7 @@ const Home = () => {
         setLoading(false);
       });
   }, []);
+  
 
   const handleViewProduct = (id) => {
     navigate(`/product/${id}`);
@@ -70,14 +72,7 @@ const Home = () => {
       return;
     }
     try {
-      const response = await fetch(
-        `${environment}/gateway/api/ProxyCustomer/subscribe`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(email),
-        },
-      );
+      const response = await httpClient.post('/gateway/api/ProxyCustomer/subscribe', email);
 
       if (response.ok) {
         setMessage('Successfully subscribed!');
@@ -99,14 +94,7 @@ const Home = () => {
       return;
     }
     try {
-      const response = await fetch(
-        `${environment}/gateway/api/ProxyCustomer/unsubscribe`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(email),
-        },
-      );
+      const response = await httpClient.post('/gateway/api/ProxyCustomer/unsubscribe', email);
 
       if (response.ok) {
         setMessage('Successfully unsubscribed!');

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
+
 const EmailForm = () => {
   const [emailToSendTo, setEmailToSendTo] = useState('');
   const [emailTitle, setEmailTitle] = useState('');
@@ -32,15 +33,9 @@ const EmailForm = () => {
     };
 
     try {
-      const response = await fetch(
-        `${environment}/gateway/api/ProxyEmailApi/sendwithformat`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(directEmailModel),
-        },
+      const response = await httpClient.post(
+        '/gateway/api/ProxyEmailApi/sendwithformat', 
+        directEmailModel
       );
 
       if (response.ok) {
@@ -57,18 +52,20 @@ const EmailForm = () => {
     }
   };
   useEffect(() => {
-    // Replace with your actual API endpoint
-    fetch(`${environment}/gateway/api/ProxyTemplate/names`)
-      .then((response) => response.json())
-      .then((data) => {
-        setTemplates(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+    const fetchTemplates = async () => {
+      try {
+        const response = await httpClient.get('/gateway/api/ProxyTemplate/names');
+        setTemplates(response.data);
+      } catch (err) {
         setError('Failed to load templates');
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+  
+    fetchTemplates();
   }, []);
+  
 
   return (
     <div className="container mt-7 mb-5">

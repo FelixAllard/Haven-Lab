@@ -107,6 +107,20 @@ public class ServiceAuthController
             var response = await client.SendAsync(requestMessage);
             return await HandleResponse(response);
         }
+        catch (HttpRequestException httpEx)
+        {
+            return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Error 503: Service Unavailable - {httpEx.Message}")
+            };
+        }
+        catch (TimeoutException timeoutEx)
+        {
+            return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Error 503: Service Unavailable - Timeout occurred: {timeoutEx.Message}")
+            };
+        }
         catch (Exception ex)
         {
             return new HttpResponseMessage(HttpStatusCode.InternalServerError)

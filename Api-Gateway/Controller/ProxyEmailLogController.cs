@@ -1,5 +1,6 @@
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api_Gateway.Annotations;
 
 namespace Api_Gateway.Controller;
 [ApiController]
@@ -16,6 +17,7 @@ public class ProxyEmailLogController : ControllerBase
     }
     
     [HttpGet]
+    [RequireAuth]
     public async Task<IActionResult> GetAllTemplatesNames()
     {
         try

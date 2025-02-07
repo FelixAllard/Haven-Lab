@@ -56,117 +56,274 @@ public class ServiceAppointmentsController
         }
     }
     
-    public virtual async Task<string> GetAppointmentByIdAsync(Guid appointmentId)
+    public virtual async Task<IActionResult> GetAppointmentByIdAsync(Guid appointmentId)
     {
         try
         {
+            // Validate the appointment ID
+            if (appointmentId == Guid.Empty)
+            {
+                return new BadRequestObjectResult(new 
+                { 
+                    Message = "ServiceAppointmentController: Invalid appointment ID",
+                    Details = "The provided appointment ID is empty or invalid." 
+                });
+            }
+
+            // Create the HTTP client and request URL
             var client = _httpClientFactory.CreateClient();
             var requestUrl = $"{BASE_URL}/api/Appointments/{appointmentId}";
 
+            // Send the GET request
             var response = await client.GetAsync(requestUrl);
 
+            // Handle the response
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStringAsync();
+                var appointment = await response.Content.ReadFromJsonAsync<Appointment>();
+                return new OkObjectResult(appointment);
+            }
+            else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
+            {
+                return new BadRequestObjectResult(new 
+                { 
+                    Message = "ServiceAppointmentController: Client Error",
+                    Details = response.ReasonPhrase 
+                });
             }
             else
             {
-                return $"Error fetching appointment: {response.ReasonPhrase}";
+                return new StatusCodeResult((int)response.StatusCode);
             }
+        }
+        catch (HttpRequestException ex)
+        {
+            return new StatusCodeResult(503);
         }
         catch (Exception ex)
         {
-            return $"Error 500: Internal Server Error - {ex.Message}";
+            return new ObjectResult(new 
+            { 
+                Message = "Internal Server Error", 
+                Details = ex.Message 
+            }) 
+            { 
+                StatusCode = 500 
+            };
         }
     }
     
-    public virtual async Task<string> CreateAppointmentAsync(Appointment appointment)
+    public virtual async Task<IActionResult> CreateAppointmentAsync(Appointment appointment)
     {
-        
+        // Validate the appointment object
+        if (appointment == null)
+        {
+            return new BadRequestObjectResult(new 
+            { 
+                Message = "ServiceAppointmentController: Invalid request",
+                Details = "Appointment data is required." 
+            });
+        }
+
+        // Validate the status
         if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
         {
-            return "Error 400: Status must be 'Cancelled', 'Upcoming', or 'Finished'";
+            return new BadRequestObjectResult(new 
+            { 
+                Message = "ServiceAppointmentController: Invalid status",
+                Details = "Status must be 'Cancelled', 'Upcoming', or 'Finished'." 
+            });
         }
-        
+
         try
         {
+            // Create the HTTP client and request URL
             var client = _httpClientFactory.CreateClient();
             var requestUrl = $"{BASE_URL}/api/Appointments";
 
+            // Serialize the appointment object to JSON
             var jsonContent = JsonConvert.SerializeObject(appointment);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
+            // Send the POST request
             var response = await client.PostAsync(requestUrl, content);
 
+            // Handle the response
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStringAsync();
+                var createdAppointment = await response.Content.ReadFromJsonAsync<Appointment>();
+                return new CreatedResult($"{BASE_URL}/api/Appointments/{createdAppointment.AppointmentId}", createdAppointment);
+            }
+            else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
+            {
+                return new BadRequestObjectResult(new 
+                { 
+                    Message = "ServiceAppointmentController: Client Error",
+                    Details = response.ReasonPhrase 
+                });
             }
             else
             {
-                return $"Error creating appointment: {response.ReasonPhrase}";
+                return new StatusCodeResult((int)response.StatusCode);
             }
+        }
+        catch (HttpRequestException ex)
+        {
+            return new StatusCodeResult(503);
         }
         catch (Exception ex)
         {
-            return $"Error 500: Internal Server Error - {ex.Message}";
+            return new ObjectResult(new 
+            { 
+                Message = "ServiceAppointmentController: Internal Server Error", 
+                Details = ex.Message 
+            }) 
+            { 
+                StatusCode = 500 
+            };
         }
     }
-    
-    public virtual async Task<string> UpdateAppointmentAsync(Guid appointmentId, Appointment appointment)
-    {
         
+    public virtual async Task<IActionResult> UpdateAppointmentAsync(Guid appointmentId, Appointment appointment)
+    {
+        // Validate the appointment object
+        if (appointment == null)
+        {
+            return new BadRequestObjectResult(new 
+            { 
+                Message = "Invalid request",
+                Details = "Appointment data is required." 
+            });
+        }
+
+        // Validate the appointment ID
+        if (appointmentId == Guid.Empty)
+        {
+            return new BadRequestObjectResult(new 
+            { 
+                Message = "Invalid appointment ID",
+                Details = "The provided appointment ID is empty or invalid." 
+            });
+        }
+
+        // Validate the status
         if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
         {
-            return "Error 400: Status must be 'Cancelled', 'Upcoming', or 'Finished'";
+            return new BadRequestObjectResult(new 
+            { 
+                Message = "Invalid status",
+                Details = "Status must be 'Cancelled', 'Upcoming', or 'Finished'." 
+            });
         }
-        
+
         try
         {
+            // Create the HTTP client and request URL
             var client = _httpClientFactory.CreateClient();
             var requestUrl = $"{BASE_URL}/api/Appointments/{appointmentId}";
 
+            // Serialize the appointment object to JSON
             var jsonContent = JsonConvert.SerializeObject(appointment);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
+            // Send the PUT request
             var response = await client.PutAsync(requestUrl, content);
 
+            // Handle the response
             if (response.IsSuccessStatusCode)
             {
-                return "Appointment updated successfully";
+                return new OkObjectResult(new 
+                { 
+                    Message = "Appointment updated successfully",
+                    Data = appointment 
+                });
+            }
+            else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
+            {
+                return new BadRequestObjectResult(new 
+                { 
+                    Message = "Client Error",
+                    Details = response.ReasonPhrase 
+                });
             }
             else
             {
-                return $"Error updating appointment: {response.ReasonPhrase}";
+                return new StatusCodeResult((int)response.StatusCode);
             }
+        }
+        catch (HttpRequestException ex)
+        {
+            return new StatusCodeResult(503);
         }
         catch (Exception ex)
         {
-            return $"Error 500: Internal Server Error - {ex.Message}";
+            return new ObjectResult(new 
+            { 
+                Message = "Internal Server Error", 
+                Details = ex.Message 
+            }) 
+            { 
+                StatusCode = 500 
+            };
         }
     }
 
-    public virtual async Task<string> DeleteAppointmentAsync(Guid appointmentId)
+    public virtual async Task<IActionResult> DeleteAppointmentAsync(Guid appointmentId)
     {
+        // Validate the appointment ID
+        if (appointmentId == Guid.Empty)
+        {
+            return new BadRequestObjectResult(new 
+            { 
+                Message = "Invalid appointment ID",
+                Details = "The provided appointment ID is empty or invalid." 
+            });
+        }
+
         try
         {
+            // Create the HTTP client and request URL
             var client = _httpClientFactory.CreateClient();
             var requestUrl = $"{BASE_URL}/api/Appointments/{appointmentId}";
 
+            // Send the DELETE request
             var response = await client.DeleteAsync(requestUrl);
 
+            // Handle the response
             if (response.IsSuccessStatusCode)
             {
-                return "Appointment deleted successfully";
+                return new OkObjectResult(new 
+                { 
+                    Message = "Appointment deleted successfully" 
+                });
+            }
+            else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
+            {
+                return new BadRequestObjectResult(new 
+                { 
+                    Message = "Client Error",
+                    Details = response.ReasonPhrase 
+                });
             }
             else
             {
-                return $"Error deleting appointment: {response.ReasonPhrase}";
+                return new StatusCodeResult((int)response.StatusCode);
             }
+        }
+        catch (HttpRequestException ex)
+        {
+            return new StatusCodeResult(503);
         }
         catch (Exception ex)
         {
-            return $"Error 500: Internal Server Error - {ex.Message}";
+            return new ObjectResult(new 
+            { 
+                Message = "Internal Server Error", 
+                Details = ex.Message 
+            }) 
+            { 
+                StatusCode = 500 
+            };
         }
     }
 

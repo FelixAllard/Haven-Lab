@@ -70,14 +70,6 @@ namespace AppointmentsService.Controllers
 
                 return Ok(appointments);
             }
-            catch (DbUpdateException dbEx)
-            {
-                return StatusCode(500, new 
-                { 
-                    Message = "Database error occurred while fetching the appointment", 
-                    Details = dbEx.Message 
-                });
-            }
             catch (Exception ex)
             {
                 return StatusCode(500, new
@@ -103,14 +95,6 @@ namespace AppointmentsService.Controllers
                 }
 
                 return Ok(appointment);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                return StatusCode(500, new 
-                { 
-                    Message = "Database error occurred while fetching the appointment", 
-                    Details = dbEx.Message 
-                });
             }
             catch (Exception ex)
             {
@@ -151,14 +135,6 @@ namespace AppointmentsService.Controllers
 
                 return CreatedAtAction(nameof(GetByAppointmentId), new { appointmentId = appointment.AppointmentId }, appointment);
             }
-            catch (DbUpdateException dbEx)
-            {
-                return StatusCode(500, new
-                {
-                    Message = "Database error occurred while saving the appointment",
-                    Details = dbEx.Message
-                });
-            }
             catch (Exception ex)
             {
                 return StatusCode(500, new
@@ -195,7 +171,7 @@ namespace AppointmentsService.Controllers
 
                 if (existingAppointment == null)
                 {
-                    return NotFound(new { Message = $"Appointment with ID {appointmentId} not found" });
+                    return NotFound();
                 }
 
                 // Update the fields of the existing appointment with the new values
@@ -210,14 +186,6 @@ namespace AppointmentsService.Controllers
                 await _context.SaveChangesAsync();
 
                 return NoContent();
-            }
-            catch (DbUpdateException dbEx)
-            {
-                return StatusCode(500, new
-                {
-                    Message = "Database error occurred while updating the appointment",
-                    Details = dbEx.Message
-                });
             }
             catch (Exception ex)
             {
@@ -241,31 +209,18 @@ namespace AppointmentsService.Controllers
         {
             try
             {
-                if (!AppointmentExists(appointmentId))
-                {
-                    return NotFound(new { Message = "Appointment not found" });
-                }
-                
                 var appointment = await _context.Appointments
                     .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
 
                 if (appointment == null)
                 {
-                    return NotFound(new { Message = $"Appointment with ID {appointmentId} not found" });
+                    return NotFound();
                 }
                 
                 _context.Appointments.Remove(appointment);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { Message = $"Appointment with ID {appointmentId} successfully deleted" });
-            }
-            catch (DbUpdateException dbEx)
-            {
-                return StatusCode(500, new
-                {
-                    Message = "Database error occurred while deleting the appointment",
-                    Details = dbEx.Message
-                });
+                return NoContent();
             }
             catch (Exception ex)
             {

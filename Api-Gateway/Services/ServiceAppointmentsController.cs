@@ -83,6 +83,14 @@ public class ServiceAppointmentsController
                 var appointment = await response.Content.ReadFromJsonAsync<Appointment>();
                 return new OkObjectResult(appointment);
             }
+            else if (response.StatusCode == HttpStatusCode.NotFound)  // Handle 404 Not Found
+            {
+                return new NotFoundObjectResult(new
+                {
+                    Message = "ServiceAppointmentController: Appointment Not Found",
+                    Details = $"No appointment found with the ID: {appointmentId}"
+                });
+            }
             else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
             {
                 return new BadRequestObjectResult(new 
@@ -235,7 +243,7 @@ public class ServiceAppointmentsController
                 return new OkObjectResult(new 
                 { 
                     Message = "Appointment updated successfully",
-                    Data = appointment 
+                    Details = appointment.AppointmentId 
                 });
             }
             else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)

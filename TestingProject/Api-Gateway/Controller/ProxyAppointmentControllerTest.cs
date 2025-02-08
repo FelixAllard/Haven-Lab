@@ -10,7 +10,7 @@ namespace TestingProject.Api_Gateway.Controller;
 [TestFixture]
 public class ProxyAppointmentControllerTest
 {
-   /* private Mock<ServiceAppointmentsController> _mockServiceAppointmentsController;
+    private Mock<ServiceAppointmentsController> _mockServiceAppointmentsController;
     private ProxyAppointmentController _proxyAppointmentController;
 
     [SetUp]
@@ -19,9 +19,8 @@ public class ProxyAppointmentControllerTest
         // Mock the ServiceAppointmentsController
         _mockServiceAppointmentsController = new Mock<ServiceAppointmentsController>(null);
     
-        // Ensure the mock returns an Appointment JSON string when GetAppointmentByIdAsync is called
-        _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(@"
+        // Prepare the appointment object by deserializing the JSON string
+        var appointment = JsonConvert.DeserializeObject<Appointment>(@"
             {
                 ""appointmentId"": ""f47ac10b-58cc-4372-a567-0e02b2c3d479"",
                 ""title"": ""Haircut"",
@@ -32,6 +31,10 @@ public class ProxyAppointmentControllerTest
                 ""status"": ""Upcoming"",
                 ""createdAt"": ""2025-01-10T10:30:00""
             }");
+
+        _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new OkObjectResult(appointment));  // Return OkObjectResult with the deserialized appointment
+
 
         // ProxyAppointmentController depends on ServiceAppointmentsController
         _proxyAppointmentController = new ProxyAppointmentController(_mockServiceAppointmentsController.Object);
@@ -141,137 +144,79 @@ public class ProxyAppointmentControllerTest
             AppointmentId = Guid.NewGuid(),
             Title = "Haircut",
             Description = "Routine checkup",
-            AppointmentDate = DateTime.Now.AddHours(1),
+            AppointmentDate = DateTime.UtcNow.AddHours(1), // Ensure future appointment date
             CustomerName = "John Doe",
             CustomerEmail = "john.doe@example.com",
             Status = "Upcoming", // Valid status
             CreatedAt = DateTime.UtcNow
         };
 
-        var mockResult = "Appointment created successfully"; // Mocked response from service
+        // Expected result: CreatedAtActionResult
+        var expectedResult = new CreatedAtActionResult(
+            nameof(_proxyAppointmentController.GetAppointmentById), // Action name
+            "ProxyAppointment", // Controller name
+            new { appointmentId = appointment.AppointmentId }, // Route values
+            appointment // Response content
+        );
 
-        // Mock the ServiceAppointmentsController to return a success message
-        _mockServiceAppointmentsController.Setup(service => service.CreateAppointmentAsync(appointment))
-            .ReturnsAsync(mockResult);
+        // Mock the ServiceAppointmentsController to return a CreatedAtActionResult
+        _mockServiceAppointmentsController
+            .Setup(service => service.CreateAppointmentAsync(It.IsAny<Appointment>()))
+            .ReturnsAsync(expectedResult);
 
         // Act: Call the CreateAppointment method
         var result = await _proxyAppointmentController.CreateAppointment(appointment);
 
-        // Assert: Verify that the response is CreatedAtAction with the appropriate status code
+        // Assert: Verify that the response is CreatedAtActionResult with the appropriate status code
         var createdResult = result as CreatedAtActionResult;
-        Assert.IsNotNull(createdResult);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201)); // Created status code
-        Assert.That(createdResult.Value, Is.EqualTo(mockResult));
+        Assert.IsNotNull(createdResult, "Expected CreatedAtActionResult, but got null.");
+        Assert.That(createdResult.StatusCode, Is.EqualTo(201), "Expected HTTP 201 Created status.");
+        Assert.That(createdResult.Value, Is.EqualTo(appointment), "Returned appointment data does not match.");
     }
+
+    [Test]
+public async Task GetAppointmentById_ReturnsOk_WhenAppointmentExists()
+{
+    // Arrange: Prepare the appointmentId to fetch
+    var appointmentId = Guid.NewGuid();
+
+    // Prepare a valid appointment object that matches the expected response
+    var appointment = new Appointment
+    {
+        AppointmentId = Guid.NewGuid(),
+        Title = "Haircut",
+        Description = "Routine checkup",
+        AppointmentDate = DateTime.Parse("2025-01-25T09:00:00"),
+        CustomerName = "John Doe",
+        CustomerEmail = "john.doe@example.com",
+        Status = "Upcoming",
+        CreatedAt = DateTime.Parse("2025-01-10T10:30:00")
+    };
+
+    // Mock the ServiceAppointmentsController to return an OkObjectResult with the appointment object
+    _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(appointmentId))
+        .ReturnsAsync(new OkObjectResult(appointment));  // Return an OkObjectResult with the appointment
+
+    // Act: Call the GetAppointmentById method
+    var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
+
+    // Assert: Verify that the response is Ok with the correct appointment data
+    var okResult = result as OkObjectResult;
+    Assert.IsNotNull(okResult);
+    Assert.That(okResult.StatusCode, Is.EqualTo(200)); // OK status code
     
-
-    [Test]
-    public async Task UpdateAppointment_ReturnsOk_WhenUpdateIsSuccessful()
-    {
-        // Arrange: Prepare an appointment object to update
-        var appointment = new Appointment
-        {
-            AppointmentId = Guid.NewGuid(),
-            Title = "Haircut",
-            Description = "Checkup",
-            AppointmentDate = DateTime.Now.AddHours(2),
-            CustomerName = "John Doe",
-            CustomerEmail = "john.doe@example.com",
-            Status = "Finished",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var mockResult = "Appointment updated successfully"; // Mocked response from service
-
-        // Mock the ServiceAppointmentsController to return success message
-        _mockServiceAppointmentsController.Setup(service => service.UpdateAppointmentAsync(appointment.AppointmentId, appointment))
-            .ReturnsAsync(mockResult);
-
-        // Act: Call the UpdateAppointment method
-        var result = await _proxyAppointmentController.UpdateAppointment(appointment.AppointmentId, appointment);
-
-        // Assert: Verify that the response is Ok
-        var okResult = result as OkResult;
-        Assert.IsNotNull(okResult);
-        Assert.That(okResult.StatusCode, Is.EqualTo(200)); // OK status code
-    }
-
-    [Test]
-    public async Task DeleteAppointment_ReturnsOk_WhenDeleteIsSuccessful()
-    {
-        // Arrange: Prepare the appointmentId to delete
-        var appointmentId = Guid.NewGuid();
-
-        var mockResult = "Appointment deleted successfully"; // Mocked response from service
-
-        // Mock the ServiceAppointmentsController to return success message
-        _mockServiceAppointmentsController.Setup(service => service.DeleteAppointmentAsync(appointmentId))
-            .ReturnsAsync(mockResult);
-
-        // Act: Call the DeleteAppointment method
-        var result = await _proxyAppointmentController.DeleteAppointment(appointmentId);
-
-        // Assert: Verify that the response is Ok
-        var okResult = result as OkResult;
-        Assert.IsNotNull(okResult);
-        Assert.That(okResult.StatusCode, Is.EqualTo(200)); // OK status code
-    }
-
-    [Test]
-    public async Task GetAppointmentById_ReturnsOk_WhenAppointmentExists()
-    {
-        // Arrange: Prepare the appointmentId to fetch
-        var appointmentId = Guid.NewGuid();
-        var mockResult = @"
-    {
-        ""appointmentId"": ""f47ac10b-58cc-4372-a567-0e02b2c3d479"",
-        ""title"": ""Haircut"",
-        ""description"": ""Routine checkup"",
-        ""appointmentDate"": ""2025-01-25T09:00:00"",
-        ""customerName"": ""John Doe"",
-        ""customerEmail"": ""john.doe@example.com"",
-        ""status"": ""Upcoming"",
-        ""createdAt"": ""2025-01-10T10:30:00""
-    }";
-
-        // Mock the ServiceAppointmentsController to return the appointment
-        _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(appointmentId))
-            .ReturnsAsync(mockResult);
-
-        // Act: Call the GetAppointmentById method
-        var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
-
-        // Assert: Verify that the response is Ok with the correct appointment data
-        var okResult = result as OkObjectResult;
-        Assert.IsNotNull(okResult);
-        Assert.That(okResult.StatusCode, Is.EqualTo(200)); // OK status code
-        Assert.That(okResult.Value, Is.EqualTo(mockResult)); // Verify the returned value (the JSON string)
-    }
-    
-    [Test]
-    public async Task GetAppointmentById_ReturnsBadRequest_WhenErrorOccurs()
-    {
-        // Arrange: Prepare the appointmentId to fetch
-        var appointmentId = Guid.NewGuid();
-        var errorMessage = "Error: Appointment not found";
-
-        // Mock the ServiceAppointmentsController to return an error message
-        _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(appointmentId))
-            .ReturnsAsync(errorMessage);
-
-        // Act: Call the GetAppointmentById method
-        var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
-
-        // Assert: Verify that the response is BadRequest with the error message
-        var badRequestResult = result as BadRequestObjectResult;
-        Assert.IsNotNull(badRequestResult);
-        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400)); // BadRequest status code
-
-        // Verify the error message
-        var message = badRequestResult.Value.GetType().GetProperty("Message").GetValue(badRequestResult.Value, null);
-        Assert.That(message, Is.EqualTo(errorMessage));
-    }
-    
+    // Assert that the returned object is of type Appointment and its properties match the mock appointment
+    var returnedAppointment = okResult.Value as Appointment;
+    Assert.IsNotNull(returnedAppointment);
+    Assert.That(returnedAppointment.AppointmentId, Is.EqualTo(appointment.AppointmentId));
+    Assert.That(returnedAppointment.Title, Is.EqualTo(appointment.Title));
+    Assert.That(returnedAppointment.Description, Is.EqualTo(appointment.Description));
+    Assert.That(returnedAppointment.AppointmentDate, Is.EqualTo(appointment.AppointmentDate));
+    Assert.That(returnedAppointment.CustomerName, Is.EqualTo(appointment.CustomerName));
+    Assert.That(returnedAppointment.CustomerEmail, Is.EqualTo(appointment.CustomerEmail));
+    Assert.That(returnedAppointment.Status, Is.EqualTo(appointment.Status));
+    Assert.That(returnedAppointment.CreatedAt, Is.EqualTo(appointment.CreatedAt));
+}
     
     [Test]
     public async Task GetAppointmentById_ReturnsInternalServerError_WhenExceptionOccurs()
@@ -291,63 +236,9 @@ public class ProxyAppointmentControllerTest
         Assert.IsNotNull(internalServerErrorResult);
         Assert.That(internalServerErrorResult.StatusCode, Is.EqualTo(500)); // Internal Server Error
         var message = internalServerErrorResult.Value.GetType().GetProperty("Message").GetValue(internalServerErrorResult.Value, null);
-        Assert.That(message, Is.EqualTo("Internal server error"));
+        Assert.That(message, Is.EqualTo("ProxyAppointmentController: Internal server error"));
     }
 
-
-    [Test]
-    public async Task UpdateAppointment_ReturnsInternalServerError_WhenExceptionIsThrown()
-    {
-        // Arrange: Mock an exception when calling UpdateAppointmentAsync
-        var appointment = new Appointment
-        {
-            AppointmentId = Guid.NewGuid(),
-            Title = "Haircut",
-            Description = "Routine checkup",
-            AppointmentDate = DateTime.Now.AddHours(1),
-            CustomerName = "John Doe",
-            CustomerEmail = "john.doe@example.com",
-            Status = "Upcoming",
-            CreatedAt = DateTime.UtcNow
-        };
-        _mockServiceAppointmentsController.Setup(service => service.UpdateAppointmentAsync(It.IsAny<Guid>(), It.IsAny<Appointment>()))
-            .ThrowsAsync(new Exception("Internal server error"));
-
-        // Act: Call the UpdateAppointment method
-        var result = await _proxyAppointmentController.UpdateAppointment(appointment.AppointmentId, appointment);
-
-        // Assert: Verify that the response is Internal Server Error (500)
-        var internalServerErrorResult = result as ObjectResult;
-        Assert.IsNotNull(internalServerErrorResult);
-        Assert.That(internalServerErrorResult.StatusCode, Is.EqualTo(500));
-        var message = internalServerErrorResult.Value.GetType().GetProperty("Message").GetValue(internalServerErrorResult.Value, null);
-        Assert.That(message, Is.EqualTo("Internal server error"));
-    }
-
-    // Negative Tests for Delete Appointment
-    [Test]
-    public async Task DeleteAppointment_ReturnsBadRequest_WhenErrorOccurs()
-    {
-        // Arrange: Prepare the appointmentId to delete
-        var appointmentId = Guid.NewGuid();
-        var errorMessage = "Error: Appointment could not be deleted";
-
-        // Mock the ServiceAppointmentsController to return an error message
-        _mockServiceAppointmentsController.Setup(service => service.DeleteAppointmentAsync(appointmentId))
-            .ReturnsAsync(errorMessage);
-
-        // Act: Call the DeleteAppointment method
-        var result = await _proxyAppointmentController.DeleteAppointment(appointmentId);
-
-        // Assert: Verify that the response is BadRequest with the error message
-        var badRequestResult = result as BadRequestObjectResult;
-        Assert.IsNotNull(badRequestResult);
-        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400)); // BadRequest status code
-
-        // Verify the error message
-        var message = badRequestResult.Value.GetType().GetProperty("Message").GetValue(badRequestResult.Value, null);
-        Assert.That(message, Is.EqualTo(errorMessage));
-    }
 
     [Test]
     public async Task DeleteAppointment_ReturnsInternalServerError_WhenExceptionIsThrown()
@@ -367,7 +258,7 @@ public class ProxyAppointmentControllerTest
 
         // Extract the message from the response for comparison
         var message = internalServerErrorResult.Value.GetType().GetProperty("Message").GetValue(internalServerErrorResult.Value, null);
-        Assert.That(message, Is.EqualTo("Internal server error"));
+        Assert.That(message, Is.EqualTo("Internal server error."));
     }
     
     [Test]
@@ -398,100 +289,6 @@ public class ProxyAppointmentControllerTest
     }
 
     [Test]
-    public async Task CreateAppointment_ReturnsInternalServerError_WhenExceptionIsThrown()
-    {
-        // Arrange: Prepare a valid appointment object
-        var appointment = new Appointment
-        {
-            AppointmentId = Guid.NewGuid(),
-            Title = "Haircut",
-            Description = "Routine checkup",
-            AppointmentDate = DateTime.Now.AddHours(1),
-            CustomerName = "John Doe",
-            CustomerEmail = "john.doe@example.com",
-            Status = "Upcoming", // Valid status
-            CreatedAt = DateTime.UtcNow
-        };
-
-        // Arrange: Mock the ServiceAppointmentsController to throw an exception
-        _mockServiceAppointmentsController.Setup(service => service.CreateAppointmentAsync(appointment))
-            .ThrowsAsync(new Exception("Internal server error"));
-
-        // Act: Call the CreateAppointment method
-        var result = await _proxyAppointmentController.CreateAppointment(appointment);
-
-        // Assert: Verify that the response is Internal Server Error (500)
-        var internalServerErrorResult = result as ObjectResult;
-        Assert.IsNotNull(internalServerErrorResult);
-        Assert.That(internalServerErrorResult.StatusCode, Is.EqualTo(500)); // Internal Server Error status code
-
-        // Verify the exception message
-        var message = internalServerErrorResult.Value.GetType().GetProperty("Message").GetValue(internalServerErrorResult.Value, null);
-        Assert.That(message, Is.EqualTo("Internal server error"));
-    }
-
-    [Test]
-    public async Task UpdateAppointment_ReturnsBadRequest_WhenAppointmentNotFound()
-    {
-        // Arrange: Prepare an appointment with a valid ID but simulate it not being found in the service
-        var appointment = new Appointment
-        {
-            AppointmentId = Guid.NewGuid(),
-            Title = "Haircut",
-            Description = "Routine checkup",
-            AppointmentDate = DateTime.Now.AddHours(1),
-            CustomerName = "John Doe",
-            CustomerEmail = "john.doe@example.com",
-            Status = "Upcoming",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _mockServiceAppointmentsController.Setup(service => service.UpdateAppointmentAsync(It.IsAny<Guid>(), It.IsAny<Appointment>()))
-            .ReturnsAsync("Error 404: Appointment not found");
-
-        // Act: Call the UpdateAppointment method
-        var result = await _proxyAppointmentController.UpdateAppointment(appointment.AppointmentId, appointment);
-
-        // Assert: Verify that the response is a BadRequest
-        var badRequestResult = result as BadRequestObjectResult;
-        Assert.IsNotNull(badRequestResult);
-        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400)); // BadRequest status code
-        var message = badRequestResult.Value.GetType().GetProperty("Message").GetValue(badRequestResult.Value, null);
-        Assert.That(message, Is.EqualTo("Error 404: Appointment not found"));
-    }
-
-    [Test]
-    public async Task UpdateAppointment_ReturnsBadRequest_WhenAppointmentIdIsInvalid()
-    {
-        // Arrange: Prepare an appointment with an invalid appointmentId
-        var invalidAppointmentId = Guid.NewGuid(); // Assume this ID does not exist in the system
-        var appointment = new Appointment
-        {
-            AppointmentId = invalidAppointmentId,
-            Title = "Haircut",
-            Description = "Routine checkup",
-            AppointmentDate = DateTime.Now.AddHours(1),
-            CustomerName = "John Doe",
-            CustomerEmail = "john.doe@example.com",
-            Status = "Upcoming",
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _mockServiceAppointmentsController.Setup(service => service.UpdateAppointmentAsync(It.IsAny<Guid>(), It.IsAny<Appointment>()))
-            .ReturnsAsync("Error 404: Appointment not found");
-
-        // Act: Call the UpdateAppointment method with an invalid ID
-        var result = await _proxyAppointmentController.UpdateAppointment(invalidAppointmentId, appointment);
-
-        // Assert: Verify that the response is a BadRequest
-        var badRequestResult = result as BadRequestObjectResult;
-        Assert.IsNotNull(badRequestResult);
-        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400)); // BadRequest status code
-        var message = badRequestResult.Value.GetType().GetProperty("Message").GetValue(badRequestResult.Value, null);
-        Assert.That(message, Is.EqualTo("Error 404: Appointment not found"));
-    }
-    
-    [Test]
     public void BuildQueryString_ReturnsCorrectQueryString_WhenAllParamsAreProvided()
     {
         // Arrange
@@ -518,5 +315,695 @@ public class ProxyAppointmentControllerTest
         Assert.IsTrue(queryString.Contains("EndDate=2025-01-21T10:00:00"));
     }
     
-*/
+    [Test]
+    public async Task GetAllAppointments_ServiceUnavailable_Returns503()
+    {
+        // Arrange
+        _mockServiceAppointmentsController
+            .Setup(service => service.GetAllAppointmentsAsync(It.IsAny<AppointmentSearchArguments>()))
+            .ThrowsAsync(new HttpRequestException("Service unavailable"));
+
+        // Act
+        var result = await _proxyAppointmentController.GetAllAppointments(new AppointmentSearchArguments());
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.AreEqual(503, statusCodeResult.StatusCode);  // Check that the status code is 503
+        Assert.AreEqual("Service unavailable", ((dynamic)statusCodeResult.Value).GetType().GetProperty("Message")?.GetValue((dynamic)statusCodeResult.Value, null));
+    }
+
+    [Test]
+    public async Task GetAppointmentById_ServiceUnavailable_Returns503()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        _mockServiceAppointmentsController
+            .Setup(service => service.GetAppointmentByIdAsync(It.IsAny<Guid>()))
+            .ThrowsAsync(new HttpRequestException("Service unavailable"));
+
+        // Act
+        var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.AreEqual(503, statusCodeResult.StatusCode);  // Check that the status code is 503
+        Assert.AreEqual("ProxyAppointmentController: Service unavailable", ((dynamic)statusCodeResult.Value).GetType().GetProperty("Message")?.GetValue((dynamic)statusCodeResult.Value, null));
+    }
+
+    [Test]
+    public async Task CreateAppointment_ServiceUnavailable_Returns503()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "Doctor Appointment",
+            CustomerName = "Jane Doe",
+            CustomerEmail = "jane.doe@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(1),
+            Status = "Upcoming"
+        };
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.CreateAppointmentAsync(It.IsAny<Appointment>()))
+            .ThrowsAsync(new HttpRequestException("Service unavailable"));
+
+        // Act
+        var result = await _proxyAppointmentController.CreateAppointment(appointment);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.AreEqual(503, statusCodeResult.StatusCode);  // Check that the status code is 503
+        Assert.AreEqual("Service unavailable", ((dynamic)statusCodeResult.Value).GetType().GetProperty("Message")?.GetValue((dynamic)statusCodeResult.Value, null));
+    }
+
+    [Test]
+    public async Task UpdateAppointment_ServiceUnavailable_Returns503()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Updated Appointment",
+            CustomerName = "John Doe",
+            CustomerEmail = "john.doe@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(1),
+            Status = "Upcoming"
+        };
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.UpdateAppointmentAsync(It.IsAny<Guid>(), It.IsAny<Appointment>()))
+            .ThrowsAsync(new HttpRequestException("Service unavailable"));
+
+        // Act
+        var result = await _proxyAppointmentController.UpdateAppointment(appointmentId, appointment);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.AreEqual(503, statusCodeResult.StatusCode);  // Check that the status code is 503
+        Assert.AreEqual("Service unavailable.", ((dynamic)statusCodeResult.Value).GetType().GetProperty("Message")?.GetValue((dynamic)statusCodeResult.Value, null));
+    }
+
+    [Test]
+    public async Task DeleteAppointment_ServiceUnavailable_Returns503()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        _mockServiceAppointmentsController
+            .Setup(service => service.DeleteAppointmentAsync(It.IsAny<Guid>()))
+            .ThrowsAsync(new HttpRequestException("Service unavailable"));
+
+        // Act
+        var result = await _proxyAppointmentController.DeleteAppointment(appointmentId);
+
+        // Assert
+        var statusCodeResult = result as ObjectResult;
+        Assert.NotNull(statusCodeResult);
+        Assert.AreEqual(503, statusCodeResult.StatusCode);  // Check that the status code is 503
+        Assert.AreEqual("Service unavailable.", ((dynamic)statusCodeResult.Value).GetType().GetProperty("Message")?.GetValue((dynamic)statusCodeResult.Value, null));
+    }
+    
+    [Test]
+    public async Task CreateAppointment_MissingRequiredFields_Returns400BadRequest()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "", // Missing Title
+            CustomerName = "",
+            CustomerEmail = "",
+            AppointmentDate = default // Missing Date
+        };
+
+        // Act
+        var result = await _proxyAppointmentController.CreateAppointment(appointment);
+
+        // Assert
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.NotNull(badRequestResult);
+        Assert.AreEqual(400, badRequestResult.StatusCode);
+        Assert.IsTrue(badRequestResult.Value.ToString().Contains("required fields"));
+    }
+
+    [Test]
+    public async Task CreateAppointment_PastAppointmentDate_Returns400BadRequest()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "Past Meeting",
+            CustomerName = "Bob",
+            CustomerEmail = "bob@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(-1), // Past date
+            Status = "Upcoming"
+        };
+
+        // Act
+        var result = await _proxyAppointmentController.CreateAppointment(appointment);
+
+        // Assert
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.NotNull(badRequestResult);
+        Assert.AreEqual(400, badRequestResult.StatusCode);
+        Assert.IsTrue(badRequestResult.Value.ToString().Contains("Appointment date must be in the future."));
+    }
+
+    [Test]
+    public async Task CreateAppointment_ConflictDetected_Returns409Conflict()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "Haircut",
+            CustomerName = "John Doe",
+            CustomerEmail = "john@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(3),
+            Status = "Upcoming"
+        };
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.CreateAppointmentAsync(It.IsAny<Appointment>()))
+            .ReturnsAsync(new ConflictObjectResult("Appointment conflict detected"));
+
+        // Act
+        var result = await _proxyAppointmentController.CreateAppointment(appointment);
+
+        // Assert
+        var conflictResult = result as ConflictObjectResult;
+        Assert.NotNull(conflictResult);
+        Assert.AreEqual(409, conflictResult.StatusCode);
+        Assert.IsTrue(conflictResult.Value.ToString().Contains("Appointment conflict detected"));
+    }
+    
+    [Test]
+    public async Task CreateAppointment_InternalError_Returns500()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            AppointmentId = Guid.NewGuid(),
+            Title = "Medical Checkup",
+            CustomerName = "Dr. Emily",
+            CustomerEmail = "emily@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(5),
+            Status = "Upcoming"
+        };
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.CreateAppointmentAsync(It.IsAny<Appointment>()))
+            .ThrowsAsync(new Exception("Unexpected error"));
+
+        // Act
+        var result = await _proxyAppointmentController.CreateAppointment(appointment);
+
+        // Assert
+        var internalErrorResult = result as ObjectResult;
+        Assert.NotNull(internalErrorResult);
+        Assert.AreEqual(500, internalErrorResult.StatusCode);
+        Assert.IsTrue(internalErrorResult.Value.ToString().Contains("Internal server error"));
+    }
+
+    [Test]
+    public async Task UpdateAppointment_Success_ReturnsOk()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Dentist Visit",
+            CustomerName = "Alice Johnson",
+            CustomerEmail = "alice@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(3),
+            Status = "Upcoming"
+        };
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.UpdateAppointmentAsync(appointmentId, It.IsAny<Appointment>()))
+            .ReturnsAsync(new OkResult());
+
+        // Act
+        var result = await _proxyAppointmentController.UpdateAppointment(appointmentId, appointment);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.NotNull(okResult);
+        Assert.AreEqual(200, okResult.StatusCode);
+        Assert.IsTrue(okResult.Value.ToString().Contains("Appointment updated successfully"));
+    }
+    
+    [Test]
+    public async Task UpdateAppointment_NullAppointment_ReturnsBadRequest()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+
+        // Act
+        var result = await _proxyAppointmentController.UpdateAppointment(appointmentId, null);
+
+        // Assert
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.NotNull(badRequestResult);
+        Assert.AreEqual(400, badRequestResult.StatusCode);
+        Assert.IsTrue(badRequestResult.Value.ToString().Contains("Appointment data is required"));
+    }
+    
+    [Test]
+    public async Task UpdateAppointment_EmptyAppointmentId_ReturnsBadRequest()
+    {
+        // Arrange
+        var appointment = new Appointment
+        {
+            Title = "Meeting",
+            CustomerName = "Bob",
+            CustomerEmail = "bob@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(1),
+            Status = "Upcoming"
+        };
+
+        // Act
+        var result = await _proxyAppointmentController.UpdateAppointment(Guid.Empty, appointment);
+
+        // Assert
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.NotNull(badRequestResult);
+        Assert.AreEqual(400, badRequestResult.StatusCode);
+        Assert.IsTrue(badRequestResult.Value.ToString().Contains("Appointment ID is empty"));
+    }
+    
+    [Test]
+    public async Task UpdateAppointment_InvalidStatus_ReturnsBadRequest()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Consultation",
+            CustomerName = "Jane Doe",
+            CustomerEmail = "jane@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(2),
+            Status = "InvalidStatus"
+        };
+
+        // Act
+        var result = await _proxyAppointmentController.UpdateAppointment(appointmentId, appointment);
+
+        // Assert
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.NotNull(badRequestResult);
+        Assert.AreEqual(400, badRequestResult.StatusCode);
+        Assert.IsTrue(badRequestResult.Value.ToString().Contains("Status must be 'Cancelled', 'Upcoming', or 'Finished'"));
+    }
+
+    [Test]
+    public async Task UpdateAppointment_DateInPast_ReturnsBadRequest()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Past Meeting",
+            CustomerName = "John Smith",
+            CustomerEmail = "john@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(-1), // Past date
+            Status = "Upcoming"
+        };
+
+        // Act
+        var result = await _proxyAppointmentController.UpdateAppointment(appointmentId, appointment);
+
+        // Assert
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.NotNull(badRequestResult);
+        Assert.AreEqual(400, badRequestResult.StatusCode);
+        Assert.IsTrue(badRequestResult.Value.ToString().Contains("Appointment date must be in the future"));
+    }
+    
+    [Test]
+    public async Task UpdateAppointment_NotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Vision Check",
+            CustomerName = "Eve",
+            CustomerEmail = "eve@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(7),
+            Status = "Upcoming"
+        };
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.UpdateAppointmentAsync(appointmentId, It.IsAny<Appointment>()))
+            .ReturnsAsync(new NotFoundResult());
+
+        // Act
+        var result = await _proxyAppointmentController.UpdateAppointment(appointmentId, appointment);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.NotNull(notFoundResult);
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+        Assert.IsTrue(notFoundResult.Value.ToString().Contains("Appointment not found"));
+    }
+    
+    [Test]
+    public async Task UpdateAppointment_ServiceError_Returns500()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var appointment = new Appointment
+        {
+            AppointmentId = appointmentId,
+            Title = "Surgery Follow-up",
+            CustomerName = "Dr. Martin",
+            CustomerEmail = "martin@example.com",
+            AppointmentDate = DateTime.UtcNow.AddDays(10),
+            Status = "Upcoming"
+        };
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.UpdateAppointmentAsync(It.IsAny<Guid>(), It.IsAny<Appointment>()))
+            .ThrowsAsync(new Exception("Unexpected error"));
+
+        // Act
+        var result = await _proxyAppointmentController.UpdateAppointment(appointmentId, appointment);
+
+        // Assert
+        var internalErrorResult = result as ObjectResult;
+        Assert.NotNull(internalErrorResult);
+        Assert.AreEqual(500, internalErrorResult.StatusCode);
+        Assert.IsTrue(internalErrorResult.Value.ToString().Contains("Internal server error"));
+    }
+    
+    [Test]
+    public async Task DeleteAppointment_Success_ReturnsOk()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.DeleteAppointmentAsync(appointmentId))
+            .ReturnsAsync(new OkResult());
+
+        // Act
+        var result = await _proxyAppointmentController.DeleteAppointment(appointmentId);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.NotNull(okResult);
+        Assert.AreEqual(200, okResult.StatusCode);
+        Assert.IsTrue(okResult.Value.ToString().Contains("Appointment deleted successfully"));
+    }
+    
+    [Test]
+    public async Task DeleteAppointment_EmptyAppointmentId_ReturnsBadRequest()
+    {
+        // Arrange
+        var emptyAppointmentId = Guid.Empty;
+
+        // Act
+        var result = await _proxyAppointmentController.DeleteAppointment(emptyAppointmentId);
+
+        // Assert
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.NotNull(badRequestResult);
+        Assert.AreEqual(400, badRequestResult.StatusCode);
+        Assert.IsTrue(badRequestResult.Value.ToString().Contains("A valid appointment ID is required"));
+    }
+    
+    [Test]
+    public async Task DeleteAppointment_NotFound_ReturnsNotFound()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.DeleteAppointmentAsync(appointmentId))
+            .ReturnsAsync(new NotFoundResult());
+
+        // Act
+        var result = await _proxyAppointmentController.DeleteAppointment(appointmentId);
+
+        // Assert
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.NotNull(notFoundResult);
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+        Assert.IsTrue(notFoundResult.Value.ToString().Contains("Appointment not found"));
+    }
+    
+    [Test]
+    public async Task DeleteAppointment_NoContent_ReturnsNoContent()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.DeleteAppointmentAsync(appointmentId))
+            .ReturnsAsync(new NoContentResult());
+
+        // Act
+        var result = await _proxyAppointmentController.DeleteAppointment(appointmentId);
+
+        // Assert
+        var noContentResult = result as NoContentResult;
+        Assert.NotNull(noContentResult);
+        Assert.AreEqual(204, noContentResult.StatusCode);
+    }
+    
+    [Test]
+    public async Task DeleteAppointment_BadRequestFromService_ReturnsBadRequestWithDetails()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var badRequestResult = new BadRequestObjectResult(new { Error = "Invalid appointment ID" });
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.DeleteAppointmentAsync(appointmentId))
+            .ReturnsAsync(badRequestResult);
+
+        // Act
+        var result = await _proxyAppointmentController.DeleteAppointment(appointmentId);
+
+        // Assert
+        var badRequestObjectResult = result as BadRequestObjectResult;
+        Assert.NotNull(badRequestObjectResult);
+        Assert.AreEqual(400, badRequestObjectResult.StatusCode);
+        Assert.IsTrue(badRequestObjectResult.Value.ToString().Contains("Invalid request parameters"));
+        Assert.IsTrue(badRequestObjectResult.Value.ToString().Contains("Invalid appointment ID"));
+    }
+    
+    [Test]
+    public async Task DeleteAppointment_ServiceReturns500_ReturnsInternalServerErrorWithDetails()
+    {
+        // Arrange
+        var appointmentId = Guid.NewGuid();
+        var internalServerError = new ObjectResult(new { Error = "Database failure" }) { StatusCode = 500 };
+
+        _mockServiceAppointmentsController
+            .Setup(service => service.DeleteAppointmentAsync(appointmentId))
+            .ReturnsAsync(internalServerError);
+
+        // Act
+        var result = await _proxyAppointmentController.DeleteAppointment(appointmentId);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.NotNull(objectResult);
+        Assert.AreEqual(500, objectResult.StatusCode);
+        Assert.IsTrue(objectResult.Value.ToString().Contains("Request failed"));
+        Assert.IsTrue(objectResult.Value.ToString().Contains("Database failure"));
+    }
+    
+    [Test]
+    public async Task GetAppointmentById_ReturnsBadRequest_WhenAppointmentIdIsInvalid()
+    {
+        // Arrange: Prepare the invalid appointmentId
+        var appointmentId = Guid.Empty;
+        var errorMessage = "ProxyAppointmentController: Invalid appointment ID";
+
+        // Act: Call the GetAppointmentById method
+        var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
+
+        // Assert: Verify that the response is BadRequest with the expected error message
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.IsNotNull(badRequestResult);
+        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400));
+
+        // Extract the message from the response for comparison
+        var message = badRequestResult.Value.GetType().GetProperty("Message").GetValue(badRequestResult.Value, null);
+        Assert.That(message, Is.EqualTo(errorMessage));
+    }
+
+    [Test]
+    public async Task GetAppointmentById_ReturnsNotFound_WhenAppointmentDoesNotExist()
+    {
+        // Arrange: Prepare the appointmentId to fetch
+        var appointmentId = Guid.NewGuid();
+        var errorMessage = "ProxyAppointmentController: Appointment not found";
+        var errorDetails = $"No appointment found with ID: {appointmentId}";
+
+        // Mock the ServiceAppointmentsController to return NotFoundResult
+        _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(appointmentId))
+            .ReturnsAsync(new NotFoundResult());
+
+        // Act: Call the GetAppointmentById method
+        var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
+
+        // Assert: Verify that the response is NotFound with the expected error message
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult);
+        Assert.That(notFoundResult.StatusCode, Is.EqualTo(404));
+
+        // Extract the message and details from the response for comparison
+        var message = notFoundResult.Value.GetType().GetProperty("Message").GetValue(notFoundResult.Value, null);
+        var details = notFoundResult.Value.GetType().GetProperty("Details").GetValue(notFoundResult.Value, null);
+        Assert.That(message, Is.EqualTo(errorMessage));
+        Assert.That(details, Is.EqualTo(errorDetails));
+    }
+
+    [Test]
+    public async Task GetAppointmentById_ReturnsServiceUnavailable_WhenHttpRequestExceptionOccurs()
+    {
+        // Arrange: Prepare the appointmentId to fetch
+        var appointmentId = Guid.NewGuid();
+        var errorMessage = "ProxyAppointmentController: Service unavailable";
+        var errorDetails = "Service unavailable";
+
+        // Mock the ServiceAppointmentsController to throw an HttpRequestException
+        _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(appointmentId))
+            .ThrowsAsync(new HttpRequestException("Service unavailable"));
+
+        // Act: Call the GetAppointmentById method
+        var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
+
+        // Assert: Verify that the response is Service Unavailable with the expected error message
+        var statusCodeResult = result as ObjectResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.That(statusCodeResult.StatusCode, Is.EqualTo(503));
+
+        // Extract the message and details from the response for comparison
+        var message = statusCodeResult.Value.GetType().GetProperty("Message").GetValue(statusCodeResult.Value, null);
+        var details = statusCodeResult.Value.GetType().GetProperty("Details").GetValue(statusCodeResult.Value, null);
+        Assert.That(message, Is.EqualTo(errorMessage));
+        Assert.That(details, Is.EqualTo(errorDetails));
+    }
+
+    [Test]
+    public async Task GetAppointmentById_ReturnsInternalServerError_WhenUnexpectedErrorOccurs()
+    {
+        // Arrange: Prepare the appointmentId to fetch
+        var appointmentId = Guid.NewGuid();
+        var errorMessage = "ProxyAppointmentController: Internal server error";
+        var errorDetails = "Unknown error";
+
+        // Mock the ServiceAppointmentsController to throw an exception
+        _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(appointmentId))
+            .ThrowsAsync(new Exception("Unknown error"));
+
+        // Act: Call the GetAppointmentById method
+        var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
+
+        // Assert: Verify that the response is Internal Server Error with the expected error message
+        var statusCodeResult = result as ObjectResult;
+        Assert.IsNotNull(statusCodeResult);
+        Assert.That(statusCodeResult.StatusCode, Is.EqualTo(500));
+
+        // Extract the message and details from the response for comparison
+        var message = statusCodeResult.Value.GetType().GetProperty("Message").GetValue(statusCodeResult.Value, null);
+        var details = statusCodeResult.Value.GetType().GetProperty("Details").GetValue(statusCodeResult.Value, null);
+        Assert.That(message, Is.EqualTo(errorMessage));
+        Assert.That(details, Is.EqualTo(errorDetails));
+    }
+
+    [Test]
+    public async Task GetAppointmentById_ReturnsBadRequest_WhenServiceReturnsBadRequest()
+    {
+        // Arrange: Prepare the appointmentId to fetch
+        var appointmentId = Guid.NewGuid();
+        var errorMessage = "ProxyAppointmentController: Invalid request parameters";
+        var errorDetails = "Invalid data";
+
+        // Mock the ServiceAppointmentsController to return BadRequestObjectResult
+        _mockServiceAppointmentsController.Setup(service => service.GetAppointmentByIdAsync(appointmentId))
+            .ReturnsAsync(new BadRequestObjectResult("Invalid data"));
+
+        // Act: Call the GetAppointmentById method
+        var result = await _proxyAppointmentController.GetAppointmentById(appointmentId);
+
+        // Assert: Verify that the response is BadRequest with the expected error message
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.IsNotNull(badRequestResult);
+        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400));
+
+        // Extract the message and details from the response for comparison
+        var message = badRequestResult.Value.GetType().GetProperty("Message").GetValue(badRequestResult.Value, null);
+        var details = badRequestResult.Value.GetType().GetProperty("Details").GetValue(badRequestResult.Value, null);
+        Assert.That(message, Is.EqualTo(errorMessage));
+        Assert.That(details, Is.EqualTo(errorDetails));
+    }
+
+    [Test]
+    public async Task GetAllAppointments_ReturnsNotFound_WhenNoAppointmentsFound()
+    {
+        // Arrange: Prepare the search arguments
+        var searchArguments = new AppointmentSearchArguments { /* Add relevant properties */ };
+        var errorMessage = "No appointments found matching the criteria";
+
+        // Mock the ServiceAppointmentsController to return NotFoundResult
+        _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync(searchArguments))
+            .ReturnsAsync(new NotFoundResult());
+
+        // Act: Call the GetAllAppointments method
+        var result = await _proxyAppointmentController.GetAllAppointments(searchArguments);
+
+        // Assert: Verify that the response is NotFound with the expected error message
+        var notFoundResult = result as NotFoundObjectResult;
+        Assert.IsNotNull(notFoundResult);
+        Assert.That(notFoundResult.StatusCode, Is.EqualTo(404));
+
+        // Extract the message from the response
+        var message = notFoundResult.Value.GetType().GetProperty("Message").GetValue(notFoundResult.Value, null);
+        Assert.That(message, Is.EqualTo(errorMessage));
+    }
+
+    [Test]
+    public async Task GetAllAppointments_ReturnsCorrectError_WhenServiceReturnsErrorStatusCode()
+    {
+        // Arrange: Prepare the search arguments
+        var searchArguments = new AppointmentSearchArguments { /* Add relevant properties */ };
+        var errorMessage = "Request failed";
+        var errorDetails = "Some error details";
+        var statusCode = 500;
+
+        // Mock the ServiceAppointmentsController to return an error status code
+        _mockServiceAppointmentsController.Setup(service => service.GetAllAppointmentsAsync(searchArguments))
+            .ReturnsAsync(new ObjectResult(errorDetails) { StatusCode = statusCode });
+
+        // Act: Call the GetAllAppointments method
+        var result = await _proxyAppointmentController.GetAllAppointments(searchArguments);
+
+        // Assert: Verify that the response has the correct status code and error message
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(statusCode));
+
+        // Extract the message and details from the response
+        var message = objectResult.Value.GetType().GetProperty("Message").GetValue(objectResult.Value, null);
+        var details = objectResult.Value.GetType().GetProperty("Details").GetValue(objectResult.Value, null);
+        Assert.That(message, Is.EqualTo(errorMessage));
+        Assert.That(details, Is.EqualTo(errorDetails));
+    }
+
 }

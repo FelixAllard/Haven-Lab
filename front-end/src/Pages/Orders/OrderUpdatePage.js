@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
+
 const OrderUpdatePage = () => {
   const { orderId } = useParams(); // Retrieve orderId from URL
   const navigate = useNavigate();
@@ -37,8 +37,8 @@ const OrderUpdatePage = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const response = await axios.get(
-          `${environment}/gateway/api/ProxyOrder/${orderId}`,
+        const response = await httpClient.get(
+          `/gateway/api/ProxyOrder/${orderId}`,
         );
         setOrder(response.data);
       } catch (err) {
@@ -55,8 +55,8 @@ const OrderUpdatePage = () => {
     e.preventDefault();
     try {
       console.log(order);
-      const response = await axios.put(
-        `${environment}/gateway/api/ProxyOrder/${orderId}`,
+      const response = await httpClient.put(
+        `/gateway/api/ProxyOrder/${orderId}`,
         order,
       );
       if (response.status === 200) {

@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams, Link, useNavigate } from 'react-router-dom'; // Add useNavigate for navigation
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import bootstrap from 'bootstrap/dist/js/bootstrap.min.js';
 import { useAuth } from '../../AXIOS/AuthentificationContext';
 import './ProductDetailPage.css';
-
-// Bootstrap CSS for card styling
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FaArrowLeft } from 'react-icons/fa'; // FontAwesome icon for the back arrow
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import { FaArrowLeft } from 'react-icons/fa';
+import httpClient from '../../AXIOS/AXIOS';
+
 const ProductDetailsPage = () => {
   const { productId } = useParams(); // Get product ID from the URL
   const [product, setProduct] = useState(null);
@@ -35,8 +33,8 @@ const ProductDetailsPage = () => {
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const response = await axios.get(
-          `${environment}/gateway/api/ProxyProduct/${productId}`,
+        const response = await httpClient.get(
+          `/gateway/api/ProxyProduct/${productId}`,
         );
         setProduct(response.data);
       } catch (err) {
@@ -51,8 +49,8 @@ const ProductDetailsPage = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(
-        `${environment}/gateway/api/ProxyProduct/${productId}`,
+      const response = await httpClient.delete(
+        `/gateway/api/ProxyProduct/${productId}`,
       );
       if (response.status === 200) {
         setToastMessage('Product successfully deleted.');
@@ -70,14 +68,14 @@ const ProductDetailsPage = () => {
   const addToCart = async () => {
     try {
       console.log('Adding product to cart...');
-      const response = await axios.post(
-        `${environment}/gateway/api/ProxyCart/add/${productId}`,
+      const response = await httpClient.post(
+        `/gateway/api/ProxyCart/add/${productId}`,
         null,
         { withCredentials: true },
       );
       if (response.status === 200) {
-        const updatedCartResponse = await axios.get(
-          `${environment}/gateway/api/ProxyCart`,
+        const updatedCartResponse = await httpClient.get(
+          `/gateway/api/ProxyCart`,
           null,
           { withCredentials: true },
         );

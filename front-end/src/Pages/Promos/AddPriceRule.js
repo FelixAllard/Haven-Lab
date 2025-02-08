@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AddPriceRule.css';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 
 const AddPriceRule = () => {
   const [formData, setFormData] = useState({
@@ -53,8 +51,8 @@ const AddPriceRule = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${environment}/gateway/api/ProxyPromo/PriceRules`,
+      const response = await httpClient.post(
+        `/gateway/api/ProxyPromo/PriceRules`,
         formData,
       );
       if (response.status === 200) {

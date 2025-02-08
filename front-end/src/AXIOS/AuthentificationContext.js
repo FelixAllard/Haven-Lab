@@ -43,6 +43,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+
+
   const logout = async () => {
     try {
       setLoading(true);

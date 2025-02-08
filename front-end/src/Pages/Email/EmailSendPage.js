@@ -34,8 +34,8 @@ const EmailForm = () => {
 
     try {
       const response = await httpClient.post(
-        '/gateway/api/ProxyEmailApi/sendwithformat', 
-        directEmailModel
+        '/gateway/api/ProxyEmailApi/sendwithformat',
+        directEmailModel,
       );
 
       if (response.ok) {
@@ -54,7 +54,9 @@ const EmailForm = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await httpClient.get('/gateway/api/ProxyTemplate/names');
+        const response = await httpClient.get(
+          '/gateway/api/ProxyTemplate/names',
+        );
         setTemplates(response.data);
       } catch (err) {
         setError('Failed to load templates');
@@ -62,10 +64,9 @@ const EmailForm = () => {
         setLoading(false);
       }
     };
-  
+
     fetchTemplates();
   }, []);
-  
 
   return (
     <div className="container mt-7 mb-5">

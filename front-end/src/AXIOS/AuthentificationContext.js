@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-} from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import httpClient from './AXIOS';
 
 const AuthContext = createContext();
@@ -20,13 +15,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       setLoading(true);
-      const response = await httpClient.post(
-        `/gateway/api/ProxyAuth/login`,
-        {
-          username,
-          password,
-        },
-      );
+      const response = await httpClient.post(`/gateway/api/ProxyAuth/login`, {
+        username,
+        password,
+      });
 
       const token = response.data.token;
       setAuthTokenState(token);
@@ -43,22 +35,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
-
   const logout = async () => {
     try {
       setLoading(true);
       const storedUsername = username || localStorage.getItem('username');
-      await httpClient.post(
-        `/gateway/api/proxyAuth/logout`,
-        storedUsername,
-        {
-          headers: {
-            'Content-Type': 'application/json-patch+json',
-            accept: '*/*',
-          },
+      await httpClient.post(`/gateway/api/proxyAuth/logout`, storedUsername, {
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          accept: '*/*',
         },
-      );
+      });
 
       setAuthTokenState(null);
       localStorage.removeItem('authToken');

@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 import httpClient from '../../AXIOS/AXIOS';
 
-
 const OrderPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,9 +22,7 @@ const OrderPage = () => {
   const fetchOrders = async (params = '') => {
     try {
       setLoading(true);
-      const response = await httpClient.get(
-        `/gateway/api/ProxyOrder${params}`,
-      );
+      const response = await httpClient.get(`/gateway/api/ProxyOrder${params}`);
       setOrders(response.data.items || []);
     } catch (err) {
       setError(err.message);

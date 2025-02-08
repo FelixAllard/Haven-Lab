@@ -3,7 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Cart.css';
 import httpClient from '../../AXIOS/AXIOS';
 
-
 const CartPage = () => {
   const [cart, setCart] = useState([]);
 

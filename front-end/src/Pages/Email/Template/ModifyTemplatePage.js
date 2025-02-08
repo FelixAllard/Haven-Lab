@@ -5,7 +5,6 @@ import { Link, useParams } from 'react-router-dom';
 import httpClient from '../../../AXIOS/AXIOS';
 import { TbHttpPatch } from 'react-icons/tb';
 
-
 // EditTemplatePage Component
 const EditTemplatePage = () => {
   const { templatename } = useParams(); // Extract templatename from the URL

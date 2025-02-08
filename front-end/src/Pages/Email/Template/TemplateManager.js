@@ -19,13 +19,15 @@ const TemplateManager = () => {
         )
       ) {
         httpClient
-        .delete(`/gateway/api/ProxyTemplate/${selectedTemplate}`)
-        .then(() => {
-          alert(`Template ${selectedTemplate} deleted successfully.`);
-          setTemplates(templates.filter((template) => template !== selectedTemplate));
-          setSelectedTemplate(null);
-        })
-        .catch(() => alert('Failed to delete template'));
+          .delete(`/gateway/api/ProxyTemplate/${selectedTemplate}`)
+          .then(() => {
+            alert(`Template ${selectedTemplate} deleted successfully.`);
+            setTemplates(
+              templates.filter((template) => template !== selectedTemplate),
+            );
+            setSelectedTemplate(null);
+          })
+          .catch(() => alert('Failed to delete template'));
       }
     }
   };

@@ -27,6 +27,10 @@ export const AuthProvider = ({ children }) => {
       setUsername(username);
       setLoading(false);
 
+      if (token) {
+        httpClient.defaults.headers['Authorization'] = `Bearer ${token}`;
+      }
+
       return token;
     } catch (error) {
       setLoading(false);

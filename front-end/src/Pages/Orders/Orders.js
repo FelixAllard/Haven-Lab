@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 
 const OrderPage = () => {
   const [orders, setOrders] = useState([]);
@@ -24,9 +22,7 @@ const OrderPage = () => {
   const fetchOrders = async (params = '') => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${environment}/gateway/api/ProxyOrder${params}`,
-      );
+      const response = await httpClient.get(`/gateway/api/ProxyOrder${params}`);
       setOrders(response.data.items || []);
     } catch (err) {
       setError(err.message);

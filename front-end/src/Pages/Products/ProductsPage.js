@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css';
 import { FaSearch } from 'react-icons/fa';
 import { useAuth } from '../../AXIOS/AuthentificationContext';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -27,8 +25,8 @@ const ProductPage = () => {
   const fetchProducts = async (params = '') => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${environment}/gateway/api/ProxyProduct${params}`,
+      const response = await httpClient.get(
+        `/gateway/api/ProxyProduct${params}`,
       );
       setProducts(response.data.items);
     } catch (err) {

@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useParams } from 'react-router-dom'; // Import useParams for route params
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './UpdatePriceRule.css';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 
 const UpdatePriceRule = () => {
   const { priceruleId } = useParams(); // Retrieve id from URL params
@@ -40,8 +38,8 @@ const UpdatePriceRule = () => {
       const fetchPriceRule = async () => {
         try {
           console.log('FETCH');
-          const response = await axios.get(
-            `${environment}/gateway/api/ProxyPromo/PriceRules/${priceruleId}`,
+          const response = await httpClient.get(
+            `/gateway/api/ProxyPromo/PriceRules/${priceruleId}`,
           );
           console.log('Fetched Price Rule Data:', response.data);
           setFormData(response.data);
@@ -79,8 +77,8 @@ const UpdatePriceRule = () => {
         throw new Error('Price Rule ID is required for updating.');
       }
 
-      const response = await axios.put(
-        `${environment}/gateway/api/ProxyPromo/PriceRules/${formData.id}`,
+      const response = await httpClient.put(
+        `/gateway/api/ProxyPromo/PriceRules/${formData.id}`,
         formData,
       );
       if (response.status === 200) {

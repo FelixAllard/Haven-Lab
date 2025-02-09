@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../../AXIOS/AXIOS';
+
 const TemplateList = ({
   templates,
   setTemplates,
@@ -8,10 +9,10 @@ const TemplateList = ({
   setSelectedTemplate,
 }) => {
   useEffect(() => {
-    fetch(`${environment}/gateway/api/ProxyTemplate/names`)
-      .then((response) => response.json())
-      .then((data) => {
-        setTemplates(data);
+    httpClient
+      .get('/gateway/api/ProxyTemplate/names')
+      .then((response) => {
+        setTemplates(response.data);
         setLoading(false);
       })
       .catch(() => {

@@ -6,7 +6,7 @@ import Arrow from './Assets/arrow.png';
 import './Home.css';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 
 const Home = () => {
   const [bestsellers, setBestsellers] = useState([]);
@@ -16,26 +16,30 @@ const Home = () => {
 
   //Fetch products containing "bestseller" in its tags
   useEffect(() => {
-    fetch(`${environment}/gateway/api/ProxyProduct`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('API Response:', data);
+    const fetchProducts = async () => {
+      try {
+        const response = await httpClient.get('/gateway/api/ProxyProduct');
+
+        console.log('API Response:', response.data);
+
         // Ensure data.items is an array before filtering
-        if (Array.isArray(data.items)) {
-          const bestsellerProducts = data.items.filter(
+        if (Array.isArray(response.data.items)) {
+          const bestsellerProducts = response.data.items.filter(
             (product) => product.tags && product.tags.includes('bestseller'),
           );
           setBestsellers(bestsellerProducts);
         } else {
-          console.error('Unexpected API response format', data);
+          console.error('Unexpected API response format', response.data);
         }
-        setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching products:', error);
         setError(error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   const handleViewProduct = (id) => {
@@ -59,65 +63,79 @@ const Home = () => {
   };
 
   const handleEmailChange = (event) => {
-    setEmail(event.target.value); // Update email state with the input value
+    setEmail(event.target.value);
   };
 
-  // Function to handle subscription
   const handleSubscribe = async () => {
-    const isValidEmail = await validateEmail(email); // Check if email is valid
+    const isValidEmail = await validateEmail(email);
     if (!isValidEmail) {
-      setMessage('Please enter a valid email.');
+      setMessage('Invalid email, please enter a valid email.');
       return;
     }
+
     try {
-      const response = await fetch(
-        `${environment}/gateway/api/ProxyCustomer/subscribe`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(email),
-        },
+      const response = await httpClient.post(
+        `/gateway/api/ProxyCustomer/subscribe`,
+        email,
       );
 
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage('Successfully subscribed!');
-        setEmail(''); // Clear the input
+        setEmail('');
       } else {
-        const error = await response.json();
-        setMessage(error.message || 'Subscription failed.');
+        setMessage(response.data.message || 'Subscription failed.');
       }
     } catch (error) {
-      setMessage('Error: Unable to subscribe.');
+      if (error.response) {
+        setMessage(error.response.data.message || 'Subscription failed.');
+      } else if (error.request) {
+        setMessage('Error: No response from the server.');
+      } else {
+        setMessage('Error: Unable to subscribe.');
+      }
     }
   };
 
-  // Function to handle unsubscription
   const handleUnsubscribe = async () => {
-    const isValidEmail = await validateEmail(email); // Check if email is valid
+    const isValidEmail = await validateEmail(email);
     if (!isValidEmail) {
-      setMessage('Please enter a valid email.');
+      setMessage('Invalid email, please enter a valid email.');
       return;
     }
+
     try {
-      const response = await fetch(
-        `${environment}/gateway/api/ProxyCustomer/unsubscribe`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(email),
-        },
+      const response = await httpClient.post(
+        `/gateway/api/ProxyCustomer/unsubscribe`,
+        email,
       );
 
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage('Successfully unsubscribed!');
-        setEmail(''); // Clear the input
+        setEmail('');
       } else {
-        const error = await response.json();
-        setMessage(error.message || 'Unsubscription failed.');
+        setMessage(response.data.message || 'Unsubscription failed.');
       }
     } catch (error) {
-      setMessage('Error: Unable to unsubscribe.');
+      if (error.response) {
+        setMessage(error.response.data.message || 'Unsubscription failed.');
+      } else if (error.request) {
+        setMessage('Error: No response from the server.');
+      } else {
+        setMessage('Error: Unable to unsubscribe.');
+      }
     }
+  };
+
+  const isErrorMessage = (msg) => {
+    const errorKeywords = [
+      'failed',
+      'error',
+      'unable',
+      'unsuccessful',
+      'invalid',
+      'no response',
+    ];
+    return errorKeywords.some((keyword) => msg.toLowerCase().includes(keyword));
   };
 
   const responsive = {
@@ -224,11 +242,9 @@ const Home = () => {
         </div>
         {message && (
           <p
-            style={{
-              marginTop: '10px',
-              fontSize: '14px',
-              color: message.startsWith('Error') ? 'red' : 'green', // Red for errors, green for success
-            }}
+            className={
+              isErrorMessage(message) ? 'error-message' : 'success-message'
+            }
           >
             {message}
           </p>

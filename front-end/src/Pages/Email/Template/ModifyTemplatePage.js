@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useParams } from 'react-router-dom';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../../AXIOS/AXIOS';
+import { TbHttpPatch } from 'react-icons/tb';
 
 // EditTemplatePage Component
 const EditTemplatePage = () => {
@@ -21,8 +20,8 @@ const EditTemplatePage = () => {
     const fetchTemplate = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `${environment}/gateway/api/ProxyTemplate/${templatename}`,
+        const response = await httpClient.get(
+          `/gateway/api/ProxyTemplate/${templatename}`,
           {
             headers: {
               accept: '*/*',
@@ -74,8 +73,8 @@ const EditTemplatePage = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.put(
-        `${environment}/gateway/api/ProxyTemplate/${templatename}`,
+      const response = await TbHttpPatch.put(
+        `/gateway/api/ProxyTemplate/${templatename}`,
         payload,
         {
           headers: {

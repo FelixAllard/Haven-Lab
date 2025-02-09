@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import httpClient from '../../../AXIOS/AXIOS.js';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useParams } from 'react-router-dom'; // Import useParams for route params
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './UpdateProductPage.css';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
 
 const ProductForm = () => {
   const { productId } = useParams(); // Retrieve productId from URL params
@@ -74,8 +73,8 @@ const ProductForm = () => {
     if (productId) {
       const fetchProduct = async () => {
         try {
-          const response = await axios.get(
-            `${environment}/gateway/api/ProxyProduct/${productId}`,
+          const response = await httpClient.get(
+            `/gateway/api/ProxyProduct/${productId}`,
           );
           if (response.status === 200) {
             setFormData(response.data);
@@ -134,8 +133,8 @@ const ProductForm = () => {
         throw new Error('Product ID is required for updating.');
       }
 
-      const response = await axios.put(
-        `${environment}/gateway/api/ProxyProduct/${formData.id}`,
+      const response = await httpClient.put(
+        `/gateway/api/ProxyProduct/${formData.id}`,
         formData,
       );
       if (response.status === 200) {

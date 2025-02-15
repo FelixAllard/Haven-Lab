@@ -18,6 +18,8 @@ public class ProxyProductController : ControllerBase
     {
         _serviceProductController = shopifyApiService;
     }
+    
+    //================================ TRANSLATED PRODUCT ENDPOINTS ==================================
 
     [HttpGet("")]
     public async Task<IActionResult> GetAllProducts([FromQuery] SearchArguments searchArguments = null)
@@ -175,6 +177,52 @@ public class ProxyProductController : ControllerBase
         {
             Console.WriteLine(ex);
             return StatusCode(500, new { message = "Error fetching product variants", details = ex.Message });
+        }
+    }
+    
+    //================================ TRANSLATED METAFIELD ENDPOINTS ==================================
+    
+    [HttpGet("{id}/translation")]
+    public async Task<IActionResult> GetTranslatedProduct([FromRoute] long id, [FromQuery] string lang = "fr")
+    {
+        try
+        {
+            var response = await _serviceProductController.GetTranslatedProductAsync(id, lang);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return Ok(jsonResponse);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, new { Message = e.Message });
+        }
+    }
+    
+    [HttpPost("{id}/translation")]
+    public async Task<IActionResult> AddProductTranslation([FromRoute] long id, [FromBody] TranslationRequest request)
+    {
+        try
+        {
+            var response = await _serviceProductController.AddProductTranslationAsync(id, request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+            }
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            return Ok(jsonResponse);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return StatusCode(500, new { Message = e.Message });
         }
     }
 }

@@ -20,6 +20,8 @@ public class ProductControllerTest
 {
     private Mock<IProductServiceFactory> _mockProductServiceFactory;
     private Mock<IProductService> _mockProductService;
+    private Mock<IMetaFieldServiceFactory> _mockMetaFieldServiceFactory;
+    private Mock<IMetaFieldService> _mockMetaFieldService;
     private ShopifyRestApiCredentials _falseCredentials;
     private ProductsController _controller;
     private ProductValidator _productValidator;
@@ -29,7 +31,10 @@ public class ProductControllerTest
     {
         _mockProductServiceFactory = new Mock<IProductServiceFactory>();
         _mockProductService = new Mock<IProductService>();
-        _falseCredentials = new ShopifyRestApiCredentials("NotARealURL","NotARealToken");
+        _mockMetaFieldServiceFactory = new Mock<IMetaFieldServiceFactory>();
+        _mockMetaFieldService = new Mock<IMetaFieldService>();
+
+        _falseCredentials = new ShopifyRestApiCredentials("NotARealURL", "NotARealToken");
         _productValidator = new ProductValidator();
 
         // Set up the mock to return the mock IProductService when Create is called.
@@ -37,12 +42,20 @@ public class ProductControllerTest
             .Setup(x => x.Create(It.IsAny<ShopifyApiCredentials>()))
             .Returns(_mockProductService.Object);
 
+        // Set up the mock to return the mock IMetaFieldService when Create is called.
+        _mockMetaFieldServiceFactory
+            .Setup(x => x.Create(It.IsAny<ShopifyApiCredentials>()))
+            .Returns(_mockMetaFieldService.Object);
+
         _controller = new ProductsController(
-            _mockProductServiceFactory.Object, 
+            _mockProductServiceFactory.Object,
             _falseCredentials,
-            _productValidator
+            _productValidator,
+            _mockMetaFieldServiceFactory.Object
         );
     }
+
+    //================================  PRODUCT ENDPOINTS ==================================
 
     [Test]
     public async Task GetAllProducts_ReturnsOk_WhenProductsAreFetchedSuccessfully()
@@ -1198,5 +1211,167 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
         Assert.AreEqual("Product not found or no variants available.", (string)response["message"]);
     }
 
+    
+    //================================ TRANSLATED METAFIELD ENDPOINTS ==================================
+    
+    [Test]
+    public async Task GetTranslatedProduct_ReturnsOk_WhenTranslationExists()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+
+        var metafields = new ShopifySharp.Lists.ListResult<MetaField>(new List<MetaField>
+        {
+            new MetaField { Namespace = "translations", Key = "title_fr", Value = "Produit Exemple" },
+            new MetaField { Namespace = "translations", Key = "description_fr", Value = "Ceci est un produit d'exemple" }
+        }, default);
+
+        _mockMetaFieldService
+            .Setup(x => x.ListAsync(productId, "products", null, default))
+            .ReturnsAsync(metafields);
+
+        // Act
+        var result = await _controller.GetTranslatedProduct(productId, lang);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.That(okResult.StatusCode, Is.EqualTo(200));
+
+        var response = JObject.FromObject(okResult.Value);
+        Assert.That(response["ProductId"]?.ToString(), Is.EqualTo(productId.ToString()));
+        Assert.That(response["Title"]?.ToString(), Is.EqualTo("Produit Exemple"));
+        Assert.That(response["Description"]?.ToString(), Is.EqualTo("Ceci est un produit d'exemple"));
+    }
+
+    [Test]
+    public async Task GetTranslatedProduct_ReturnsOk_WithDefaultValues_WhenNoTranslationExists()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+
+        var metafields = new ShopifySharp.Lists.ListResult<MetaField>(new List<MetaField>(), default);
+        
+        _mockMetaFieldService
+            .Setup(x => x.ListAsync(productId, "products", null, default))
+            .ReturnsAsync(metafields);
+
+        // Act
+        var result = await _controller.GetTranslatedProduct(productId, lang);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.That(okResult.StatusCode, Is.EqualTo(200));
+
+        var response = JObject.FromObject(okResult.Value);
+        Assert.That(response["ProductId"]?.ToString(), Is.EqualTo(productId.ToString()));
+        Assert.That(response["Title"]?.ToString(), Is.EqualTo("N/A"));
+        Assert.That(response["Description"]?.ToString(), Is.EqualTo("N/A"));
+    }
+    
+    [TestCase("UnexpectedError1")]
+    [TestCase("UnexpectedError2")]
+    [TestCase("UnexpectedError3")]
+    [Test]
+    public async Task GetTranslatedProduct_ReturnsInternalServerError_WhenExceptionOccurs(string testCase)
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+        
+        _mockMetaFieldService
+            .Setup(x => x.ListAsync(productId, "products", null, default))
+            .ThrowsAsync(new System.Exception(testCase));
+
+        // Act
+        var result = await _controller.GetTranslatedProduct(productId, lang);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+
+        var response = JObject.FromObject(objectResult.Value);
+        Assert.That(response["message"]?.ToString(), Is.EqualTo("Error fetching translations"));
+        Assert.That(response["details"]?.ToString(), Is.EqualTo(testCase));
+    }
+    
+    //----------------------------------POST METHOD-------------------------------------------
+    
+     [Test]
+    public async Task AddProductTranslation_ReturnsOk_WhenTranslationIsCreatedSuccessfully()
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest
+        {
+            Locale = "fr",
+            Title = "Produit Exemple",
+            Description = "Ceci est un produit d'exemple"
+        };
+
+        _mockMetaFieldService
+            .Setup(x => x.CreateAsync(It.IsAny<MetaField>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MetaField { Id = 123456, Namespace = "translations", Key = "title_fr", Value = "Produit Exemple" });
+
+        // Act
+        var result = await _controller.AddProductTranslation(productId, translationRequest);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.That(okResult.StatusCode, Is.EqualTo(200));
+
+        var response = JObject.FromObject(okResult.Value);
+        Assert.That(response["message"]?.ToString(), Is.EqualTo("Translation added!"));
+        Assert.That(response["productId"]?.ToString(), Is.EqualTo(productId.ToString()));
+
+        // Verify that CreateAsync was called exactly twice (title & description)
+        _mockMetaFieldService.Verify(
+            x => x.CreateAsync(It.IsAny<MetaField>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    // 🔹 Test: Returns Internal Server Error When Exception Is Thrown
+    [TestCase("UnexpectedError1")]
+    [TestCase("UnexpectedError2")]
+    [TestCase("UnexpectedError3")]
+    [Test]
+    public async Task AddProductTranslation_ReturnsInternalServerError_WhenExceptionOccurs(string testCase)
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest
+        {
+            Locale = "fr",
+            Title = "Produit Exemple",
+            Description = "Ceci est un produit d'exemple"
+        };
+
+        _mockMetaFieldService
+            .Setup(x => x.CreateAsync(It.IsAny<MetaField>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new System.Exception(testCase));
+
+        // Act
+        var result = await _controller.AddProductTranslation(productId, translationRequest);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+
+        var response = JObject.FromObject(objectResult.Value);
+        Assert.That(response["message"]?.ToString(), Is.EqualTo("Error saving translation"));
+        Assert.That(response["details"]?.ToString(), Is.EqualTo(testCase));
+
+        // Verify that CreateAsync was attempted
+        _mockMetaFieldService.Verify(
+            x => x.CreateAsync(It.IsAny<MetaField>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(1));
+    }
+    
 }
     

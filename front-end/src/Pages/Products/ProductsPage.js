@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css';
 import { FaSearch } from 'react-icons/fa';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import { useAuth } from '../../AXIOS/AuthentificationContext';
+import httpClient from '../../AXIOS/AXIOS';
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -20,11 +19,14 @@ const ProductPage = () => {
 
   const itemsPerPage = 6;
 
+  const { authToken } = useAuth();
+  const isLoggedIn = !!authToken;
+
   const fetchProducts = async (params = '') => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${environment}/gateway/api/ProxyProduct${params}`,
+      const response = await httpClient.get(
+        `/gateway/api/ProxyProduct${params}`,
       );
       setProducts(response.data.items);
     } catch (err) {
@@ -106,6 +108,16 @@ const ProductPage = () => {
                 Apply Filter
               </button>
             </div>
+            {isLoggedIn && (
+              <button className="btn btn-success mb-3 mt-4">
+                <Link
+                  to={`/admin/product/create`}
+                  style={{ color: 'white', textDecoration: 'none' }}
+                >
+                  Add Product
+                </Link>
+              </button>
+            )}
           </div>
           <div className="col-md-9">
             <div className="search-bar-container">

@@ -1,6 +1,7 @@
 using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api_Gateway.Annotations;
 
 namespace Api_Gateway.Controller;
 
@@ -15,8 +16,9 @@ public class ProxyEmailApiController : ControllerBase
         this.serviceEmailApiController = serviceEmailApiController;
         
     }
+    
     [HttpPost("sendwithformat")]
-
+    [RequireAuth]
     public async Task<IActionResult> SendSingleEmailWithTemplate([FromBody]DirectEmailModel directEmailModel)
     {
         var response = serviceEmailApiController.PostEmail(directEmailModel);

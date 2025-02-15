@@ -2,6 +2,7 @@
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using ShopifySharp;
+using Api_Gateway.Annotations;
 
 namespace Api_Gateway.Controller;
 
@@ -18,6 +19,7 @@ public class ProxyPromoController : ControllerBase
     }
 
     [HttpGet("PriceRules")]
+    [RequireAuth]
     public async Task<IActionResult> GetAllPriceRules()
     {
         try
@@ -39,6 +41,7 @@ public class ProxyPromoController : ControllerBase
     }
 
     [HttpGet("PriceRules/{id}")]
+    [RequireAuth]
     public async Task<IActionResult> GetPriceRuleById([FromRoute] long id)
     {
         try
@@ -65,6 +68,7 @@ public class ProxyPromoController : ControllerBase
     }
     
     [HttpPost("PriceRules")]
+    [RequireAuth]
     public async Task<IActionResult> PostPriceRule([FromBody] PriceRule priceRule)
     {
         try
@@ -85,6 +89,7 @@ public class ProxyPromoController : ControllerBase
     }
     
     [HttpPut("PriceRules/{id}")]
+    [RequireAuth]
     public async Task<IActionResult> PutPriceRule([FromRoute]long id, [FromBody] PriceRule priceRule)
     {
         try
@@ -105,6 +110,7 @@ public class ProxyPromoController : ControllerBase
     }
 
     [HttpDelete("PriceRules/{id}")]
+    [RequireAuth]
     public async Task<IActionResult> DeletePriceRule([FromRoute] long id)
     {
         try
@@ -131,6 +137,7 @@ public class ProxyPromoController : ControllerBase
     }
 
     [HttpGet("Discounts/{priceRuleId}")]
+    [RequireAuth]
     public async Task<IActionResult> GetAllDiscountsByRule([FromRoute] long priceRuleId)
     {
         try
@@ -152,6 +159,7 @@ public class ProxyPromoController : ControllerBase
     }
 
     [HttpPost("Discounts/{priceRuleId}")]
+    [RequireAuth]
     public async Task<IActionResult> CreateDiscount([FromRoute] long priceRuleId, [FromBody] PriceRuleDiscountCode discountCode)
     {
         try
@@ -173,6 +181,7 @@ public class ProxyPromoController : ControllerBase
     }
 
     [HttpDelete("Discounts/{priceRuleId}/{discountId}")]
+    [RequireAuth]
     public async Task<IActionResult> DeleteDiscount([FromRoute] long priceRuleId, [FromRoute] long discountId)
     {
         try

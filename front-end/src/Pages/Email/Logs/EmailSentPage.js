@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Modal, Button, Table } from 'react-bootstrap';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
-
+import httpClient from '../../../AXIOS/AXIOS';
 const EmailLogs = () => {
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    axios
-      .get(`${environment}/gateway/api/ProxyEmailLog`)
+    httpClient
+      .get(`/gateway/api/ProxyEmailLog`)
       .then((response) => {
         const mappedEmails = response.data.map((email) => ({
           id: email.id,

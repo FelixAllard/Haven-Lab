@@ -1,10 +1,9 @@
-using System.Net.Sockets;
-using System.Text;
 using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ShopifySharp;
+using Api_Gateway.Annotations;
 
 namespace Api_Gateway.Controller;
 [Route("gateway/api/[controller]")]
@@ -75,6 +74,7 @@ public class ProxyProductController : ControllerBase
     }
 
     [HttpPost("")]
+    [RequireAuth]
     public async Task<IActionResult> PostProduct([FromBody] Product product)
     {
         try
@@ -95,6 +95,7 @@ public class ProxyProductController : ControllerBase
     }
     
     [HttpPut("{id}")]
+    [RequireAuth]
     public async Task<IActionResult> PutProduct([FromRoute]long id, [FromBody] Product product)
     {
         try
@@ -115,6 +116,7 @@ public class ProxyProductController : ControllerBase
     }
     
     [HttpDelete("{id}")]
+    [RequireAuth]
     public async Task<IActionResult> DeleteProduct([FromRoute]long id)
     {
         try

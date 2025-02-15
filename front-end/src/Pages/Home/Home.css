@@ -370,4 +370,20 @@
     width: 100%;
     border-radius: 5px;
   }
+  .unsubscribe-btn {
+    width: 100%;
+    border-radius: 5px; /*comment*/
+  }
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.success-message {
+  color: green;
+  font-size: 14px;
+  margin-top: 10px;
 }

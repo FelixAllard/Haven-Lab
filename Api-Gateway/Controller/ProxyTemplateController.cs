@@ -2,6 +2,7 @@ using System.Net;
 using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api_Gateway.Annotations;
 
 namespace Api_Gateway.Controller;
 
@@ -17,7 +18,9 @@ public class ProxyTemplateController : ControllerBase
     {
         _serviceTemplateController = serviceTemplateController;
     }
+    
     [HttpGet("names")]
+    [RequireAuth]
     public async Task<IActionResult> GetAllTemplatesNames()
     {
         try
@@ -46,7 +49,9 @@ public class ProxyTemplateController : ControllerBase
             return StatusCode(500, new { Message = e.Message });
         }
     }
+    
     [HttpGet]
+    [RequireAuth]
     public async Task<IActionResult> GetAllTemplates()
     {
         try
@@ -75,7 +80,9 @@ public class ProxyTemplateController : ControllerBase
             return StatusCode(500, new { Message = e.Message });
         }
     }
+    
     [HttpGet("{name}")]
+    [RequireAuth]
     public async Task<IActionResult> GetTemplateByName([FromRoute]string name)
     {
         try
@@ -104,7 +111,9 @@ public class ProxyTemplateController : ControllerBase
             return StatusCode(500, new { Message = e.Message });
         }
     }
+    
     [HttpPost]
+    [RequireAuth]
     public async Task<IActionResult> PostTemplate([FromBody]Template template)
     {
         try
@@ -125,7 +134,9 @@ public class ProxyTemplateController : ControllerBase
         }
         
     }
+    
     [HttpPut("{name}")]
+    [RequireAuth]
     public async Task<IActionResult> PutTemplate([FromRoute]string name, [FromBody]Template template)
     {
         try
@@ -145,8 +156,9 @@ public class ProxyTemplateController : ControllerBase
             return StatusCode(500, new { message = "An error occurred", details = ex.Message });
         }
     }
+    
     [HttpDelete("{name}")]
-
+    [RequireAuth]
     public async Task<IActionResult> DeleteTemplate(string name)
     {
         try

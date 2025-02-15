@@ -207,6 +207,7 @@ public class ProxyProductController : ControllerBase
     }
     
     [HttpPost("{id}/translation")]
+    [RequireAuth]
     public async Task<IActionResult> AddProductTranslation([FromRoute] long id, [FromBody] TranslationRequest request)
     {
         try

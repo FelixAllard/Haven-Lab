@@ -1,10 +1,12 @@
 using System.Text.Json;
 using Api_Gateway.Services;
+using DotNetEnv;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Env.Load("../.env");
 // Add services to the container.
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {

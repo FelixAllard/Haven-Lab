@@ -19,8 +19,8 @@ const OwnerLogin = () => {
       const token = await login(username, password);
 
       if (token) {
-        Cookies.set('language', "en", { expires: 365 });
-        i18n.changeLanguage("en");
+        Cookies.set('language', 'en', { expires: 365 });
+        i18n.changeLanguage('en');
         navigate('/');
       }
     } catch (error) {

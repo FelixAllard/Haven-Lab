@@ -14,7 +14,7 @@ public class ServiceAuthController
     public ServiceAuthController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_APIWEBAUTH_API") ?? "http://localhost:5113";
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_APIWEBAUTH_API") ?? Environment.GetEnvironmentVariable("ENV_BASE_URL_APIWEBAUTH_API") ??"http://localhost:5113";
     }
     
 public virtual async Task<IActionResult> LoginAsync(Login model)

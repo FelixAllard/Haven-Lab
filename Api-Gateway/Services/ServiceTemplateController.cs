@@ -12,14 +12,14 @@ public class ServiceTemplateController
 
     public ServiceTemplateController()
     {
-        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_EMAIL_API")??"http://localhost:5092";
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_EMAIL_API")??Environment.GetEnvironmentVariable("ENV_BASE_URL_EMAIL_API")??"http://localhost:5092";
     }
 
     // Constructor that takes in IHttpClientFactory via Dependency Injection
     public ServiceTemplateController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_EMAIL_API")??"http://localhost:5092";
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_EMAIL_API")??Environment.GetEnvironmentVariable("ENV_BASE_URL_EMAIL_API")??"http://localhost:5092";
     }
     
     public virtual async Task<string> GetAllTemplateNames()

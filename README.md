@@ -43,6 +43,9 @@ Here are a few examples to illustrate the format:
 ## Running Prettiest on the front end
 Execute the following command before each PR :
 ```npx prettier --write .```
+## Modifying Environment Variables
+In order to modify environment variables, simply copy the Deployment/.env in the root of the solution.
+Once this is done, you can simply modify the environment variables very easily.
 
 ## Conclusion
 

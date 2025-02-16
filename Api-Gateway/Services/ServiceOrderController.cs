@@ -15,7 +15,7 @@ public class ServiceOrderController
     public ServiceOrderController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_SHOPIFY_API")??"http://localhost:5106";
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_SHOPIFY_API")??Environment.GetEnvironmentVariable("ENV_BASE_URL_SHOPIFY_API")??"http://localhost:5106";
     }
 
     // Method to make the API call to Shopify and return the result

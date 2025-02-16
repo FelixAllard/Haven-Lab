@@ -1,3 +1,4 @@
+using DotNetEnv;
 using Newtonsoft.Json.Serialization;
 using Shopify_Api;
 using Shopify_Api.Controllers;
@@ -8,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-
+Env.Load("../.env");
 // Add services to the container.
 
 builder.Services.AddControllers()
@@ -25,8 +26,8 @@ builder.Services.AddSwaggerGen();
 var shopifyConfig = builder.Configuration.GetSection("ShopifyApiCredentials");
 builder.Services.AddSingleton(sp =>
     new Shopify_Api.ShopifyRestApiCredentials(
-        shopUrl: shopifyConfig["ShopUrl"],
-        accessToken: shopifyConfig["AccessToken"]
+        shopUrl: Environment.GetEnvironmentVariable("SHOPIFY_API_SHOP_URL")?? shopifyConfig["ShopUrl"],
+        accessToken: Environment.GetEnvironmentVariable("SHOPIFY_API_ACCESS_TOKEN")??shopifyConfig["AccessToken"]
     )
 );
 //--- Dependencies From us

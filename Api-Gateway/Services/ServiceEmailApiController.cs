@@ -13,7 +13,7 @@ public class ServiceEmailApiController
     public ServiceEmailApiController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_EMAIL_API")??"http://localhost:5092";
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_EMAIL_API")??Environment.GetEnvironmentVariable("ENV_BASE_URL_EMAIL_API")??"http://localhost:5092";
     }
 
     // Method to make the API call to Shopify and return the result

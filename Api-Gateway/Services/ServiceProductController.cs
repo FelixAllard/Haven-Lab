@@ -17,7 +17,7 @@ public class ServiceProductController
     public ServiceProductController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_SHOPIFY_API")??"http://localhost:5106";
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_SHOPIFY_API")??Environment.GetEnvironmentVariable("ENV_BASE_URL_SHOPIFY_API")??"http://localhost:5106";
     }
     
     //================================  PRODUCT ENDPOINTS ==================================

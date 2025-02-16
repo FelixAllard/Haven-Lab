@@ -45,7 +45,7 @@ const AppointmentDetail = () => {
         `/gateway/api/ProxyAppointment/${appointmentId}`,
       );
 
-      if (response.status === 200) {
+      if (response.status === 204) {
         // Redirect to appointments list after deleting
         navigate('/appointments');
       }

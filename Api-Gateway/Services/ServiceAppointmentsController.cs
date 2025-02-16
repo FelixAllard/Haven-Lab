@@ -302,13 +302,6 @@ public class ServiceAppointmentsController
             {
                 return new NoContentResult();
             }
-            else if (response.IsSuccessStatusCode) 
-            {
-                return new OkObjectResult(new 
-                { 
-                    Message = "Appointment deleted successfully" 
-                });
-            }
             else if ((int)response.StatusCode >= 400 && (int)response.StatusCode < 500)
             {
                 return new BadRequestObjectResult(new 

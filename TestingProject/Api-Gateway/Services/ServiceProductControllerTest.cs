@@ -1,7 +1,10 @@
 using System.Net;
+using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using ShopifySharp;
 
 namespace TestingProject.Api_Gateway.Services;
@@ -28,6 +31,8 @@ public class ServiceProductControllerTest
         // Instantiate ServiceProductController with the mocked IHttpClientFactory
         _serviceProductController = new ServiceProductController(_mockHttpClientFactory.Object);
     }
+    
+    //================================  PRODUCT ENDPOINTS ==================================
 
     [Test]
     public async Task GetAllProductsAsync_ReturnsProducts_WhenApiCallIsSuccessful()
@@ -567,7 +572,245 @@ public class ServiceProductControllerTest
         Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("Invalid product data"));
     }
 
-    // ------ GET VARIANT 
+    //================================ TRANSLATED METAFIELD ENDPOINTS ==================================
+    
+[Test]
+    public async Task GetTranslatedProductAsync_ReturnsSuccess_WhenApiCallIsSuccessful()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+        var expectedResponse = "{\"productId\":1,\"title\":\"Produit Exemple\",\"description\":\"Ceci est un produit d'exemple\"}";
 
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(expectedResponse)
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.Method == HttpMethod.Get &&
+                    req.RequestUri.ToString() == $"http://localhost:5106/api/Products/{productId}/translation?lang={lang}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.GetTranslatedProductAsync(productId, lang);
+
+        // Assert
+        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await result.Content.ReadAsStringAsync(), Is.EqualTo(expectedResponse));
+    }
+
+    // 🔹 Test: GetTranslatedProductAsync handles API failure
+    [Test]
+    public async Task GetTranslatedProductAsync_ReturnsError_WhenApiCallFails()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Error fetching translation")
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.GetTranslatedProductAsync(productId, lang);
+
+        // Assert
+        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(await result.Content.ReadAsStringAsync(), Is.EqualTo("Error fetching translation"));
+    }
+
+    // 🔹 Test: GetTranslatedProductAsync handles network errors
+    [Test]
+    public async Task GetTranslatedProductAsync_ReturnsServiceUnavailable_WhenHttpRequestExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new HttpRequestException("Network error"));
+
+        // Act
+        var result = await _serviceProductController.GetTranslatedProductAsync(productId, lang);
+
+        // Assert
+        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
+        Assert.That(await result.Content.ReadAsStringAsync(), Is.EqualTo("Error: Network error"));
+    }
+    
+    [Test]
+    public async Task GetTranslatedProductAsync_ReturnsInternalServerError_WhenUnexpectedExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new Exception("Unexpected error occurred"));
+
+        // Act
+        var result = await _serviceProductController.GetTranslatedProductAsync(productId, lang);
+
+        // Assert
+        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+        Assert.That(await result.Content.ReadAsStringAsync(), Is.EqualTo("Error: Unexpected error occurred"));
+    }
+
+    // 🔹 Test: AddProductTranslationAsync returns success response
+    [Test]
+    public async Task AddProductTranslationAsync_ReturnsSuccess_WhenApiCallIsSuccessful()
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest
+        {
+            Locale = "fr",
+            Title = "Produit Exemple",
+            Description = "Ceci est un produit d'exemple"
+        };
+
+        var jsonSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Formatting.None
+        };
+
+        var jsonContent = JsonConvert.SerializeObject(translationRequest, jsonSettings);
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("{\"message\": \"Translation added!\", \"productId\": 1}")
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req =>
+                    req.Method == HttpMethod.Post &&
+                    req.RequestUri.ToString() == $"http://localhost:5106/api/Products/{productId}/translation" &&
+                    req.Content.ReadAsStringAsync().Result == jsonContent),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.AddProductTranslationAsync(productId, translationRequest);
+
+        // Assert
+        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await result.Content.ReadAsStringAsync(), Is.EqualTo("{\"message\": \"Translation added!\", \"productId\": 1}"));
+    }
+
+    // 🔹 Test: AddProductTranslationAsync handles API failure
+    [Test]
+    public async Task AddProductTranslationAsync_ReturnsError_WhenApiCallFails()
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest { Locale = "fr", Title = "Produit Exemple", Description = "Ceci est un produit d'exemple" };
+        
+        var responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Error saving translation")
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(responseMessage);
+
+        // Act
+        var result = await _serviceProductController.AddProductTranslationAsync(productId, translationRequest);
+
+        // Assert
+        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        Assert.That(await result.Content.ReadAsStringAsync(), Is.EqualTo("Error saving translation"));
+    }
+
+    // 🔹 Test: AddProductTranslationAsync handles network errors
+    [Test]
+    public async Task AddProductTranslationAsync_ReturnsServiceUnavailable_WhenHttpRequestExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest { Locale = "fr", Title = "Produit Exemple", Description = "Ceci est un produit d'exemple" };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new HttpRequestException("Network error"));
+
+        // Act
+        var result = await _serviceProductController.AddProductTranslationAsync(productId, translationRequest);
+
+        // Assert
+        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
+        Assert.That(await result.Content.ReadAsStringAsync(), Is.EqualTo("Error: Network error"));
+    }
+    
+    [Test]
+    public async Task AddProductTranslationAsync_ReturnsInternalServerError_WhenUnexpectedExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest
+        {
+            Locale = "fr",
+            Title = "Produit Exemple",
+            Description = "Ceci est un produit d'exemple"
+        };
+
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new Exception("Unexpected error occurred"));
+
+        // Act
+        var result = await _serviceProductController.AddProductTranslationAsync(productId, translationRequest);
+
+        // Assert
+        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+        Assert.That(await result.Content.ReadAsStringAsync(), Is.EqualTo("Error: Unexpected error occurred"));
+    }
 
 }

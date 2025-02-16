@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using Api_Gateway.Controller;
+using Api_Gateway.Models;
 using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -604,5 +605,159 @@ public class ProxyProductControllerTest
         Assert.AreEqual(exceptionMessage, (string)deserializedResponse.details); // Compare details content
     }
 
+    //================================ TRANSLATED METAFIELD ENDPOINTS ==================================
+
+    [Test]
+    public async Task GetTranslatedProduct_ReturnsOk_WhenTranslationExists()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+        var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("{\"productId\":1,\"title\":\"Produit Exemple\",\"description\":\"Ceci est un produit d'exemple\"}", Encoding.UTF8, "application/json")
+        };
+
+        _mockServiceProductController
+            .Setup(x => x.GetTranslatedProductAsync(productId, lang))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _proxyProductController.GetTranslatedProduct(productId, lang);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.That(okResult.StatusCode, Is.EqualTo(200));
+        Assert.That(okResult.Value, Is.EqualTo(await expectedResponse.Content.ReadAsStringAsync()));
+    }
+    
+    [Test]
+    public async Task GetTranslatedProduct_ReturnsError_WhenApiCallFails()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+        var expectedResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Error fetching translation")
+        };
+
+        _mockServiceProductController
+            .Setup(x => x.GetTranslatedProductAsync(productId, lang))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _proxyProductController.GetTranslatedProduct(productId, lang);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(400));
+        Assert.That(objectResult.Value, Is.EqualTo("Error fetching translation"));
+    }
+    
+    [Test]
+    public async Task GetTranslatedProduct_ReturnsInternalServerError_WhenExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        string lang = "fr";
+
+        _mockServiceProductController
+            .Setup(x => x.GetTranslatedProductAsync(productId, lang))
+            .ThrowsAsync(new Exception("Unexpected error occurred"));
+
+        // Act
+        var result = await _proxyProductController.GetTranslatedProduct(productId, lang);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+
+        var responseContent = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(objectResult.Value));
+        Assert.AreEqual("Unexpected error occurred", (string)responseContent.Message);
+    }
+    
+    [Test]
+    public async Task AddProductTranslation_ReturnsOk_WhenTranslationIsAdded()
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest
+        {
+            Locale = "fr",
+            Title = "Produit Exemple",
+            Description = "Ceci est un produit d'exemple"
+        };
+
+        var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("{\"message\": \"Translation added!\", \"productId\": 1}", Encoding.UTF8, "application/json")
+        };
+
+        _mockServiceProductController
+            .Setup(x => x.AddProductTranslationAsync(productId, translationRequest))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _proxyProductController.AddProductTranslation(productId, translationRequest);
+
+        // Assert
+        var okResult = result as OkObjectResult;
+        Assert.IsNotNull(okResult);
+        Assert.That(okResult.StatusCode, Is.EqualTo(200));
+        Assert.That(okResult.Value, Is.EqualTo(await expectedResponse.Content.ReadAsStringAsync()));
+    }
+    
+    [Test]
+    public async Task AddProductTranslation_ReturnsError_WhenApiCallFails()
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest { Locale = "fr", Title = "Produit Exemple", Description = "Ceci est un produit d'exemple" };
+        
+        var expectedResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Error saving translation")
+        };
+
+        _mockServiceProductController
+            .Setup(x => x.AddProductTranslationAsync(productId, translationRequest))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _proxyProductController.AddProductTranslation(productId, translationRequest);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(400));
+        Assert.That(objectResult.Value, Is.EqualTo("Error saving translation"));
+    }
+    
+    [Test]
+    public async Task AddProductTranslation_ReturnsInternalServerError_WhenExceptionOccurs()
+    {
+        // Arrange
+        long productId = 1;
+        var translationRequest = new TranslationRequest { Locale = "fr", Title = "Produit Exemple", Description = "Ceci est un produit d'exemple" };
+
+        _mockServiceProductController
+            .Setup(x => x.AddProductTranslationAsync(productId, translationRequest))
+            .ThrowsAsync(new Exception("Unexpected error occurred"));
+
+        // Act
+        var result = await _proxyProductController.AddProductTranslation(productId, translationRequest);
+
+        // Assert
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult);
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+
+        var responseContent = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(objectResult.Value));
+        Assert.AreEqual("Unexpected error occurred", (string)responseContent.Message);
+    }
 
 }

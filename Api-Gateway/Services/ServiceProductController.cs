@@ -19,6 +19,8 @@ public class ServiceProductController
         _httpClientFactory = httpClientFactory;
         BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_SHOPIFY_API")??Environment.GetEnvironmentVariable("ENV_BASE_URL_SHOPIFY_API")??"http://localhost:5106";
     }
+    
+    //================================  PRODUCT ENDPOINTS ==================================
 
     // Method to make the API call to Shopify and return the result
     public virtual async Task<string> GetAllProductsAsync(SearchArguments searchArguments = null)
@@ -211,6 +213,69 @@ public class ServiceProductController
         {
             // Return error details in case of an exception
             return $"Error: {ex.Message}";
+        }
+    }
+    
+    //================================ TRANSLATED METAFIELD ENDPOINTS ==================================
+
+    public virtual async Task<HttpResponseMessage> GetTranslatedProductAsync(long productId, string lang)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Products/{productId}/translation?lang={lang}";
+
+            var response = await client.GetAsync(requestUrl);
+            return response;
+        }
+        catch (HttpRequestException ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Error: {ex.Message}")
+            };
+        }
+        catch (Exception ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent($"Error: {ex.Message}")
+            };
+        }
+    }
+     
+    public virtual async Task<HttpResponseMessage> AddProductTranslationAsync(long productId, TranslationRequest request)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            var requestUrl = $"{BASE_URL}/api/Products/{productId}/translation";
+
+            var jsonSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Formatting = Formatting.None
+            };
+
+            var jsonContent = JsonConvert.SerializeObject(request, jsonSettings);
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(requestUrl, content);
+            return response;
+        }
+        catch (HttpRequestException ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                Content = new StringContent($"Error: {ex.Message}")
+            };
+        }
+        catch (Exception ex)
+        {
+            return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent($"Error: {ex.Message}")
+            };
         }
     }
     

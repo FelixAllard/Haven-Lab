@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Cart.css';
 import httpClient from '../../AXIOS/AXIOS';
+import '../../Languages/i18n.js';
+import { useTranslation } from 'react-i18next';
 
 const CartPage = () => {
   const [cart, setCart] = useState([]);
+  const { t } = useTranslation('cart');
 
   useEffect(() => {
     fetchCart();
@@ -137,11 +140,9 @@ const CartPage = () => {
 
   return (
     <div className="container mt-7 position-relative">
-      <h1 className="text-center">Your Cart</h1>
+      <h1 className="text-center">{t('Your Cart')}</h1>
       {cart.length === 0 ? (
-        <h2 className="empty-cart-message text-center">
-          Your cart is currently empty.
-        </h2>
+        <h2 className="empty-cart-message text-center">{t('Empty Cart')}</h2>
       ) : (
         <div className="cart-container">
           <hr className="cart-divider" />
@@ -164,7 +165,7 @@ const CartPage = () => {
                     className="remove-btn"
                     onClick={() => removeFromCart(item.variantId)}
                   >
-                    Remove
+                    {t('Remove')}
                   </button>
                 </div>
 
@@ -202,7 +203,8 @@ const CartPage = () => {
 
           {/* Subtotal Calculation */}
           <h3 className="subtotal">
-            Subtotal<br></br> $
+            {t('Subtotal')}
+            <br></br> $
             {cart
               .reduce((total, item) => total + item.price * item.quantity, 0)
               .toFixed(2)}
@@ -212,7 +214,7 @@ const CartPage = () => {
             onClick={handleCreateDraftOrder}
             className="checkout-btn justify-content-end"
           >
-            Checkout
+            {t('Checkout')}
           </button>
         </div>
       )}

@@ -14,32 +14,41 @@ namespace TestingProject.Shopify_Api.SRC
     [TestFixture]
     public class ProductsControllerTests
     {
-        private Mock<IProductService> _mockProductService;
-        private Mock<IProductServiceFactory> _mockProductServiceFactory;
-        private ShopifyRestApiCredentials _mockCredentials;
         private ProductsController _controller;
+        private Mock<IProductServiceFactory> _mockProductServiceFactory;
+        private Mock<IProductService> _mockProductService;
+        private Mock<IMetaFieldServiceFactory> _mockMetaFieldServiceFactory;
+        private Mock<IMetaFieldService> _mockMetaFieldService;
+        private ShopifyRestApiCredentials _falseCredentials;
         private ProductValidator _productValidator;
 
-        
         [SetUp]
         public void Setup()
         {
-            // Initialize mocks
-            _mockProductService = new Mock<IProductService>();
             _mockProductServiceFactory = new Mock<IProductServiceFactory>();
-            _mockCredentials = new ShopifyRestApiCredentials("https://my-shop.myshopify.com", "valid-access-token");
+            _mockProductService = new Mock<IProductService>();
+            _mockMetaFieldServiceFactory = new Mock<IMetaFieldServiceFactory>();
+            _mockMetaFieldService = new Mock<IMetaFieldService>();
+
+            _falseCredentials = new ShopifyRestApiCredentials("NotARealURL", "NotARealToken");
             _productValidator = new ProductValidator();
-            // Set up the factory to return the mocked service
+
             _mockProductServiceFactory
-                .Setup(factory => factory.Create(It.IsAny<ShopifyApiCredentials>()))
+                .Setup(x => x.Create(It.IsAny<ShopifyApiCredentials>()))
                 .Returns(_mockProductService.Object);
 
-            // Set up the credentials mock
+            _mockMetaFieldServiceFactory
+                .Setup(x => x.Create(It.IsAny<ShopifyApiCredentials>()))
+                .Returns(_mockMetaFieldService.Object);
 
-            // Create the controller with the mocks
-            _controller = new ProductsController(_mockProductServiceFactory.Object, _mockCredentials, _productValidator);
+            _controller = new ProductsController(
+                _mockProductServiceFactory.Object,
+                _falseCredentials,
+                _productValidator,
+                _mockMetaFieldServiceFactory.Object
+            );
         }
-
+        
         [Test]
         public async Task GetAllProducts_ReturnsOkResult_WhenServiceSucceeds()
         {

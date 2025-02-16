@@ -1,11 +1,9 @@
-using System.Diagnostics;
-using Newtonsoft.Json;
 using Shopify_Api.Exceptions;
 using Shopify_Api.Model;
 using ShopifySharp;
 using ShopifySharp.Factories;
-using ShopifySharp.Filters;
 using ShopifySharp.Lists;
+using Product = ShopifySharp.Product;
 
 namespace Shopify_Api.Controllers;
 
@@ -18,24 +16,32 @@ public class ProductsController : ControllerBase
 {
     private readonly IProductService _shopifyService;
     private readonly ProductValidator _productValidator;
+    private readonly IMetaFieldService _metaFieldService;
 
     public ProductsController(
         IProductServiceFactory productServiceFactory,
-        Shopify_Api.ShopifyRestApiCredentials credentials,
-        ProductValidator productValidator
-        )
+        ShopifyRestApiCredentials credentials,
+        ProductValidator productValidator,
+        IMetaFieldServiceFactory metaFieldServiceFactory
+    )
     {
         _shopifyService = productServiceFactory.Create(new ShopifySharp.Credentials.ShopifyApiCredentials(
                 credentials.ShopUrl,
                 credentials.AccessToken
             )
         );
+        
+        _metaFieldService = metaFieldServiceFactory.Create(new ShopifySharp.Credentials.ShopifyApiCredentials(
+                credentials.ShopUrl,
+                credentials.AccessToken
+            )
+        );
+        
         _productValidator = productValidator;
-        
-        
-        //_shopifyService = new ShopifyService(shopUrl, accessToken);
     }
-
+    
+    //================================ PRODUCT ENDPOINTS ==================================
+    
     [HttpGet("")]
     public async Task<IActionResult> GetAllProducts([FromQuery] SearchArguments searchArguments = null)
     {
@@ -201,4 +207,67 @@ public class ProductsController : ControllerBase
         }
     }
 
+    //================================ TRANSLATED METAFIELD ENDPOINTS ==================================
+    
+    [HttpGet("{id}/translation")]
+    public async Task<IActionResult> GetTranslatedProduct([FromRoute] long id, [FromQuery] string lang = "fr")
+    {
+        try
+        {
+            var metafields = await _metaFieldService.ListAsync(id, "products");
+
+            var titleMetafield = metafields?.Items?.FirstOrDefault(m => m.Key == $"title_{lang}" && m.Namespace == "translations");
+            var descriptionMetafield = metafields?.Items?.FirstOrDefault(m => m.Key == $"description_{lang}" && m.Namespace == "translations");
+
+            string translatedTitle = titleMetafield?.Value?.ToString() ?? "N/A";
+            string translatedDescription = descriptionMetafield?.Value?.ToString() ?? "N/A";
+
+            return Ok(new
+            {
+                ProductId = id,
+                Title = translatedTitle,
+                Description = translatedDescription
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error fetching translations", details = ex.Message });
+        }
+    }
+
+    [HttpPost("{id}/translation")]
+    public async Task<IActionResult> AddProductTranslation([FromRoute] long id, [FromBody] TranslationRequest request)
+    {
+        try
+        {
+            var metafieldTitle = new MetaField()
+            {
+                Namespace = "translations",
+                Key = $"title_{request.Locale}",
+                Value = request.Title,
+                Type = "string",
+                OwnerId = id,
+                OwnerResource = "product"
+            };
+
+            var metafieldDescription = new MetaField()
+            {
+                Namespace = "translations",
+                Key = $"description_{request.Locale}",
+                Value = request.Description,
+                Type = "string",
+                OwnerId = id,
+                OwnerResource = "product"
+            };
+
+            await _metaFieldService.CreateAsync(metafieldTitle, id, "products");
+            await _metaFieldService.CreateAsync(metafieldDescription, id, "products");
+
+            return Ok(new { message = "Translation added!", productId = id });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error saving translation", details = ex.Message });
+        }
+    }
 }

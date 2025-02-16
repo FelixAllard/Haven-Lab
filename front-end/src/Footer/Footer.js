@@ -3,12 +3,15 @@ import { motion } from 'framer-motion';
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './Footer.css'; // For custom styles
+import '../Languages/i18n.js';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
   // const [showFooter, setShowFooter] = useState(false);
   // const { scrollYProgress } = useScroll(); // Track the vertical scroll progress
   // const [isBottom, setIsBottom] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation('footer');
 
   // // Motion value for scaling the footer's panel
   // const footerScale = useTransform(scrollYProgress, [0, 0.8], [0, 1]);
@@ -68,8 +71,8 @@ const Footer = () => {
               ease: 'easeInOut',
             }}
           >
-            <h5>About Us</h5>
-            <p>Some information about Haven Lab</p>
+            <h5>{t('About Us')}</h5>
+            <p>{t('Information')}</p>
           </motion.div>
           <motion.div
             className="col-md-4"
@@ -82,8 +85,8 @@ const Footer = () => {
               ease: 'easeInOut',
             }}
           >
-            <h5>Contact</h5>
-            <p>Phone: (123) 456-7890</p>
+            <h5>{t('Contact')}</h5>
+            <p>{t('Phone')}</p>
             <p>Email: info@example.com</p>
           </motion.div>
           <motion.div
@@ -97,7 +100,7 @@ const Footer = () => {
               ease: 'easeInOut',
             }}
           >
-            <h5>Follow Us</h5>
+            <h5>{t('Follow Us')}</h5>
             <div className="social-media-icons">
               <a
                 href="https://facebook.com"

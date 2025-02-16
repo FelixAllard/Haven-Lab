@@ -64,6 +64,10 @@ const ProductForm = () => {
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [errors, setErrors] = useState({});
+  const [frTranslation, setFrTranslation] = useState({
+    fr_title: '',
+    fr_description: '',
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -104,14 +108,36 @@ const ProductForm = () => {
     setFormData(updatedData);
   };
 
+  const handleFrChange = (e) => {
+    const { name, value } = e.target;
+    setFrTranslation({ ...frTranslation, [name]: value });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
+      //create product
       const response = await httpClient.post(
         `/gateway/api/ProxyProduct`,
         formData,
       );
+
       if (response.status === 200) {
+        const productId = response.data.id;
+
+        //save french translations in metafields
+        const translationData = {
+          locale: 'fr',
+          title: frTranslation.fr_title,
+          description: frTranslation.fr_description,
+        };
+
+        await httpClient.post(
+          `/gateway/api/ProxyProduct/${productId}/translation`,
+          translationData,
+        );
+
         setShowSuccess(true);
         setTimeout(() => {
           window.location.href = '/products';
@@ -188,6 +214,29 @@ const ProductForm = () => {
             name="body_html"
             value={formData.body_html}
             onChange={handleChange}
+            rows={4}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Title (French)</Form.Label>
+          <Form.Control
+            type="text"
+            name="fr_title"
+            value={frTranslation.fr_title}
+            onChange={handleFrChange}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Description (French)</Form.Label>
+          <Form.Control
+            as="textarea"
+            name="fr_description"
+            value={frTranslation.fr_description}
+            onChange={handleFrChange}
             rows={4}
             required
           />

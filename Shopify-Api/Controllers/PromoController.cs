@@ -4,9 +4,6 @@ using Shopify_Api.Model;
 using ShopifySharp;
 using ShopifySharp.Factories;
 
-using ShopifySharp.Lists;
-using Discount = ShopifySharp.DiscountCode;
-
 namespace Shopify_Api.Controllers;
 
 [ApiController]

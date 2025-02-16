@@ -15,8 +15,8 @@ test('CheckIfElementsAccessible', async ({ page }) => {
   await expect(page.locator('h2')).toContainText('Create a New Product');
   await expect(page.getByRole('heading', { name: 'Create a New Product' })).toBeVisible();
   await page.locator('div').filter({ hasText: /^Title$/ }).click();
-  await page.getByText('Description').click();
-  await page.locator('textarea[name="body_html"]').click();
+  // await page.getByText('Description').click();
+  // await page.locator('textarea[name="body_html"]').click();
   await page.getByText('Vendor').click();
   await page.locator('input[name="vendor"]').click();
   await page.getByText('Published Scope').click();

@@ -45,12 +45,16 @@ const AppointmentDetail = () => {
       const response = await axios.delete(
         `${environment}/gateway/api/ProxyAppointment/${appointmentId}`,
       );
+
       if (response.status === 200) {
         // Redirect to appointments list after deleting
         navigate('/appointments');
       }
     } catch (err) {
-      setError(`Error deleting appointment: ${err.message}`);
+      const errorMessage =
+        err.response?.data?.Message ||
+        `Error deleting appointment: ${err.message}`;
+      setError(errorMessage);
     }
   };
 

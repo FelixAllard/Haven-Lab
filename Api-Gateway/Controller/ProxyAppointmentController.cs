@@ -193,12 +193,20 @@ namespace Api_Gateway.Controller
             {
                 var result = await _serviceAppointmentController.CreateAppointmentAsync(appointment);
 
+                if (result == null)
+                {
+                    return StatusCode(500, new { Message = "Unexpected null response from service" });
+                }
+                
                 switch (result)
                 {
                     case CreatedAtActionResult createdResult:
                         return CreatedAtAction(nameof(GetAppointmentById),
                             new { appointmentId = appointment.AppointmentId }, createdResult.Value);
 
+                    case CreatedResult createdResult:
+                        return Created(createdResult.Location, createdResult.Value);
+                    
                     case BadRequestObjectResult badRequest:
                         return BadRequest(new
                         {

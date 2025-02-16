@@ -34,7 +34,12 @@ const AppointmentCreate = () => {
         navigate('/appointments'); // Redirect to appointments list after successful creation
       }
     } catch (err) {
-      setError('Failed to create appointment');
+      // Check if the error is from a response with a message (i.e., backend validation error)
+      if (err.response && err.response.data && err.response.data.Message) {
+        setError(err.response.data.Message); // Show the specific error message from the backend
+      } else {
+        setError('Failed to create appointment'); // Fallback generic error message
+      }
     } finally {
       setLoading(false);
     }

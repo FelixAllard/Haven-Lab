@@ -94,60 +94,6 @@ namespace TestingProject.AppointmentsService.Controllers
             Assert.AreEqual(2, returnedAppointments.Count(), "The number of appointments returned should be 2");
         }
 
-
-        [Test]
-        public async Task GetAll_ReturnsNotFoundResult_WhenNoAppointmentsExist()
-        {
-            // Arrange: Ensure database is empty
-            _context.Appointments.RemoveRange(_context.Appointments);
-            await _context.SaveChangesAsync();
-
-            var searchArguments = new AppointmentSearchArguments();
-
-            // Act: Call the method under test
-            var result = await _controller.GetAll(searchArguments);
-
-            // Assert: Ensure result is NotFoundObjectResult
-            var notFoundResult = result as NotFoundObjectResult;
-            Assert.IsNotNull(notFoundResult, "Expected a NotFoundObjectResult when no appointments exist.");
-            Assert.AreEqual(404, notFoundResult.StatusCode);
-
-            // Extract the message from the response
-            var response = notFoundResult.Value;
-            Assert.IsNotNull(response, "Expected a response object in NotFound result.");
-
-            // Use reflection to get the "Message" property value
-            var messageProperty = response.GetType().GetProperty("Message")?.GetValue(response, null);
-            Assert.AreEqual("No appointments found matching the criteria.", messageProperty);
-        }
-        
-        [Test]
-        public async Task GetAll_ReturnsOkResultWithEmptyList_WhenNoAppointmentsMatchCriteria()
-        {
-            // Arrange: Ensure the database is empty
-            _context.Appointments.RemoveRange(_context.Appointments);
-            await _context.SaveChangesAsync();
-
-            var searchArguments = new AppointmentSearchArguments
-            {
-                Title = "NonExistingTitle"
-            };
-
-            // Act: Call the method under test
-            var result = await _controller.GetAll(searchArguments);
-
-            // Assert: Ensure result is NotFoundObjectResult
-            var notFoundResult = result as NotFoundObjectResult;
-            Assert.IsNotNull(notFoundResult, "Expected a NotFoundObjectResult when no appointments match criteria.");
-            Assert.AreEqual(404, notFoundResult.StatusCode);
-
-            var response = notFoundResult.Value;
-            Assert.IsNotNull(response, "Expected a response object in NotFound result.");
-
-            var messageProperty = response.GetType().GetProperty("Message")?.GetValue(response, null);
-            Assert.AreEqual("No appointments found matching the criteria.", messageProperty);
-        }
-
         [Test]
         public async Task GetAll_ReturnsOkResult_WithMatchingTitle()
         {

@@ -298,7 +298,11 @@ public class ServiceAppointmentsController
             var response = await client.DeleteAsync(requestUrl);
 
             // Handle the response
-            if (response.IsSuccessStatusCode)
+            if (response.StatusCode == HttpStatusCode.NoContent) 
+            {
+                return new NoContentResult();
+            }
+            else if (response.IsSuccessStatusCode) 
             {
                 return new OkObjectResult(new 
                 { 

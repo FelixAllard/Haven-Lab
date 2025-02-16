@@ -24,7 +24,7 @@ namespace AppointmentsService.Controllers
         {
             try
             {
-                IQueryable<Appointment> query = _context.Appointments.AsQueryable();
+                var query = _context.Appointments.AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(searchArguments.Title))
                 {
@@ -63,12 +63,15 @@ namespace AppointmentsService.Controllers
 
                 var appointments = await query.ToListAsync();
 
-                if (appointments == null || !appointments.Any())
-                {
-                    return NotFound(new { Message = "No appointments found matching the criteria." });
-                }
-
                 return Ok(appointments);
+            }
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
             }
             catch (Exception ex)
             {
@@ -95,6 +98,14 @@ namespace AppointmentsService.Controllers
                 }
 
                 return Ok(appointment);
+            }
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
             }
             catch (Exception ex)
             {
@@ -134,6 +145,14 @@ namespace AppointmentsService.Controllers
                 await _context.SaveChangesAsync();
 
                 return CreatedAtAction(nameof(GetByAppointmentId), new { appointmentId = appointment.AppointmentId }, appointment);
+            }
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
             }
             catch (Exception ex)
             {
@@ -187,6 +206,14 @@ namespace AppointmentsService.Controllers
 
                 return NoContent();
             }
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new
@@ -221,6 +248,14 @@ namespace AppointmentsService.Controllers
                 await _context.SaveChangesAsync();
 
                 return NoContent();
+            }
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
             }
             catch (Exception ex)
             {

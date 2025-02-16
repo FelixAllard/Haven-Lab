@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { motion } from 'motion/react';
-import "../../Languages/i18n.js";
+import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
 
 // Temporary stock image URL (You can replace this with real image URLs later)
@@ -39,7 +39,7 @@ const teamMembers = [
 const AboutUs = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const {t} = useTranslation('aboutus');
+  const { t } = useTranslation('aboutus');
 
   const handleLearnMoreClick = (member) => {
     setSelectedMember(member);
@@ -62,7 +62,7 @@ const AboutUs = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1 }}
             >
-              {t("About Us")}
+              {t('About Us')}
             </motion.h1>
             <motion.p
               className="text-center"
@@ -70,7 +70,7 @@ const AboutUs = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1.5 }}
             >
-              {t("Description")}
+              {t('Description')}
             </motion.p>
           </Col>
         </Row>
@@ -90,7 +90,7 @@ const AboutUs = () => {
                     <Card.Subtitle className="mb-2 text-muted">
                       {member.role}
                     </Card.Subtitle>
-                    <Card.Text>{t("Description1")}</Card.Text>
+                    <Card.Text>{t('Description1')}</Card.Text>
                     <motion.div
                       initial={{ scale: 1 }}
                       animate={{ scale: isExpanded ? 0 : 1 }}
@@ -100,7 +100,7 @@ const AboutUs = () => {
                         variant="light"
                         onClick={() => handleLearnMoreClick(member)}
                       >
-                        {t("Learn More")}
+                        {t('Learn More')}
                       </Button>
                     </motion.div>
                   </Card.Body>

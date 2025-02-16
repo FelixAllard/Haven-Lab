@@ -7,7 +7,7 @@ import './Home.css';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import httpClient from '../../AXIOS/AXIOS';
-import "../../Languages/i18n.js";
+import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
 
 const Home = () => {
@@ -15,7 +15,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const {t} = useTranslation('home');
+  const { t } = useTranslation('home');
 
   //Fetch products containing "bestseller" in its tags
   useEffect(() => {
@@ -157,7 +157,7 @@ const Home = () => {
         </video>
         <div className="logo-container">
           <img src={Logo} alt="Logo" />
-          <h1 className="headline">{t("Tagline")}</h1>
+          <h1 className="headline">{t('Tagline')}</h1>
         </div>
         <div
           className="arrow-container"
@@ -174,7 +174,7 @@ const Home = () => {
 
       {/* Bestsellers Section */}
       <div className="bestsellers-container">
-        <h1 className="title-container">{t("Bestsellers")}</h1>
+        <h1 className="title-container">{t('Bestsellers')}</h1>
         {loading && <p>Loading...</p>}
         {error && <p className="text-danger">{error}</p>}
         {!loading && !error && bestsellers.length > 0 && (
@@ -207,7 +207,7 @@ const Home = () => {
                       className="view-product-btn"
                       onClick={() => handleViewProduct(product.id)}
                     >
-                      {t("View Product")}
+                      {t('View Product')}
                     </button>
                   </div>
                 </div>
@@ -216,30 +216,30 @@ const Home = () => {
           </Carousel>
         )}
         <button className="view-all-btn" onClick={handleMoreProducts}>
-          {t("View All")}
+          {t('View All')}
         </button>
       </div>
 
       {/* Newsletter Section */}
       <div className="newsletter-container">
-        <h1 className="newsletter-title">{t("Subscribe")}</h1>
+        <h1 className="newsletter-title">{t('Subscribe')}</h1>
         <p className="newsletter-description">
-          {t("Subscribe P1")} <br />
+          {t('Subscribe P1')} <br />
           Sign up for our newsletter!
         </p>
         <div className="newsletter-form">
           <input
             type="email"
-            placeholder={t("EmailPlaceholder")}
+            placeholder={t('EmailPlaceholder')}
             className="newsletter-input"
             value={email} // Set the input value to the `email` state
             onChange={handleEmailChange}
           />
           <button className="subscribe-btn" onClick={handleSubscribe}>
-            {t("Subscribe")}
+            {t('Subscribe')}
           </button>
           <button className="unsubscribe-btn" onClick={handleUnsubscribe}>
-            {t("Unsubscribe")}
+            {t('Unsubscribe')}
           </button>
         </div>
         {message && (

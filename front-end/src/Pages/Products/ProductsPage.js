@@ -6,7 +6,7 @@ import './ProductsPage.css';
 import { FaSearch } from 'react-icons/fa';
 import { useAuth } from '../../AXIOS/AuthentificationContext';
 import httpClient from '../../AXIOS/AXIOS';
-import "../../Languages/i18n.js";
+import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
 
 const ProductPage = () => {
@@ -18,7 +18,7 @@ const ProductPage = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [available, setAvailable] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const {t} = useTranslation('products');
+  const { t } = useTranslation('products');
 
   const itemsPerPage = 6;
 
@@ -76,12 +76,12 @@ const ProductPage = () => {
         <div className="row mt-3">
           <div className="col-md-3">
             <div className="filter-section p-4">
-              <h5>{t("Filter Products")}</h5>
+              <h5>{t('Filter Products')}</h5>
               <div className="form-group mb-3">
                 <input
                   type="number"
                   className="form-control"
-                  placeholder={t("Minimum Price")}
+                  placeholder={t('Minimum Price')}
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                 />
@@ -90,7 +90,7 @@ const ProductPage = () => {
                 <input
                   type="number"
                   className="form-control"
-                  placeholder={t("Maximum Price")}
+                  placeholder={t('Maximum Price')}
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                 />
@@ -102,13 +102,13 @@ const ProductPage = () => {
                   checked={available}
                   onChange={(e) => setAvailable(e.target.checked)}
                 />
-                <label className="form-check-label">{t("Available")}</label>
+                <label className="form-check-label">{t('Available')}</label>
               </div>
               <button
                 className="btn btn-secondary btn-block"
                 onClick={handleSearch}
               >
-                {t("Apply Filter")}
+                {t('Apply Filter')}
               </button>
             </div>
             {isLoggedIn && (
@@ -127,7 +127,7 @@ const ProductPage = () => {
               <input
                 type="text"
                 className="form-control search-bar"
-                placeholder={t("Search")}
+                placeholder={t('Search')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={handleKeyPress}
@@ -170,7 +170,7 @@ const ProductPage = () => {
                             to={`/product/${product.id}`}
                             className="btn btn-secondary btn-block"
                           >
-                            {t("View Product")}
+                            {t('View Product')}
                           </Link>
                         </div>
                       </div>
@@ -186,7 +186,7 @@ const ProductPage = () => {
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(currentPage - 1)}
                     >
-                      {t("Previous")}
+                      {t('Previous')}
                     </button>
                     {[...Array(totalPages)].map((_, i) => (
                       <button
@@ -202,7 +202,7 @@ const ProductPage = () => {
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage(currentPage + 1)}
                     >
-                      {t("Next")}
+                      {t('Next')}
                     </button>
                   </div>
                 )}

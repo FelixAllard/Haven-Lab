@@ -4,9 +4,9 @@ import './NavBar.css';
 import { motion } from 'motion/react';
 import { Modal, Button } from 'react-bootstrap';
 import { useAuth } from '../AXIOS/AuthentificationContext'; // Import useAuth hook
-import LanguageToggle from '../Languages/LanguageToggle'
+import LanguageToggle from '../Languages/LanguageToggle';
 import Logo from '../Shared/Logo.svg';
-import "../Languages/i18n.js";
+import '../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
@@ -16,7 +16,7 @@ const Navbar = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [modalClosed, setModalClosed] = useState(false);
   const [logoutTimer, setLogoutTimer] = useState(null);
-  const {t} = useTranslation('navbar');
+  const { t } = useTranslation('navbar');
 
   const { authToken, logout } = useAuth(); // Use useAuth hook to get authToken and logout
   const navigate = useNavigate();
@@ -68,22 +68,21 @@ const Navbar = () => {
 
           {/* Left Section */}
 
-            <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center gap-3">
+            {!isLoggedIn && <LanguageToggle />}
 
-              {!isLoggedIn && (
-                <LanguageToggle />
-              )}
-
-              {isLoggedIn && (
-                <div>
-                  <span className="navbar-brand">Owner</span>
-                  <button className="btn btn-outline-light" onClick={handleLogout}>
-                    Logout
-                  </button>
-                </div>
-              )}
-
-            </div>
+            {isLoggedIn && (
+              <div>
+                <span className="navbar-brand">Owner</span>
+                <button
+                  className="btn btn-outline-light"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             className="navbar-toggler"
@@ -123,7 +122,7 @@ const Navbar = () => {
                 transition={{ delay: 0.5, duration: 0.7 }}
               >
                 <Link className="nav-link" aria-current="page" to="/">
-                  {t("Home")}
+                  {t('Home')}
                 </Link>
               </motion.li>
 
@@ -136,7 +135,7 @@ const Navbar = () => {
                 transition={{ delay: 0.5, duration: 0.7 }}
               >
                 <Link className="nav-link" aria-current="page" to="/products">
-                  {t("Products")}
+                  {t('Products')}
                 </Link>
               </motion.li>
 
@@ -149,7 +148,7 @@ const Navbar = () => {
                 transition={{ delay: 0.5, duration: 0.7 }}
               >
                 <Link className="nav-link" aria-current="page" to="/cart">
-                  {t("Cart")}
+                  {t('Cart')}
                 </Link>
               </motion.li>
 
@@ -234,7 +233,7 @@ const Navbar = () => {
                 transition={{ delay: 0.5, duration: 0.7 }}
               >
                 <Link className="nav-link" to="/aboutus">
-                  {t("About Us")}
+                  {t('About Us')}
                 </Link>
               </motion.li>
             </ul>

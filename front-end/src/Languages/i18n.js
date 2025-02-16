@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next} from 'react-i18next';
+import { initReactI18next } from 'react-i18next';
 
 import home_en from './en/home.json';
 import home_fr from './fr/home.json';
@@ -17,7 +17,6 @@ import aboutus_en from './en/aboutus.json';
 import aboutus_fr from './fr/aboutus.json';
 
 i18n.use(initReactI18next).init({
-
   debug: true,
   fallbackLng: 'en',
 
@@ -29,7 +28,7 @@ i18n.use(initReactI18next).init({
       cart: cart_en,
       aboutus: aboutus_en,
       products: products_en,
-      productpage: productpage_en
+      productpage: productpage_en,
     },
 
     fr: {
@@ -39,9 +38,9 @@ i18n.use(initReactI18next).init({
       cart: cart_fr,
       aboutus: aboutus_fr,
       products: products_fr,
-      productpage: productpage_fr
-    }
-  }
+      productpage: productpage_fr,
+    },
+  },
 });
 
 export default i18n;

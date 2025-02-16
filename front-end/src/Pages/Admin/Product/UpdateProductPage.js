@@ -68,8 +68,8 @@ const ProductForm = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errors, setErrors] = useState({});
   const [frTranslation, setFrTranslation] = useState({
-    fr_title: "",
-    fr_description: "",
+    fr_title: '',
+    fr_description: '',
   });
 
   // Fetch product data if productId exists
@@ -92,20 +92,22 @@ const ProductForm = () => {
       const fetchTranslation = async () => {
         try {
           console.log(`Fetching translation for Product ID: ${productId}`);
-          const response = await httpClient.get(`/gateway/api/ProxyProduct/${productId}/translation?lang=fr`);
+          const response = await httpClient.get(
+            `/gateway/api/ProxyProduct/${productId}/translation?lang=fr`,
+          );
 
-          console.log("Translation Response:", response.data);
+          console.log('Translation Response:', response.data);
 
           if (response.status === 200 && response.data) {
             setFrTranslation({
-              fr_title: response.data.Title || "",
-              fr_description: response.data.Description || "",
+              fr_title: response.data.Title || '',
+              fr_description: response.data.Description || '',
             });
           } else {
-            console.warn("Translation not found. Keeping default state.");
+            console.warn('Translation not found. Keeping default state.');
           }
         } catch (error) {
-          console.warn("Error fetching translation:", error);
+          console.warn('Error fetching translation:', error);
         }
       };
 
@@ -169,14 +171,16 @@ const ProductForm = () => {
       );
 
       if (response.status === 200) {
-
         const translationData = {
-          locale: "fr",
+          locale: 'fr',
           title: frTranslation.fr_title,
           description: frTranslation.fr_description,
         };
 
-        await httpClient.post(`/gateway/api/ProxyProduct/${productId}/translation`, translationData);
+        await httpClient.post(
+          `/gateway/api/ProxyProduct/${productId}/translation`,
+          translationData,
+        );
 
         setShowSuccess(true);
         setTimeout(() => {
@@ -264,7 +268,7 @@ const ProductForm = () => {
           <Form.Control
             type="text"
             name="fr_title"
-            value={frTranslation.fr_title || ""}
+            value={frTranslation.fr_title || ''}
             onChange={handleFrChange}
             required
           />
@@ -275,7 +279,7 @@ const ProductForm = () => {
           <Form.Control
             as="textarea"
             name="fr_description"
-            value={frTranslation.fr_description || ""}
+            value={frTranslation.fr_description || ''}
             onChange={handleFrChange}
             rows={4}
             required

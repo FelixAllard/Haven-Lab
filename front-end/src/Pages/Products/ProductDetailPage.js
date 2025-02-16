@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaArrowLeft } from 'react-icons/fa';
 import httpClient from '../../AXIOS/AXIOS';
 import Cookies from 'js-cookie';
-import "../../Languages/i18n.js";
+import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
 
 const ProductDetailsPage = () => {
@@ -22,8 +22,7 @@ const ProductDetailsPage = () => {
   const navigate = useNavigate(); // Hook to programmatically navigate
   const toastTrigger = document.getElementById('liveToastBtn');
   const toastLiveExample = document.getElementById('liveToast');
-  const {t} = useTranslation('productpage');
-
+  const { t } = useTranslation('productpage');
 
   const { authToken } = useAuth();
   const isLoggedIn = !!authToken;
@@ -53,25 +52,29 @@ const ProductDetailsPage = () => {
     const fetchTranslatedProduct = async () => {
       if (language === 'fr') {
         try {
-          console.log(`Fetching translation for Product ID: ${productId} in French`);
-          const response = await httpClient.get(
-            `/gateway/api/ProxyProduct/${productId}/translation?lang=fr`
+          console.log(
+            `Fetching translation for Product ID: ${productId} in French`,
           );
-          console.log("Translation Response:", response.data);
+          const response = await httpClient.get(
+            `/gateway/api/ProxyProduct/${productId}/translation?lang=fr`,
+          );
+          console.log('Translation Response:', response.data);
           setTranslatedProduct(response.data);
         } catch (err) {
-          console.warn("Translation not found. Using default English.");
+          console.warn('Translation not found. Using default English.');
         }
       }
     };
 
-    fetchProductDetails().then(() => fetchTranslatedProduct()).finally(() => setLoading(false));
+    fetchProductDetails()
+      .then(() => fetchTranslatedProduct())
+      .finally(() => setLoading(false));
   }, [productId, language]);
 
   useEffect(() => {
     if (product) {
       if (language === 'fr' && translatedProduct) {
-        console.log("Applying French translation:", translatedProduct);
+        console.log('Applying French translation:', translatedProduct);
         setDisplayProduct({
           ...product,
           title: translatedProduct.title || product.title,
@@ -136,8 +139,10 @@ const ProductDetailsPage = () => {
     return <div className="text-center text-danger">Error: {error}</div>;
   }
 
-  if (!product) return <div className="text-center text-danger">Product not found.</div>;
-  if (!displayProduct) return <div className="text-center">Loading product...</div>;
+  if (!product)
+    return <div className="text-center text-danger">Product not found.</div>;
+  if (!displayProduct)
+    return <div className="text-center">Loading product...</div>;
 
   return (
     <div className="container mt-6 position-relative">
@@ -216,7 +221,7 @@ const ProductDetailsPage = () => {
             </motion.p>
             <div
               className="card-text mt-2"
-              dangerouslySetInnerHTML={{ __html: displayProduct.body_html  }}
+              dangerouslySetInnerHTML={{ __html: displayProduct.body_html }}
             />
 
             {/* Vendor */}
@@ -226,7 +231,7 @@ const ProductDetailsPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
             >
-              <strong>{t("Vendor")}</strong> {product.vendor}
+              <strong>{t('Vendor')}</strong> {product.vendor}
             </motion.p>
 
             {/* Product Weight */}
@@ -236,7 +241,7 @@ const ProductDetailsPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.6 }}
             >
-              <strong>{t("Weight")}</strong> {product.variants[0]?.weight}{' '}
+              <strong>{t('Weight')}</strong> {product.variants[0]?.weight}{' '}
               {product.variants[0]?.weight_unit}
             </motion.p>
 
@@ -247,7 +252,8 @@ const ProductDetailsPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.9 }}
             >
-              <strong>{t("Price")}</strong> ${product.variants[0]?.price.toFixed(2)}
+              <strong>{t('Price')}</strong> $
+              {product.variants[0]?.price.toFixed(2)}
             </motion.p>
 
             {/* Quantity Available */}
@@ -257,7 +263,7 @@ const ProductDetailsPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1.2 }}
             >
-              <strong>{t("Quantity Available")}</strong>{' '}
+              <strong>{t('Quantity Available')}</strong>{' '}
               {product.variants[0]?.inventory_quantity}
             </motion.p>
 
@@ -268,7 +274,7 @@ const ProductDetailsPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1.5 }}
             >
-              <strong>{t("Requires Shipping")}</strong>{' '}
+              <strong>{t('Requires Shipping')}</strong>{' '}
               {product.variants[0]?.requires_shipping ? 'Yes' : 'No'}
             </motion.p>
 
@@ -279,7 +285,7 @@ const ProductDetailsPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1.8 }}
             >
-              <strong>{t("Created Ats")}</strong>{' '}
+              <strong>{t('Created Ats')}</strong>{' '}
               {new Date(product.created_at).toLocaleDateString()}
             </motion.p>
 

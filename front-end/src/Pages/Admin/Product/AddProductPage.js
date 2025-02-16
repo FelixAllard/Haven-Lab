@@ -65,8 +65,8 @@ const ProductForm = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errors, setErrors] = useState({});
   const [frTranslation, setFrTranslation] = useState({
-    fr_title: "",
-    fr_description: "",
+    fr_title: '',
+    fr_description: '',
   });
 
   const handleChange = (e) => {
@@ -118,33 +118,38 @@ const ProductForm = () => {
 
     try {
       //create product
-      const response = await httpClient.post(`/gateway/api/ProxyProduct`, formData);
+      const response = await httpClient.post(
+        `/gateway/api/ProxyProduct`,
+        formData,
+      );
 
       if (response.status === 200) {
         const productId = response.data.id;
 
         //save french translations in metafields
         const translationData = {
-          locale: "fr",
+          locale: 'fr',
           title: frTranslation.fr_title,
           description: frTranslation.fr_description,
         };
 
-        await httpClient.post(`/gateway/api/ProxyProduct/${productId}/translation`, translationData);
+        await httpClient.post(
+          `/gateway/api/ProxyProduct/${productId}/translation`,
+          translationData,
+        );
 
         setShowSuccess(true);
         setTimeout(() => {
-          window.location.href = "/products";
+          window.location.href = '/products';
         }, 2000);
       }
     } catch (error) {
       setShowError(true);
       setErrorMessage(
-        error.response?.data?.message || "An error occurred. Please try again."
+        error.response?.data?.message || 'An error occurred. Please try again.',
       );
     }
   };
-
 
   // Add a new variant
   const addVariant = () => {

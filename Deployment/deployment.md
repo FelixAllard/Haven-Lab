@@ -158,5 +158,31 @@ To learn how to create a SHOPIFY ACCESS TOKEN, go to [Create Access Token](./Sho
 ---
 
 Now that our ENV is Setup, we are ready to start launching our application.
-Make sure you have ASP.NET 8.0
+
+# Step 3
+Applying migrations.
+Make sure the connection credentials you provided actually are for an existing database.
+If you are not sure you have the migration application tool, run the following to install it.
+
+[▶ install_ef_migration.bat](./Windows/install_ef_migration.bat)
+
+
+Now that you have the tool installed, build your project
+
+To build your project, you can run the [▶ build_solution.bat](./Windows/build_solution.bat) or do it manually.
+
+Now that the project is built, you can run the migrations with the script :  [▶ apply_migrations.bat](./Windows/apply_migrations.bat).
+
+Once again this process can be done manually. If the migrations are successful. You can proceed to the last step of deployment.
+
+# Step 4
+
+You can now launch the launch.bat that is the [▶ launch.bat](../launch.bat)
+
+This will take care of launching the solution, it will also rebuild. The backend takes 8 seconds to go up if already built if you have 8 threads and 30 seconds if not built yet.
+
+
+---
+
+
 

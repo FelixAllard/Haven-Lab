@@ -3,7 +3,7 @@ import { Spinner, Alert, Container } from 'react-bootstrap';
 import TemplateList from './TemplateList'; // Import TemplateList
 import TemplateActions from './TemplateActions';
 import { Link } from 'react-router-dom'; // Import TemplateActions
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../../AXIOS/AXIOS';
 
 const TemplateManager = () => {
   const [templates, setTemplates] = useState([]);
@@ -18,9 +18,8 @@ const TemplateManager = () => {
           `Are you sure you want to delete template: ${selectedTemplate}?`,
         )
       ) {
-        fetch(`${environment}/gateway/api/ProxyTemplate/${selectedTemplate}`, {
-          method: 'DELETE',
-        })
+        httpClient
+          .delete(`/gateway/api/ProxyTemplate/${selectedTemplate}`)
           .then(() => {
             alert(`Template ${selectedTemplate} deleted successfully.`);
             setTemplates(
@@ -35,10 +34,10 @@ const TemplateManager = () => {
 
   const handleViewTemplate = () => {
     if (selectedTemplate) {
-      fetch(`${environment}/gateway/api/ProxyTemplate/${selectedTemplate}`)
-        .then((response) => response.json())
-        .then((data) => {
-          alert(`Template details: ${JSON.stringify(data)}`);
+      httpClient
+        .get(`/gateway/api/ProxyTemplate/${selectedTemplate}`)
+        .then((response) => {
+          alert(`Template details: ${JSON.stringify(response.data)}`);
         })
         .catch(() => alert('Failed to fetch template details'));
     }

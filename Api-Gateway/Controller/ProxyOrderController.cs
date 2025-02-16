@@ -3,6 +3,7 @@ using Api_Gateway.Services;
 using Microsoft.AspNetCore.Mvc;
 using Api_Gateway.Models;
 using ShopifySharp;
+using Api_Gateway.Annotations;
 
 namespace Api_Gateway.Controller;
 [Route("gateway/api/[controller]")]
@@ -18,6 +19,7 @@ public class ProxyOrderController : ControllerBase
     }
 
     [HttpGet("")]
+    [RequireAuth]
     public async Task<IActionResult> GetAllOrders([FromQuery] OrderSearchArgument searchArguments = null)
     {
         try 
@@ -40,6 +42,7 @@ public class ProxyOrderController : ControllerBase
     }
     
     [HttpGet("{orderId}")]
+    [RequireAuth]
     public async Task<IActionResult> GetOrderById(long orderId)
     {
         try
@@ -70,6 +73,7 @@ public class ProxyOrderController : ControllerBase
     }
     
     [HttpPut("{id}")]
+    [RequireAuth]
     public async Task<IActionResult> PutOrder([FromRoute]long id, [FromBody] Order order)
     {
         try

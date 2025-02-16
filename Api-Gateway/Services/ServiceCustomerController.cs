@@ -16,7 +16,7 @@ public class ServiceCustomerController
     public ServiceCustomerController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_SHOPIFY_API")??"http://localhost:5106";
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_SHOPIFY_API")?? Environment.GetEnvironmentVariable("ENV_BASE_URL_SHOPIFY_API")??"http://localhost:5106";
     }
 
     public virtual async Task<string> Subscribe([FromBody] String email)

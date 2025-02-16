@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../AXIOS/AXIOS';
 
 const AppointmentCreate = () => {
   const [appointment, setAppointment] = useState({
@@ -26,8 +25,8 @@ const AppointmentCreate = () => {
     const appointmentToCreate = { ...appointment, createdAt: currentDate };
 
     try {
-      const response = await axios.post(
-        `${environment}/gateway/api/ProxyAppointment`,
+      const response = await httpClient.post(
+        `/gateway/api/ProxyAppointment`,
         appointmentToCreate,
       );
       if (response.status === 201) {

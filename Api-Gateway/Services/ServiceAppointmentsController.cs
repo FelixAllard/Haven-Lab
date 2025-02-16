@@ -17,7 +17,7 @@ public class ServiceAppointmentsController
     public ServiceAppointmentsController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_APPOINTMENT_API") ?? "http://localhost:5114";
+        BASE_URL = Environment.GetEnvironmentVariable("BASE_URL_APPOINTMENT_API") ?? Environment.GetEnvironmentVariable("ENV_BASE_URL_APPOINTMENT_API") ??"http://localhost:5114";
     }
 
     public virtual async Task<IActionResult> GetAllAppointmentsAsync(AppointmentSearchArguments searchArguments = null)

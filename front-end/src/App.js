@@ -1,7 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './AXIOS/AuthentificationContext';
-
 import Home from './Pages/Home/Home';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/js/bootstrap.js';
@@ -34,7 +33,6 @@ import AddPriceRule from './Pages/Promos/AddPriceRule.js';
 import UpdatePriceRule from './Pages/Promos/UpdatePriceRule';
 
 function App() {
-  console.log(process.env.REACT_APP_API_GATEWAY_HOST);
   return (
     <AuthProvider>
       <Router>

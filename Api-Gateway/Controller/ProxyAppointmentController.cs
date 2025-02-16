@@ -1,10 +1,10 @@
+using Api_Gateway.Services;
+using Api_Gateway.Models;
+using Microsoft.AspNetCore.Mvc;
+using Api_Gateway.Annotations;
+
 namespace Api_Gateway.Controller
 {
-    using Api_Gateway.Services;
-    using Api_Gateway.Models;
-    using Microsoft.AspNetCore.Mvc;
-    using System;
-    using System.Threading.Tasks;
 
     [Route("gateway/api/[controller]")]
     [ApiController]
@@ -19,6 +19,7 @@ namespace Api_Gateway.Controller
 
         // GET: gateway/api/ProxyAppointment/all
         [HttpGet("all")]
+        [RequireAuth]
         public async Task<IActionResult> GetAllAppointments([FromQuery] AppointmentSearchArguments searchArguments)
         {
             try
@@ -85,6 +86,7 @@ namespace Api_Gateway.Controller
 
         // GET: gateway/api/ProxyAppointment/{appointmentId}
         [HttpGet("{appointmentId}")]
+        [RequireAuth]
         public async Task<IActionResult> GetAppointmentById(Guid appointmentId)
         {
             try
@@ -163,6 +165,7 @@ namespace Api_Gateway.Controller
 
         // POST: gateway/api/ProxyAppointment
         [HttpPost]
+        [RequireAuth]
         public async Task<IActionResult> CreateAppointment([FromBody] Appointment appointment)
         {
             if (appointment == null)
@@ -263,6 +266,7 @@ namespace Api_Gateway.Controller
 
         // PUT: gateway/api/ProxyAppointment/{appointmentId}
         [HttpPut("{appointmentId}")]
+        [RequireAuth]
         public async Task<IActionResult> UpdateAppointment(Guid appointmentId, [FromBody] Appointment appointment)
         {
             if (appointment == null)
@@ -358,6 +362,7 @@ namespace Api_Gateway.Controller
 
         // DELETE: gateway/api/ProxyAppointment/{appointmentId}
         [HttpDelete("{appointmentId}")]
+        [RequireAuth]
         public async Task<IActionResult> DeleteAppointment(Guid appointmentId)
         {
             if (appointmentId == Guid.Empty)

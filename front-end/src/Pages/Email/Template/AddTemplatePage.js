@@ -1,10 +1,8 @@
 import React, { useState, useRef } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
-
-const environment = process.env.REACT_APP_API_GATEWAY_HOST;
+import httpClient from '../../../AXIOS/AXIOS';
 
 // FormPage Component
 const AddTemplatePage = () => {
@@ -42,8 +40,8 @@ const AddTemplatePage = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post(
-        `${environment}/gateway/api/ProxyTemplate`,
+      const response = await httpClient.post(
+        `/gateway/api/ProxyTemplate`,
         payload,
         {
           headers: {

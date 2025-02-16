@@ -1,14 +1,9 @@
 using Moq;
-using NUnit.Framework;
 using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Api_Gateway.Services;
-using Newtonsoft.Json;
 using Api_Gateway.Models;
 using Microsoft.AspNetCore.Mvc;
-using Moq.Protected;
 
 namespace TestingProject.AppointmentsService.Tests
 {

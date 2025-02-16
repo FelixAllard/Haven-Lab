@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAuth } from '../../../AXIOS/AuthentificationContext';
+import Cookies from 'js-cookie';
+import { useTranslation } from 'react-i18next';
 
 const OwnerLogin = () => {
   const [username, setUsername] = useState('');
@@ -9,6 +11,7 @@ const OwnerLogin = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { i18n } = useTranslation();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,6 +19,8 @@ const OwnerLogin = () => {
       const token = await login(username, password);
 
       if (token) {
+        Cookies.set('language', "en", { expires: 365 });
+        i18n.changeLanguage("en");
         navigate('/');
       }
     } catch (error) {

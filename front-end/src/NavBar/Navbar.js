@@ -69,7 +69,10 @@ const Navbar = () => {
           {/* Left Section */}
 
             <div className="d-flex align-items-center gap-3">
-              <LanguageToggle />
+
+              {!isLoggedIn && (
+                <LanguageToggle />
+              )}
 
               {isLoggedIn && (
                 <div>

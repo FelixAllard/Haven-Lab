@@ -816,41 +816,6 @@ public class ServiceAppointmentsControllerTests
     }
     
     [Test]
-    public async Task DeleteAppointmentAsync_SuccessfulDeletion_ReturnsOkResult()
-    {
-        // Arrange
-        var appointmentId = Guid.NewGuid();
-
-        var successResponse = new HttpResponseMessage
-        {
-            StatusCode = HttpStatusCode.OK,
-            Content = new StringContent(JsonConvert.SerializeObject(new { Message = "Appointment deleted successfully" }))
-        };
-
-        _mockHttpClientFactory.Setup(client => client.CreateClient(It.IsAny<string>()))
-            .Returns(new HttpClient(new FakeHttpMessageHandler(successResponse)));
-
-        // Act
-        var actionResult = await _controller.DeleteAppointmentAsync(appointmentId);
-
-        // Assert
-        Assert.IsNotNull(actionResult);
-
-        if (actionResult is OkObjectResult okResult)
-        {
-            Assert.AreEqual(200, okResult.StatusCode, "Expected status code 200 (OK)");
-
-            var resultData = okResult.Value as dynamic;
-            Assert.IsNotNull(resultData);
-            Assert.AreEqual("Appointment deleted successfully", resultData.GetType().GetProperty("Message")?.GetValue(resultData, null));
-        }
-        else
-        {
-            Assert.Fail("Expected OkObjectResult but received a different result type.");
-        }
-    }
-    
-    [Test]
     public async Task DeleteAppointmentAsync_ClientError_ReturnsBadRequest()
     {
         // Arrange

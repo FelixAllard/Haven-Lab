@@ -20,106 +20,209 @@ namespace AppointmentsService.Controllers
 
         // GET: api/Appointments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAll([FromQuery] AppointmentSearchArguments searchArguments)
+        public async Task<IActionResult> GetAll([FromQuery] AppointmentSearchArguments searchArguments)
         {
-            var query = _context.Appointments.AsQueryable();
+            try
+            {
+                var query = _context.Appointments.AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(searchArguments.Title))
-            {
-                query = query.Where(a => a.Title.Contains(searchArguments.Title));
-            }
-            if (!string.IsNullOrWhiteSpace(searchArguments.CustomerName))
-            {
-                query = query.Where(a => a.CustomerName.Contains(searchArguments.CustomerName));
-            }
-            if (!string.IsNullOrWhiteSpace(searchArguments.CustomerEmail))
-            {
-                query = query.Where(a => a.CustomerEmail.Contains(searchArguments.CustomerEmail));
-            }
-            if (!string.IsNullOrWhiteSpace(searchArguments.Status))
-            {
-                query = query.Where(a => a.Status == searchArguments.Status);
-            }
-            if (searchArguments.StartDate.HasValue)
-            {
-                query = query.Where(a => a.AppointmentDate >= searchArguments.StartDate.Value);
-            }
-            if (searchArguments.EndDate.HasValue)
-            {
-                query = query.Where(a => a.AppointmentDate <= searchArguments.EndDate.Value);
-            }
+                if (!string.IsNullOrWhiteSpace(searchArguments.Title))
+                {
+                    query = query.Where(a => a.Title.Contains(searchArguments.Title));
+                }
+                if (!string.IsNullOrWhiteSpace(searchArguments.CustomerName))
+                {
+                    query = query.Where(a => a.CustomerName.Contains(searchArguments.CustomerName));
+                }
+                if (!string.IsNullOrWhiteSpace(searchArguments.CustomerEmail))
+                {
+                    query = query.Where(a => a.CustomerEmail.Contains(searchArguments.CustomerEmail));
+                }
+                if (!string.IsNullOrWhiteSpace(searchArguments.Status))
+                {
+                    query = query.Where(a => a.Status == searchArguments.Status);
+                }
+                if (searchArguments.StartDate.HasValue && searchArguments.EndDate.HasValue)
+                {
+                    if (searchArguments.StartDate > searchArguments.EndDate)
+                    {
+                        return BadRequest(new { Message = "StartDate cannot be later than EndDate." });
+                    }
 
-            var appointments = await query.ToListAsync();
-            return Ok(appointments);
+                    query = query.Where(a => a.AppointmentDate >= searchArguments.StartDate.Value &&
+                                             a.AppointmentDate <= searchArguments.EndDate.Value);
+                }
+                else if (searchArguments.StartDate.HasValue)
+                {
+                    query = query.Where(a => a.AppointmentDate >= searchArguments.StartDate.Value);
+                }
+                else if (searchArguments.EndDate.HasValue)
+                {
+                    query = query.Where(a => a.AppointmentDate <= searchArguments.EndDate.Value);
+                }
+
+                var appointments = await query.ToListAsync();
+
+                return Ok(appointments);
+            }
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Message = "An unexpected error occurred.",
+                    Details = ex.Message
+                });
+            }
         }
-
 
         // GET: api/Appointments/{appointmentId}
         [HttpGet("{appointmentId}")]
         public async Task<ActionResult<Appointment>> GetByAppointmentId(Guid appointmentId)
         {
-            var appointment = await _context.Appointments
-                .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
-
-            if (appointment == null)
+            try
             {
-                return NotFound();
+                var appointment = await _context.Appointments
+                    .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+
+                if (!AppointmentExists(appointmentId))
+                {
+                    return NotFound();
+                }
+
+                return Ok(appointment);
             }
-
-            return Ok(appointment);
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new 
+                { 
+                    Message = "An unexpected error occurred", 
+                    Details = ex.Message 
+                });
+            }
         }
-
+        
         // POST: api/Appointments
         [HttpPost]
-        public async Task<ActionResult<Appointment>> Post(Appointment appointment)
+        public async Task<ActionResult<Appointment>> Post([FromBody] Appointment appointment)
         {
-            if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
+            try
             {
-                return BadRequest("Status must be 'Cancelled', 'Upcoming', or 'Finished'");
+                if (appointment == null)
+                {
+                    return BadRequest(new { Message = "Appointment data is required" });
+                }
+
+                if (string.IsNullOrWhiteSpace(appointment.Title) || string.IsNullOrWhiteSpace(appointment.CustomerName) || string.IsNullOrWhiteSpace(appointment.CustomerEmail))
+                {
+                    return BadRequest(new { Message = "Title, Customer Name, and Customer Email are required fields" });
+                }
+
+                if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
+                {
+                    return BadRequest(new { Message = "Status must be 'Cancelled', 'Upcoming', or 'Finished'" });
+                }
+
+                // Generate a new UUID for the appointment
+                appointment.AppointmentId = Guid.NewGuid();
+
+                _context.Appointments.Add(appointment);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(GetByAppointmentId), new { appointmentId = appointment.AppointmentId }, appointment);
             }
-            
-            // Generate a new UUID for the appointment
-            appointment.AppointmentId = Guid.NewGuid();
-
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetByAppointmentId), new { appointmentId = appointment.AppointmentId }, appointment);
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Message = "An unexpected error occurred",
+                    Details = ex.Message
+                });
+            }
         }
-
 
         // PUT: api/Appointments/{appointmentId}
         [HttpPut("{appointmentId}")]
-        public async Task<IActionResult> Put(Guid appointmentId, Appointment appointment)
+        public async Task<IActionResult> Put(Guid appointmentId, [FromBody] Appointment appointment)
         {
-            
-            if (!AppointmentExists(appointmentId))
+            try
             {
-                return NotFound();
+                if (appointment == null)
+                {
+                    return BadRequest(new { Message = "Appointment data is required" });
+                }
+                
+                if (!AppointmentExists(appointmentId))
+                {
+                    return NotFound(new { Message = "Appointment not found" });
+                }
+
+                if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
+                {
+                    return BadRequest(new { Message = "Status must be 'Cancelled', 'Upcoming', or 'Finished'" });
+                }
+
+                var existingAppointment = await _context.Appointments
+                    .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+
+                if (existingAppointment == null)
+                {
+                    return NotFound();
+                }
+
+                // Update the fields of the existing appointment with the new values
+                existingAppointment.Title = appointment.Title;
+                existingAppointment.Description = appointment.Description;
+                existingAppointment.AppointmentDate = appointment.AppointmentDate;
+                existingAppointment.CustomerName = appointment.CustomerName;
+                existingAppointment.CustomerEmail = appointment.CustomerEmail;
+                existingAppointment.Status = appointment.Status;
+                existingAppointment.CreatedAt = appointment.CreatedAt;
+
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-            
-            if (appointment.Status != "Cancelled" && appointment.Status != "Upcoming" && appointment.Status != "Finished")
+            catch (DbUpdateException ex) // Database-related exception
             {
-                return BadRequest("Status must be 'Cancelled', 'Upcoming', or 'Finished'");
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
             }
-
-            var existingAppointment = await _context.Appointments
-                .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
-
-            // Update the fields of the existing appointment with the new values
-            existingAppointment.Title = appointment.Title;
-            existingAppointment.Description = appointment.Description;
-            existingAppointment.AppointmentDate = appointment.AppointmentDate;
-            existingAppointment.CustomerName = appointment.CustomerName;
-            existingAppointment.CustomerEmail = appointment.CustomerEmail;
-            existingAppointment.Status = appointment.Status;
-            existingAppointment.CreatedAt = appointment.CreatedAt;
-            
-            await _context.SaveChangesAsync();
-            
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Message = "An unexpected error occurred",
+                    Details = ex.Message
+                });
+            }
         }
-
 
         private bool AppointmentExists(Guid appointmentId)
         {
@@ -131,19 +234,37 @@ namespace AppointmentsService.Controllers
         [HttpDelete("{appointmentId}")]
         public async Task<IActionResult> Delete(Guid appointmentId)
         {
-            var appointment = await _context.Appointments
-                .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
-    
-            if (appointment == null)
+            try
             {
-                return NotFound();
+                var appointment = await _context.Appointments
+                    .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+
+                if (appointment == null)
+                {
+                    return NotFound();
+                }
+                
+                _context.Appointments.Remove(appointment);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.Appointments.Remove(appointment);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (DbUpdateException ex) // Database-related exception
+            {
+                return StatusCode(503, new
+                {
+                    Message = "Service unavailable, could not connect to the database.",
+                    Details = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Message = "An unexpected error occurred",
+                    Details = ex.Message
+                });
+            }
         }
-
     }
 }

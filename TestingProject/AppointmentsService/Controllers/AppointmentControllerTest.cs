@@ -3,6 +3,7 @@ using AppointmentsService.Data;
 using AppointmentsService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace TestingProject.AppointmentsService.Controllers
 {
@@ -80,12 +81,9 @@ namespace TestingProject.AppointmentsService.Controllers
             // Act: Call the method under test
             var result = await _controller.GetAll(searchArguments);
 
-            // Assert: Ensure result is of type ActionResult
-            Assert.IsInstanceOf<ActionResult<IEnumerable<Appointment>>>(result);
-
-            // Check if the result is OkObjectResult
-            var okResult = result.Result as OkObjectResult;
-            Assert.IsNotNull(okResult, "The result should not be null");
+            // Assert: Ensure result is of type OkObjectResult
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult, "The result should be of type OkObjectResult");
 
             // Assert status code
             Assert.AreEqual(200, okResult.StatusCode);
@@ -97,25 +95,125 @@ namespace TestingProject.AppointmentsService.Controllers
         }
 
         [Test]
-        public async Task GetAll_ReturnsOkResult_WhenNoAppointmentsExist()
+        public async Task GetAll_ReturnsOkResult_WithMatchingTitle()
         {
-            _context.Appointments.RemoveRange(_context.Appointments);
+            // Arrange: Add test data
+            var appointment = new Appointment
+            {
+                Title = "Test Title",
+                CustomerEmail = "john.doe@example.com",
+                CustomerName = "John Doe",
+                Description = "Routine checkup",
+                Status = "Confirmed",
+                AppointmentDate = DateTime.UtcNow
+            };
+
+            _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
-            
-            var searchArguments = new AppointmentSearchArguments();
+
+            var searchArguments = new AppointmentSearchArguments { Title = "Test Title" };
 
             // Act: Call the method under test
             var result = await _controller.GetAll(searchArguments);
 
-            // Assert: Ensure result is OkObjectResult with status code 200 and empty list
-            var okResult = result.Result as OkObjectResult;
-            Assert.IsNotNull(okResult, "The result should not be null");
+            // Assert: Ensure result is OkObjectResult
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult, "Expected an OkObjectResult.");
             Assert.AreEqual(200, okResult.StatusCode);
 
-            // Assert that the returned appointments list is empty
             var returnedAppointments = okResult.Value as IEnumerable<Appointment>;
-            Assert.IsNotNull(returnedAppointments, "Returned appointments should not be null");
-            Assert.AreEqual(0, returnedAppointments.Count(), "The number of appointments returned should be 0 when none exist");
+            Assert.IsNotNull(returnedAppointments, "Returned appointments should not be null.");
+            Assert.AreEqual(1, returnedAppointments.Count(), "The number of appointments returned should be 1.");
+        }
+        
+        [Test]
+        public async Task GetAll_ReturnsOkResult_WithMatchingCustomerNameCustomerEmailAndStatus()
+        {
+            // Arrange: Add test data
+            var appointment1 = new Appointment
+            {
+                Title = "Test Title",
+                CustomerName = "John Doe",
+                CustomerEmail = "john.doe@example.com",
+                Status = "Confirmed",
+                Description = "Routine dental exam",
+                AppointmentDate = DateTime.UtcNow
+            };
+
+            var appointment2 = new Appointment
+            {
+                Title = "Test Title",
+                CustomerName = "Jane Doe",
+                CustomerEmail = "jane.doe@example.com",
+                Status = "Pending",
+                Description = "Routine dental exam",
+                AppointmentDate = DateTime.UtcNow
+            };
+
+            var appointment3 = new Appointment
+            {
+                Title = "Test Title",
+                CustomerName = "John Smith",
+                CustomerEmail = "john.smith@example.com",
+                Status = "Confirmed",
+                Description = "Routine dental exam",
+                AppointmentDate = DateTime.UtcNow
+            };
+
+            _context.Appointments.AddRange(appointment1, appointment2, appointment3);
+            await _context.SaveChangesAsync();
+
+            var searchArguments = new AppointmentSearchArguments
+            {
+                CustomerName = "John",
+                CustomerEmail = "john.doe@example.com",
+                Status = "Confirmed"
+            };
+
+            // Act: Call the method under test
+            var result = await _controller.GetAll(searchArguments);
+
+            // Assert: Ensure result is OkObjectResult
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult, "Expected an OkObjectResult.");
+            Assert.AreEqual(200, okResult.StatusCode);
+
+            var returnedAppointments = okResult.Value as IEnumerable<Appointment>;
+            Assert.IsNotNull(returnedAppointments, "Returned appointments should not be null.");
+            Assert.AreEqual(2, returnedAppointments.Count(), "The number of appointments returned should be 2.");
+
+            // Assert that the returned appointment matches the search criteria
+            var returnedAppointment = returnedAppointments.First();
+            Assert.AreEqual("John Doe", returnedAppointment.CustomerName);
+            Assert.AreEqual("john.doe@example.com", returnedAppointment.CustomerEmail);
+            Assert.AreEqual("Confirmed", returnedAppointment.Status);
+        }
+
+        
+        [Test]
+        public async Task GetAll_ReturnsBadRequest_WhenStartDateIsGreaterThanEndDate()
+        {
+            // Arrange: Invalid date range
+            var searchArguments = new AppointmentSearchArguments
+            {
+                StartDate = DateTime.UtcNow.AddDays(5),
+                EndDate = DateTime.UtcNow
+            };
+
+            // Act: Call the method under test
+            var result = await _controller.GetAll(searchArguments);
+
+            // Assert: Ensure result is BadRequestObjectResult
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult, "Expected a BadRequestObjectResult when StartDate is greater than EndDate.");
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+
+            // Extract and verify the response message
+            var response = badRequestResult.Value;
+            Assert.IsNotNull(response, "Expected a response object in BadRequest result.");
+    
+            var messageProperty = response.GetType().GetProperty("Message")?.GetValue(response, null);
+            Assert.AreEqual("StartDate cannot be later than EndDate.", messageProperty);
         }
 
         [Test]
@@ -199,11 +297,69 @@ namespace TestingProject.AppointmentsService.Controllers
             // Act: Call the method under test
             var result = await _controller.Post(newAppointment);
 
-            // Assert: Ensure result is BadRequest
+            // Assert: Ensure result is BadRequestObjectResult
             var badRequestResult = result.Result as BadRequestObjectResult;
-            Assert.IsNotNull(badRequestResult);
+            Assert.IsNotNull(badRequestResult, "Expected a BadRequestObjectResult.");
+            Assert.AreEqual(400, badRequestResult.StatusCode, "Expected status code 400.");
+
+            // Extract the "Message" property from the response object
+            var responseObject = badRequestResult.Value;
+            Assert.IsNotNull(responseObject, "Expected a response object.");
+
+            // Use reflection to access the "Message" property
+            var messageProperty = responseObject.GetType().GetProperty("Message")?.GetValue(responseObject, null);
+            Assert.AreEqual("Status must be 'Cancelled', 'Upcoming', or 'Finished'", messageProperty);
+        }
+
+        [Test]
+        public async Task Post_ReturnsBadRequest_WhenAppointmentDataIsNull()
+        {
+            // Arrange: No appointment data
+            Appointment appointment = null;
+
+            // Act: Call the method under test
+            var result = await _controller.Post(appointment);
+
+            // Assert: Ensure result is BadRequestObjectResult
+            var badRequestResult = result.Result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult, "Expected a BadRequestObjectResult when appointment data is null.");
             Assert.AreEqual(400, badRequestResult.StatusCode);
-            Assert.AreEqual("Status must be 'Cancelled', 'Upcoming', or 'Finished'", badRequestResult.Value);
+
+            // Extract and verify the response message
+            var response = badRequestResult.Value;
+            Assert.IsNotNull(response, "Expected a response object in BadRequest result.");
+    
+            var messageProperty = response.GetType().GetProperty("Message")?.GetValue(response, null);
+            Assert.AreEqual("Appointment data is required", messageProperty);
+        }
+        
+        [Test]
+        public async Task Post_ReturnsBadRequest_WhenRequiredFieldsAreMissing()
+        {
+            // Arrange: Missing required fields (Title, CustomerName, CustomerEmail)
+            var appointment = new Appointment
+            {
+                Title = "Test Appointment",
+                CustomerName = "",  // Missing CustomerName
+                CustomerEmail = "john.doe@example.com",
+                Status = "Upcoming",
+                AppointmentDate = DateTime.UtcNow
+            };
+
+            // Act: Call the method under test
+            var result = await _controller.Post(appointment);
+
+            // Assert: Ensure result is BadRequestObjectResult
+            var badRequestResult = result.Result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult, "Expected a BadRequestObjectResult when required fields are missing.");
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+
+            // Extract and verify the response message
+            var response = badRequestResult.Value;
+            Assert.IsNotNull(response, "Expected a response object in BadRequest result.");
+    
+            var messageProperty = response.GetType().GetProperty("Message")?.GetValue(response, null);
+            Assert.AreEqual("Title, Customer Name, and Customer Email are required fields", messageProperty);
         }
 
         [Test]
@@ -252,11 +408,20 @@ namespace TestingProject.AppointmentsService.Controllers
             // Act: Call the method under test
             var result = await _controller.Put(appointmentId, updatedAppointment);
 
-            // Assert: Ensure result is NotFoundResult
-            var notFoundResult = result as NotFoundResult;
+            // Assert: Ensure result is NotFoundObjectResult
+            var notFoundResult = result as NotFoundObjectResult;
             Assert.IsNotNull(notFoundResult);
             Assert.AreEqual(404, notFoundResult.StatusCode);
+
+            // Extract the message from the anonymous object
+            var response = notFoundResult.Value;
+            Assert.IsNotNull(response);
+
+            // Use reflection to get the "Message" property value
+            var messageProperty = response.GetType().GetProperty("Message")?.GetValue(response, null);
+            Assert.AreEqual("Appointment not found", messageProperty);
         }
+
 
         [Test]
         public async Task Put_ReturnsBadRequest_WhenStatusIsInvalid()
@@ -278,11 +443,40 @@ namespace TestingProject.AppointmentsService.Controllers
             // Act: Call the method under test
             var result = await _controller.Put(appointmentId, updatedAppointment);
 
-            // Assert: Ensure result is BadRequest
+            // Assert: Ensure result is BadRequestObjectResult
             var badRequestResult = result as BadRequestObjectResult;
-            Assert.IsNotNull(badRequestResult);
+            Assert.IsNotNull(badRequestResult, "Expected BadRequestObjectResult when an invalid status is provided.");
             Assert.AreEqual(400, badRequestResult.StatusCode);
-            Assert.AreEqual("Status must be 'Cancelled', 'Upcoming', or 'Finished'", badRequestResult.Value);
+
+            // Extract the "Message" property from the response (anonymous object)
+            var response = badRequestResult.Value;
+            Assert.IsNotNull(response, "Expected a response object in BadRequest result.");
+
+            // Use reflection to get the "Message" property value
+            var messageProperty = response.GetType().GetProperty("Message")?.GetValue(response, null);
+            Assert.AreEqual("Status must be 'Cancelled', 'Upcoming', or 'Finished'", messageProperty);
+        }
+
+        [Test]
+        public async Task Put_ReturnsBadRequest_WhenAppointmentDataIsNull()
+        {
+            // Arrange: No appointment data
+            Appointment appointment = null;
+
+            // Act: Call the method under test
+            var result = await _controller.Put(Guid.NewGuid(), appointment);
+
+            // Assert: Ensure result is BadRequestObjectResult
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult, "Expected a BadRequestObjectResult when appointment data is null.");
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+
+            // Extract and verify the response message
+            var response = badRequestResult.Value;
+            Assert.IsNotNull(response, "Expected a response object in BadRequest result.");
+    
+            var messageProperty = response.GetType().GetProperty("Message")?.GetValue(response, null);
+            Assert.AreEqual("Appointment data is required", messageProperty);
         }
     
         [Test]
@@ -357,7 +551,7 @@ namespace TestingProject.AppointmentsService.Controllers
             var result = await _controller.GetAll(searchArguments);
 
             // Assert
-            var okResult = result.Result as OkObjectResult;
+            var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             var appointments = okResult.Value as List<Appointment>;
             Assert.IsNotNull(appointments);
@@ -374,7 +568,7 @@ namespace TestingProject.AppointmentsService.Controllers
             var result = await _controller.GetAll(searchArguments);
 
             // Assert
-            var okResult = result.Result as OkObjectResult;
+            var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             var appointments = okResult.Value as List<Appointment>;
             Assert.IsNotNull(appointments);
@@ -391,7 +585,7 @@ namespace TestingProject.AppointmentsService.Controllers
             var result = await _controller.GetAll(searchArguments);
 
             // Assert
-            var okResult = result.Result as OkObjectResult;
+            var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             var appointments = okResult.Value as List<Appointment>;
             Assert.IsNotNull(appointments);
@@ -408,7 +602,7 @@ namespace TestingProject.AppointmentsService.Controllers
             var result = await _controller.GetAll(searchArguments);
 
             // Assert
-            var okResult = result.Result as OkObjectResult;
+            var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             var appointments = okResult.Value as List<Appointment>;
             Assert.IsNotNull(appointments);
@@ -425,7 +619,7 @@ namespace TestingProject.AppointmentsService.Controllers
             var result = await _controller.GetAll(searchArguments);
 
             // Assert
-            var okResult = result.Result as OkObjectResult;
+            var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             var appointments = okResult.Value as List<Appointment>;
             Assert.IsNotNull(appointments);
@@ -442,7 +636,7 @@ namespace TestingProject.AppointmentsService.Controllers
             var result = await _controller.GetAll(searchArguments);
 
             // Assert
-            var okResult = result.Result as OkObjectResult;
+            var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             var appointments = okResult.Value as List<Appointment>;
             Assert.IsNotNull(appointments);

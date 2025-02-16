@@ -7,12 +7,15 @@ import './ProductDetailPage.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaArrowLeft } from 'react-icons/fa';
 import httpClient from '../../AXIOS/AXIOS';
+import Cookies from 'js-cookie';
 
 const ProductDetailsPage = () => {
   const { productId } = useParams(); // Get product ID from the URL
   const [product, setProduct] = useState(null);
+  const [translatedProduct, setTranslatedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [displayProduct, setDisplayProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState(''); // Store toast message
   const navigate = useNavigate(); // Hook to programmatically navigate
   const toastTrigger = document.getElementById('liveToastBtn');
@@ -20,6 +23,7 @@ const ProductDetailsPage = () => {
 
   const { authToken } = useAuth();
   const isLoggedIn = !!authToken;
+  const language = Cookies.get('language') || 'en';
 
   if (toastTrigger) {
     const toastBootstrap =
@@ -39,13 +43,41 @@ const ProductDetailsPage = () => {
         setProduct(response.data);
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchProductDetails();
-  }, [productId]);
+    const fetchTranslatedProduct = async () => {
+      if (language === 'fr') {
+        try {
+          console.log(`Fetching translation for Product ID: ${productId} in French`);
+          const response = await httpClient.get(
+            `/gateway/api/ProxyProduct/${productId}/translation?lang=fr`
+          );
+          console.log("Translation Response:", response.data);
+          setTranslatedProduct(response.data);
+        } catch (err) {
+          console.warn("Translation not found. Using default English.");
+        }
+      }
+    };
+
+    fetchProductDetails().then(() => fetchTranslatedProduct()).finally(() => setLoading(false));
+  }, [productId, language]);
+
+  useEffect(() => {
+    if (product) {
+      if (language === 'fr' && translatedProduct) {
+        console.log("Applying French translation:", translatedProduct);
+        setDisplayProduct({
+          ...product,
+          title: translatedProduct.title || product.title,
+          body_html: translatedProduct.description || product.body_html,
+        });
+      } else {
+        setDisplayProduct(product);
+      }
+    }
+  }, [product, translatedProduct, language]);
 
   const handleDelete = async () => {
     try {
@@ -100,6 +132,9 @@ const ProductDetailsPage = () => {
     return <div className="text-center text-danger">Error: {error}</div>;
   }
 
+  if (!product) return <div className="text-center text-danger">Product not found.</div>;
+  if (!displayProduct) return <div className="text-center">Loading product...</div>;
+
   return (
     <div className="container mt-6 position-relative">
       {/* Back arrow link */}
@@ -116,7 +151,7 @@ const ProductDetailsPage = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        <h1 className="display-4 text-center">{product.title}</h1>
+        <h1 className="display-4 text-center">{displayProduct.title}</h1>
       </motion.div>
 
       <motion.div
@@ -177,7 +212,7 @@ const ProductDetailsPage = () => {
             </motion.p>
             <div
               className="card-text mt-2"
-              dangerouslySetInnerHTML={{ __html: product.body_html }}
+              dangerouslySetInnerHTML={{ __html: displayProduct.body_html  }}
             />
 
             {/* Vendor */}

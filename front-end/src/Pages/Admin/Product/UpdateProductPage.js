@@ -99,7 +99,7 @@ const ProductForm = () => {
           if (response.status === 200 && response.data) {
             setFrTranslation({
               fr_title: response.data.Title || "",
-              fr_description: response.data.Description || "", 
+              fr_description: response.data.Description || "",
             });
           } else {
             console.warn("Translation not found. Keeping default state.");

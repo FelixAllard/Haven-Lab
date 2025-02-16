@@ -4,6 +4,7 @@ import './NavBar.css';
 import { motion } from 'motion/react';
 import { Modal, Button } from 'react-bootstrap';
 import { useAuth } from '../AXIOS/AuthentificationContext'; // Import useAuth hook
+import LanguageToggle from '../Languages/LanguageToggle'
 import Logo from '../Shared/Logo.svg';
 
 const Navbar = () => {
@@ -62,15 +63,22 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Right Section */}
-          {isLoggedIn && (
+          {/* Left Section */}
+
             <div className="d-flex align-items-center gap-3">
-              <span className="navbar-brand">Owner</span>
-              <button className="btn btn-outline-light" onClick={handleLogout}>
-                Logout
-              </button>
+              <LanguageToggle />
+
+              {isLoggedIn && (
+                <div>
+                  <span className="navbar-brand">Owner</span>
+                  <button className="btn btn-outline-light" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </div>
+              )}
+
             </div>
-          )}
+
           <button
             className="navbar-toggler"
             type="button"

@@ -24,10 +24,10 @@ Env.Load("../.env");
 // Add services to the container.
 
 // Get the environment variable for DB_HOST (defaults to "localhost" if not set)
-var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";  // Use "mysql" when inside Docker, "localhost" locally
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "3310";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "user";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "pwd";
+var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? Environment.GetEnvironmentVariable("GLOBAL_DB_HOST") ??"localhost";  // Use "mysql" when inside Docker, "localhost" locally
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? Environment.GetEnvironmentVariable("GLOBAL_DB_PORT") ?? "3310";
+var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? Environment.GetEnvironmentVariable("GLOBAL_DB_USER")??"user";
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? Environment.GetEnvironmentVariable("GLOBAL_DB_PASSWORD") ?? "pwd";
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection")

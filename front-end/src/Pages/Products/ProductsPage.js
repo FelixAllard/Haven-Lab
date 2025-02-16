@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -6,10 +6,9 @@ import './ProductsPage.css';
 import { FaSearch } from 'react-icons/fa';
 import { useAuth } from '../../AXIOS/AuthentificationContext';
 import httpClient from '../../AXIOS/AXIOS';
-import Cookies from 'js-cookie';
 
 const ProductPage = () => {
-  const [displayProducts, setDisplayProducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,49 +18,27 @@ const ProductPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 6;
-  const language = Cookies.get('language') || 'en';
 
   const { authToken } = useAuth();
   const isLoggedIn = !!authToken;
 
-  const fetchProducts = useCallback(async (params = '') => {
+  const fetchProducts = async (params = '') => {
     try {
       setLoading(true);
-      const response = await httpClient.get(`/gateway/api/ProxyProduct${params}`);
-      let products = response.data.items;
-
-      if (language === 'fr') {
-        const translatedProducts = await Promise.all(
-          products.map(async (product) => {
-
-            try {
-              const translationRes = await httpClient.get(
-                `/gateway/api/ProxyProduct/${product.id}/translation?lang=fr`
-              );
-
-              return {
-                ...product,
-                title: translationRes.data.title || "",
-              };
-            } catch (err) {
-              return product; //keep english titles if translation fails
-            }
-          })
-        );
-        setDisplayProducts(translatedProducts);
-      } else {
-        setDisplayProducts(products);
-      }
+      const response = await httpClient.get(
+        `/gateway/api/ProxyProduct${params}`,
+      );
+      setProducts(response.data.items);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [language]);
+  };
 
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+  }, []);
 
   const handleSearch = (event) => {
     if (event) event.preventDefault();
@@ -84,10 +61,10 @@ const ProductPage = () => {
   };
 
   // Pagination Logic
-  const totalPages = Math.ceil(displayProducts.length / itemsPerPage);
-  const paginatedProducts = displayProducts.slice(
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginatedProducts = products.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (
@@ -124,13 +101,19 @@ const ProductPage = () => {
                 />
                 <label className="form-check-label">Available</label>
               </div>
-              <button className="btn btn-secondary btn-block" onClick={handleSearch}>
+              <button
+                className="btn btn-secondary btn-block"
+                onClick={handleSearch}
+              >
                 Apply Filter
               </button>
             </div>
             {isLoggedIn && (
               <button className="btn btn-success mb-3 mt-4">
-                <Link to={`/admin/product/create`} style={{ color: 'white', textDecoration: 'none' }}>
+                <Link
+                  to={`/admin/product/create`}
+                  style={{ color: 'white', textDecoration: 'none' }}
+                >
                   Add Product
                 </Link>
               </button>
@@ -170,14 +153,20 @@ const ProductPage = () => {
                     >
                       <div className="card product-card">
                         <img
-                          src={product.images[0]?.src || require('../../Shared/imageNotFound.jpg')}
+                          src={
+                            product.images[0]?.src ||
+                            require('../../Shared/imageNotFound.jpg')
+                          }
                           className="card-img-top"
                           alt={product.title}
                         />
                         <div className="card-body">
                           <h5 className="card-title">{product.title}</h5>
                           <p className="price">${product.variants[0]?.price}</p>
-                          <Link to={`/product/${product.id}`} className="btn btn-secondary btn-block">
+                          <Link
+                            to={`/product/${product.id}`}
+                            className="btn btn-secondary btn-block"
+                          >
                             View Product
                           </Link>
                         </div>
@@ -188,7 +177,7 @@ const ProductPage = () => {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="pagination d-flex justify-content-center mt-4 mb-5">
+                  <div className="pagination d-flex justify-content-center mt-4">
                     <button
                       className="btn btn-outline-secondary mx-1"
                       disabled={currentPage === 1}
@@ -214,6 +203,7 @@ const ProductPage = () => {
                     </button>
                   </div>
                 )}
+                <div className="mt-5"></div>
               </>
             )}
           </div>

@@ -6,6 +6,8 @@ import { Modal, Button } from 'react-bootstrap';
 import { useAuth } from '../AXIOS/AuthentificationContext'; // Import useAuth hook
 import LanguageToggle from '../Languages/LanguageToggle'
 import Logo from '../Shared/Logo.svg';
+import "../Languages/i18n.js";
+import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +16,7 @@ const Navbar = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [modalClosed, setModalClosed] = useState(false);
   const [logoutTimer, setLogoutTimer] = useState(null);
+  const {t} = useTranslation('navbar');
 
   const { authToken, logout } = useAuth(); // Use useAuth hook to get authToken and logout
   const navigate = useNavigate();
@@ -117,7 +120,7 @@ const Navbar = () => {
                 transition={{ delay: 0.5, duration: 0.7 }}
               >
                 <Link className="nav-link" aria-current="page" to="/">
-                  Home
+                  {t("Home")}
                 </Link>
               </motion.li>
 
@@ -130,7 +133,7 @@ const Navbar = () => {
                 transition={{ delay: 0.5, duration: 0.7 }}
               >
                 <Link className="nav-link" aria-current="page" to="/products">
-                  Products
+                  {t("Products")}
                 </Link>
               </motion.li>
 
@@ -143,7 +146,7 @@ const Navbar = () => {
                 transition={{ delay: 0.5, duration: 0.7 }}
               >
                 <Link className="nav-link" aria-current="page" to="/cart">
-                  Cart
+                  {t("Cart")}
                 </Link>
               </motion.li>
 
@@ -228,7 +231,7 @@ const Navbar = () => {
                 transition={{ delay: 0.5, duration: 0.7 }}
               >
                 <Link className="nav-link" to="/aboutus">
-                  About Us
+                  {t("About Us")}
                 </Link>
               </motion.li>
             </ul>

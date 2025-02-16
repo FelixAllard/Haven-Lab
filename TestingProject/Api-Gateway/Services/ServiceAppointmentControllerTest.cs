@@ -4,6 +4,7 @@ using System.Text;
 using Api_Gateway.Services;
 using Api_Gateway.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace TestingProject.AppointmentsService.Tests
 {

@@ -18,7 +18,9 @@ const AppointmentUpdate = () => {
         );
         setAppointment(response.data);
       } catch (err) {
-        setError('Failed to fetch appointment details');
+        setError(
+          err.response?.data?.Message || 'Failed to fetch appointment details',
+        );
       } finally {
         setLoading(false);
       }
@@ -38,7 +40,9 @@ const AppointmentUpdate = () => {
         navigate(`/appointments/${appointmentId}`); // Navigate back to the appointment detail page
       }
     } catch (err) {
-      setError('Failed to update appointment');
+      const errorMessage =
+        err.response?.data?.Message || 'Failed to update appointment';
+      setError(errorMessage);
     }
   };
 

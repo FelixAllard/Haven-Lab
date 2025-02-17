@@ -1,10 +1,6 @@
-# Deployment 
-
-# Requirement
-
+# Deployment
 ## Welcome to the deployment guide
-
-### Deployment with two machines
+# Requirement
 Hardware :
 - RAM : 6 GO
 - CPU THREADS : 3
@@ -24,7 +20,7 @@ Use [▶ check_environment.bat](./Windows/check_environment.bat) to check if eve
 Then use [▶ install_ef_migration.bat](./Windows/install_ef_migration.bat). This will be necessary in order to prepare the database.
 
 
-### Deployment with one machine
+# Deployment with one machine
 In this section, we will be looking at how to deploy the system on a single machine. First lets start with the basics. 
 The minimum requirements for this system is 6 GB or ram, 3 threads and approximately 5gb of free storage to handle additional cache.
 
@@ -38,12 +34,12 @@ As you can see, the application connects to external services, and in order to d
 The system will work even if you don't provide those, but be very careful because it will be connected to the temporary development keys and as such will not result in desired output.
 To start the deployment process, run the
 
-- ## MAKE SURE YOUR SOLUTION IS ON TEH LATEST VERSION
+## MAKE SURE YOUR SOLUTION IS ON TEH LATEST VERSION
 
 Run the [▶ import_and_reset.bat](../import_and_reset.bat)
 THIS WILL DELETE ANY LOCAL CHANGES AND IMPORT THE REMOTE MAIN ON THE CURRENT ONE
 
-- ## Step 1
+## Step 1
 Run the [▶ checks_specs.bat](./Windows/check_specs.bat)
 
 Make sure your specs follow the following requirements : 
@@ -54,7 +50,7 @@ Make sure your specs follow the following requirements :
 
 
 Now that this is done, we are ready for deployment
-- ## Step 2
+## Step 2
 Run the [▶ generate_env.bat](./Windows/generate_env.bat)
 
 This should generate a file at [▶ .env](../.env)
@@ -132,7 +128,7 @@ A default JWT key is provided, but I would suggest switching it to another key s
 
 ---
 
-## Email Api ENV Variables
+### Email Api ENV Variables
 ```dotenv
 EMAIL_API_HOST="localhost"
 EMAIL_API_PORT=1025
@@ -144,7 +140,7 @@ This is the connection to the SMTP service you will be using. You can use a loca
 
 ---
 
-## Shopify API
+### Shopify API
 ```dotenv
 SHOPIFY_API_SHOP_URL="vc-shopz.myshopify.com"
 SHOPIFY_API_ACCESS_TOKEN="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"
@@ -159,10 +155,10 @@ To learn how to create a SHOPIFY ACCESS TOKEN, go to [Create Access Token](./Sho
 
 Now that our ENV is Setup, we are ready to start launching our application.
 
-# Step 3
+## Step 3
 Applying migrations.
 Make sure the connection credentials you provided actually are for an existing database.
-If you are not sure you have the migration application tool, run the following to install it.
+If you are not sure if you have the migration application tool, run the following to install it.
 
 [▶ install_ef_migration.bat](./Windows/install_ef_migration.bat)
 
@@ -175,14 +171,16 @@ Now that the project is built, you can run the migrations with the script :  [�
 
 Once again this process can be done manually. If the migrations are successful. You can proceed to the last step of deployment.
 
-# Step 4
+Now one last important step before we can actually get done with this, we will need to tell the front end where to search for the backend.
+
+Go to [▶ Deployment Env Front end](../front-end/.env.production) and type the IP the backend is on.
+
+## Step 4
 
 You can now launch the launch.bat that is the [▶ launch.bat](../launch.bat)
 
 This will take care of launching the solution, it will also rebuild. The backend takes 8 seconds to go up if already built if you have 8 threads and 30 seconds if not built yet.
 
-
----
 
 
 

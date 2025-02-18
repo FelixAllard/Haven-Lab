@@ -285,7 +285,7 @@ const ProductDetailsPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1.8 }}
             >
-              <strong>{t('Created Ats')}</strong>{' '}
+              <strong>{t('Created At')}</strong>{' '}
               {new Date(product.created_at).toLocaleDateString()}
             </motion.p>
 

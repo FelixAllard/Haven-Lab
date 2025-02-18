@@ -17,7 +17,7 @@ import aboutus_en from './en/aboutus.json';
 import aboutus_fr from './fr/aboutus.json';
 
 i18n.use(initReactI18next).init({
-  debug: true,
+  debug: false,
   fallbackLng: 'en',
 
   resources: {

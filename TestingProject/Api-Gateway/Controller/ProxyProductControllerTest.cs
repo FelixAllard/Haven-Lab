@@ -759,5 +759,106 @@ public class ProxyProductControllerTest
         var responseContent = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(objectResult.Value));
         Assert.AreEqual("Unexpected error occurred", (string)responseContent.Message);
     }
+    
+    [Test]
+    public async Task PutProductImage_ReturnsOk_WhenImageIsValidAndServiceReturnsSuccess()
+    {
+        // Arrange
+        var validBase64Image = Convert.ToBase64String(Encoding.UTF8.GetBytes("valid-image-data"));
+        var request = new ProxyProductController.ImageUploadRequest { ImageData = validBase64Image };
+
+        // Mock the HTTP response from Shopify
+        var expectedResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent("{\"image_url\": \"https://example.com/image.jpg\"}", Encoding.UTF8, "application/json")
+        };
+
+        // Mock the HttpClient to return the expected response
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(expectedResponse);
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        _mockHttpClientFactory
+            .Setup(x => x.CreateClient(It.IsAny<string>()))
+            .Returns(httpClient);
+
+        // Act
+        var result = await _proxyProductController.PutProductImage(request);
+
+        // Assert
+        Assert.That(result, Is.InstanceOf<ObjectResult>());
+        var objectResult = result as ObjectResult;
+        Assert.That(objectResult.StatusCode, Is.EqualTo(200));
+
+        var responseContent = JsonConvert.DeserializeObject<dynamic>(objectResult.Value.ToString());
+        Assert.That(responseContent.image_url.ToString(), Is.EqualTo("https://example.com/image.jpg"));
+    }
+    
+    [Test]
+    public async Task PutProductImage_ReturnsBadRequest_WhenImageDataIsInvalid()
+    {
+        // Arrange
+        var invalidBase64Image = "invalid-base64-data";
+        var request = new ProxyProductController.ImageUploadRequest { ImageData = invalidBase64Image };
+
+        // Act
+        var result = await _proxyProductController.PutProductImage(request);
+
+        // Assert
+        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400));
+
+        // Deserialize the response to a dynamic object
+        var response = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(badRequestResult.Value));
+        Assert.That(response.message.ToString(), Is.EqualTo("Invalid base64 image data."));
+    }
+    
+    [Test]
+    public async Task PutProductImage_ReturnsServiceUnavailable_WhenServiceReturns503()
+    {
+        // Arrange
+        var validBase64Image = Convert.ToBase64String(Encoding.UTF8.GetBytes("valid-image-data"));
+        var request = new ProxyProductController.ImageUploadRequest { ImageData = validBase64Image };
+
+        var expectedResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.ServiceUnavailable
+        };
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(expectedResponse);
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        _mockHttpClientFactory
+            .Setup(x => x.CreateClient(It.IsAny<string>()))
+            .Returns(httpClient);
+
+        // Act
+        var result = await _proxyProductController.PutProductImage(request);
+
+        // Assert
+        Assert.That(result, Is.InstanceOf<ObjectResult>());
+        var objectResult = result as ObjectResult;
+        Assert.That(objectResult.StatusCode, Is.EqualTo(400));
+        Assert.That(objectResult.Value, Is.EqualTo( "Error uploading image: Service Unavailable"));
+    }
+    
+    
 
 }

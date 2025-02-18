@@ -1,6 +1,8 @@
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Moq.Protected;
 using Newtonsoft.Json;
 using Shopify_Api;
 using Shopify_Api.Controllers;
@@ -1378,6 +1380,202 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
     
     //----------------------------------POST IMAGE METHOD-------------------------------------------
 
+    [Test]
+    public async Task UploadImage_ReturnsOkWithImageUrl_WhenImageIsValidAndUploadSuccessful()
+    {
+        // Arrange
+        var imageData = new byte[] { 0x1, 0x2, 0x3 };
+        var expectedUrl = "https://example.com/image.jpg";
+
+        // Mock the GraphQL response for generating staged upload URL
+        var stagedUploadResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                @"
+                {
+                    ""data"": {
+                        ""stagedUploadsCreate"": {
+                            ""stagedTargets"": [
+                                {
+                                    ""url"": ""https://staged-upload.example.com"",
+                                    ""resourceUrl"": ""https://resource.example.com"",
+                                    ""parameters"": [
+                                        { ""name"": ""key"", ""value"": ""value1"" },
+                                        { ""name"": ""acl"", ""value"": ""public-read"" }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        // Mock the XML response for the staged upload
+        var stagedUploadXmlResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                @"<PostResponse>
+                    <Location>https://example.com/image.jpg</Location>
+                  </PostResponse>",
+                Encoding.UTF8,
+                "application/xml"
+            )
+        };
+
+        // Mock the GraphQL response for creating the file resource
+        var createFileResponse = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(
+                @"
+                {
+                    ""data"": {
+                        ""fileCreate"": {
+                            ""files"": [
+                                {
+                                    ""preview"": {
+                                        ""image"": {
+                                            ""originalSrc"": ""https://example.com/image.jpg""
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }",
+                Encoding.UTF8,
+                "application/json"
+            )
+        };
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .SetupSequence<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(stagedUploadResponse) // First call: Generate staged upload URL
+            .ReturnsAsync(stagedUploadXmlResponse) // Second call: Upload image to staged URL
+            .ReturnsAsync(createFileResponse); // Third call: Create file resource
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        _mockHttpClientFactory
+            .Setup(x => x.CreateClient(It.IsAny<string>()))
+            .Returns(httpClient);
+
+        // Act
+        var result = await _controller.UploadImage(imageData);
+
+        // Assert
+        Assert.That(result, Is.InstanceOf<OkObjectResult>());
+        var okResult = result as OkObjectResult;
+        Assert.That(okResult.StatusCode, Is.EqualTo(200));
+
+        // Deserialize the response to a dynamic object
+        var response = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(okResult.Value));
+        Assert.That(response.ImageUrl.ToString(), Is.EqualTo(expectedUrl));
+    }
+    
+    [Test]
+    public async Task UploadImage_ReturnsBadRequest_WhenImageDataIsNull()
+    {
+        // Act
+        var result = await _controller.UploadImage(null);
+
+        // Assert
+        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400));
+        Assert.That(badRequestResult.Value, Is.EqualTo("No image data provided."));
+    }
+    
+    [Test]
+    public async Task UploadImage_ReturnsBadRequest_WhenImageDataIsEmpty()
+    {
+        // Arrange
+        var imageData = Array.Empty<byte>();
+
+        // Act
+        var result = await _controller.UploadImage(imageData);
+
+        // Assert
+        Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        var badRequestResult = result as BadRequestObjectResult;
+        Assert.That(badRequestResult.StatusCode, Is.EqualTo(400));
+        Assert.That(badRequestResult.Value, Is.EqualTo("No image data provided."));
+    }
+
+    [Test]
+    public async Task UploadImage_ReturnsInternalServerError_WhenShopifyReturnsEmptyUrl()
+    {
+        // Arrange
+        var imageData = new byte[] { 0x1 };
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("{ \"image_url\": \"\" }", Encoding.UTF8, "application/json")
+            });
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        // Act
+        var result = await _controller.UploadImage(imageData);
+
+        // Assert
+        Assert.That(result, Is.InstanceOf<ObjectResult>());
+        var objectResult = result as ObjectResult;
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+        Assert.That(objectResult.Value, Is.EqualTo("Failed to upload image to Shopify."));
+    }
+    
+    [Test]
+    public async Task UploadImage_ReturnsInternalServerError_WhenShopifyRespondsWithError()
+    {
+        // Arrange
+        var imageData = new byte[] { 0x1 };
+
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.InternalServerError
+            });
+
+        var httpClient = new HttpClient(handlerMock.Object);
+        _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        // Act
+        var result = await _controller.UploadImage(imageData);
+
+        // Assert
+        Assert.That(result, Is.InstanceOf<ObjectResult>());
+        var objectResult = result as ObjectResult;
+        Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+        Assert.That(objectResult.Value, Is.EqualTo("Failed to upload image to Shopify."));
+    }
     
 }
     

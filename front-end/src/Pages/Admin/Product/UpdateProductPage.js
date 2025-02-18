@@ -179,9 +179,12 @@ const ProductForm = () => {
       if (imageFile) {
         const base64Image = imageBase64.split(',')[1];
 
-        const imageResponse = await httpClient.post('/gateway/api/ProxyProduct/upload-image', {
-          ImageData: base64Image,
-        });
+        const imageResponse = await httpClient.post(
+          '/gateway/api/ProxyProduct/upload-image',
+          {
+            ImageData: base64Image,
+          },
+        );
 
         if (imageResponse.status === 200) {
           formDataToSubmit.images = [{ src: imageResponse.data.imageUrl }];
@@ -190,7 +193,10 @@ const ProductForm = () => {
         }
       }
 
-      const response = await httpClient.put(`/gateway/api/ProxyProduct/${formData.id}`, formDataToSubmit);
+      const response = await httpClient.put(
+        `/gateway/api/ProxyProduct/${formData.id}`,
+        formDataToSubmit,
+      );
 
       if (response.status === 200) {
         const translationData = {
@@ -199,7 +205,10 @@ const ProductForm = () => {
           description: frTranslation.fr_description,
         };
 
-        await httpClient.post(`/gateway/api/ProxyProduct/${productId}/translation`, translationData);
+        await httpClient.post(
+          `/gateway/api/ProxyProduct/${productId}/translation`,
+          translationData,
+        );
 
         setShowSuccess(true);
       }
@@ -302,8 +311,14 @@ const ProductForm = () => {
 
         <Form.Group className="mb-3">
           <Form.Label>Product Image</Form.Label>
-          <Form.Control type="file" accept="image/*" onChange={handleImageChange} />
-          {formData.images.length > 0 && <img src={formData.images[0].src} alt="Product" width="150" />}
+          <Form.Control
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          {formData.images.length > 0 && (
+            <img src={formData.images[0].src} alt="Product" width="150" />
+          )}
         </Form.Group>
 
         <Form.Group className="mb-3">

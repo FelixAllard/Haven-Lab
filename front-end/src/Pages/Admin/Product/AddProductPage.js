@@ -117,28 +117,31 @@ const ProductForm = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
-  
+
     // Convert image to base64
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImageBase64(reader.result);  // store base64 image
+      setImageBase64(reader.result); // store base64 image
     };
     reader.readAsDataURL(file);
   };
-  const [imageBase64, setImageBase64] = useState('');  // Base64 encoded image
+  const [imageBase64, setImageBase64] = useState(''); // Base64 encoded image
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     let formDataToSubmit = { ...formData };
-  
+
     try {
       if (imageFile) {
         const base64Image = imageBase64.split(',')[1];
-  
+
         // Send as { ImageData: base64Image }
-        const imageResponse = await httpClient.post('/gateway/api/ProxyProduct/upload-image', {
-          ImageData: base64Image, // Match the backend's property name
-        });
+        const imageResponse = await httpClient.post(
+          '/gateway/api/ProxyProduct/upload-image',
+          {
+            ImageData: base64Image, // Match the backend's property name
+          },
+        );
 
         if (imageResponse.status === 200) {
           formDataToSubmit.images = [{ src: imageResponse.data.imageUrl }];
@@ -147,31 +150,39 @@ const ProductForm = () => {
         }
       }
 
-    // Proceed with creating the product after image upload
-    const response = await httpClient.post(`/gateway/api/ProxyProduct`, formDataToSubmit);
+      // Proceed with creating the product after image upload
+      const response = await httpClient.post(
+        `/gateway/api/ProxyProduct`,
+        formDataToSubmit,
+      );
 
-    if (response.status === 200) {
-      const productId = response.data.id;
+      if (response.status === 200) {
+        const productId = response.data.id;
 
-      // Save French translations in metafields
-      const translationData = {
-        locale: 'fr',
-        title: frTranslation.fr_title,
-        description: frTranslation.fr_description,
-      };
+        // Save French translations in metafields
+        const translationData = {
+          locale: 'fr',
+          title: frTranslation.fr_title,
+          description: frTranslation.fr_description,
+        };
 
-      await httpClient.post(`/gateway/api/ProxyProduct/${productId}/translation`, translationData);
+        await httpClient.post(
+          `/gateway/api/ProxyProduct/${productId}/translation`,
+          translationData,
+        );
 
-      setShowSuccess(true);
-      setTimeout(() => {
-        window.location.href = '/products';
-      }, 2000);
+        setShowSuccess(true);
+        setTimeout(() => {
+          window.location.href = '/products';
+        }, 2000);
+      }
+    } catch (error) {
+      setShowError(true);
+      setErrorMessage(
+        error.response?.data?.message || 'An error occurred. Please try again.',
+      );
     }
-  } catch (error) {
-    setShowError(true);
-    setErrorMessage(error.response?.data?.message || 'An error occurred. Please try again.');
-  }
-};
+  };
 
   // Add a new variant
   const addVariant = () => {

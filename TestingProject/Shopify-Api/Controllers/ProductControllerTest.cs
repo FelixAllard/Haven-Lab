@@ -1,5 +1,4 @@
-using System.Collections;
-using Microsoft.AspNetCore.Http.HttpResults;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Newtonsoft.Json;
@@ -22,9 +21,10 @@ public class ProductControllerTest
     private Mock<IProductService> _mockProductService;
     private Mock<IMetaFieldServiceFactory> _mockMetaFieldServiceFactory;
     private Mock<IMetaFieldService> _mockMetaFieldService;
+    private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private ShopifyRestApiCredentials _falseCredentials;
-    private ProductsController _controller;
     private ProductValidator _productValidator;
+    private ProductsController _controller;
 
     [SetUp]
     public void Setup()
@@ -33,6 +33,7 @@ public class ProductControllerTest
         _mockProductService = new Mock<IProductService>();
         _mockMetaFieldServiceFactory = new Mock<IMetaFieldServiceFactory>();
         _mockMetaFieldService = new Mock<IMetaFieldService>();
+        _mockHttpClientFactory = new Mock<IHttpClientFactory>();
 
         _falseCredentials = new ShopifyRestApiCredentials("NotARealURL", "NotARealToken");
         _productValidator = new ProductValidator();
@@ -51,8 +52,10 @@ public class ProductControllerTest
             _mockProductServiceFactory.Object,
             _falseCredentials,
             _productValidator,
-            _mockMetaFieldServiceFactory.Object
+            _mockMetaFieldServiceFactory.Object,
+            _mockHttpClientFactory.Object
         );
+        
     }
 
     //================================  PRODUCT ENDPOINTS ==================================
@@ -1372,6 +1375,9 @@ public async Task PutProduct_ReturnsOk_WhenProductIsUpdatedSuccessfully()
             x => x.CreateAsync(It.IsAny<MetaField>(), It.IsAny<long>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Exactly(1));
     }
+    
+    //----------------------------------POST IMAGE METHOD-------------------------------------------
+
     
 }
     

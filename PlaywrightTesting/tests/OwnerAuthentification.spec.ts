@@ -26,5 +26,5 @@ test('OwnerLogin_Unsuccessful', async ({ page }) => {
   await page.getByLabel('Password').click();
   await page.getByLabel('Password').fill('WrongPassword');
   await page.getByRole('button', { name: 'Login', exact: true }).click();
-  await expect(page.getByText('{ Error = Unauthorized: Invalid credentials }')).toBeVisible();
+  await expect(page.getByText('Unauthorized: Invalid credentials')).toBeVisible();
 });

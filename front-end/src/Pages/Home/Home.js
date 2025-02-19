@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BackgroundVideo from './Assets/wavesloop.mp4';
 import Logo from '../../Shared/Logo.svg';
 import Arrow from './Assets/arrow.png';
 import './Home.css';
-import Carousel from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
+import { motion } from 'motion/react';
 import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
@@ -44,10 +43,6 @@ const Home = () => {
 
     fetchProducts();
   }, []);
-
-  const handleViewProduct = (id) => {
-    navigate(`/product/${id}`);
-  };
 
   const handleMoreProducts = () => {
     navigate('/products');
@@ -141,12 +136,6 @@ const Home = () => {
     return errorKeywords.some((keyword) => msg.toLowerCase().includes(keyword));
   };
 
-  const responsive = {
-    desktop: { breakpoint: { max: 3000, min: 1024 }, items: 1 },
-    tablet: { breakpoint: { max: 1024, min: 464 }, items: 1 },
-    mobile: { breakpoint: { max: 464, min: 0 }, items: 1 },
-  };
-
   return (
     <div>
       {/* Background video section */}
@@ -174,46 +163,45 @@ const Home = () => {
 
       {/* Bestsellers Section */}
       <div className="bestsellers-container">
-        <h1 className="title-container">{t('Bestsellers')}</h1>
+        <h1 className="title-container mb-5">{t('Bestsellers')}</h1>
         {loading && <p>Loading...</p>}
         {error && <p className="text-danger">{error}</p>}
+
         {!loading && !error && bestsellers.length > 0 && (
-          <Carousel
-            responsive={responsive}
-            infinite
-            keyBoardControl
-            showDots={true}
-            containerClass="carousel-container"
-            itemClass="carousel-item"
-          >
-            {bestsellers.map((product) => (
-              <div key={product.id} className="bestseller-card">
-                <div className="bestseller-content">
-                  <img
-                    src={
-                      product.images[0]?.src ||
-                      require('../../Shared/imageNotFound.jpg')
-                    }
-                    alt={product.title}
-                    className="bestseller-image"
-                  />
-
-                  <div className="bestseller-info">
-                    <h1>{product.title}</h1>
-                    <p>${product.variants[0]?.price}</p>
-
-                    <div className="divider"></div>
-                    <button
-                      className="view-product-btn"
-                      onClick={() => handleViewProduct(product.id)}
-                    >
-                      {t('View Product')}
-                    </button>
+          <div className="container">
+            <div className="row">
+              {bestsellers.map((product, index) => (
+                <motion.div
+                  className="col-md-4 mb-4"
+                  key={product.id}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <div className="card product-card">
+                    <img
+                      src={
+                        product.images[0]?.src ||
+                        require('../../Shared/imageNotFound.jpg')
+                      }
+                      className="card-img-top"
+                      alt={product.title}
+                    />
+                    <div className="card-body">
+                      <h5 className="card-title">{product.title}</h5>
+                      <p className="price">${product.variants[0]?.price}</p>
+                      <Link
+                        to={`/product/${product.id}`}
+                        className="btn btn-secondary btn-block"
+                      >
+                        {t('View Product')}
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </Carousel>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         )}
         <button className="view-all-btn" onClick={handleMoreProducts}>
           {t('View All')}

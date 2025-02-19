@@ -38,7 +38,8 @@ const EmailForm = () => {
         directEmailModel,
       );
 
-      if (response.ok) {
+      console.log(response.data);
+      if (response.status === 200) {
         setMessage('Email sent successfully!');
         setMessageType('success');
       } else {

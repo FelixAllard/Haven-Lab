@@ -119,7 +119,7 @@ const Navbar = () => {
                     {isLoggedIn && (
                         <>
                           <HoverScaleWrapper>
-                            <Link className="nav-link fs-3" to="/orders">
+                            <Link className="nav-link fs-3" to="/admin/orders">
                               Orders
                             </Link>
                           </HoverScaleWrapper>
@@ -129,12 +129,12 @@ const Navbar = () => {
                             </Link>
                           </HoverScaleWrapper>
                           <HoverScaleWrapper>
-                            <Link className="nav-link fs-3" to="/appointments">
+                            <Link className="nav-link fs-3" to="/admin/appointments">
                               Appointments
                             </Link>
                           </HoverScaleWrapper>
                           <HoverScaleWrapper>
-                            <Link className="nav-link fs-3" to="/promo/pricerules">
+                            <Link className="nav-link fs-3" to="/admin/promo/pricerules">
                               Promos
                             </Link>
                           </HoverScaleWrapper>
@@ -211,7 +211,7 @@ const Navbar = () => {
                         <>
                           <HoverScaleWrapper>
                             <li className="nav-item">
-                              <Link className="nav-link fs-1" to="/orders">
+                              <Link className="nav-link fs-1" to="/admin/orders">
                                 Orders
                               </Link>
                             </li>
@@ -225,14 +225,14 @@ const Navbar = () => {
                           </HoverScaleWrapper>
                           <HoverScaleWrapper>
                             <li className="nav-item">
-                              <Link className="nav-link fs-1" to="/appointments">
+                              <Link className="nav-link fs-1" to="/admin/appointments">
                                 Appointments
                               </Link>
                             </li>
                           </HoverScaleWrapper>
                           <HoverScaleWrapper>
                             <li className="nav-item">
-                              <Link className="nav-link fs-1" to="/promo/pricerules">
+                              <Link className="nav-link fs-1" to="/admin/promo/pricerules">
                                 Promos
                               </Link>
                             </li>

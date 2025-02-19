@@ -105,7 +105,7 @@ const TemplateManager = () => {
               {templateDetails?.templateName || 'Template Details'}
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body className>
+          <Modal.Body className="text-bg-dark">
             {templateDetails?.emailTemplate?.htmlFormat ? (
                 <div
                     dangerouslySetInnerHTML={{

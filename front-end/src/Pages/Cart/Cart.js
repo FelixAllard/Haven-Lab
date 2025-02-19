@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './Cart.css';
 import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
+import Cookies from 'js-cookie';
 import { useTranslation } from 'react-i18next';
 import HoverScaleWrapper from '../../Shared/HoverScaleWrapper';
 
@@ -11,91 +12,84 @@ const CartPage = () => {
   const { t } = useTranslation('cart');
 
   useEffect(() => {
-    fetchCart();
+    const savedCart = JSON.parse(Cookies.get('Cart') || '[]');
+    setCart(savedCart);
   }, []);
 
-  const fetchCart = async () => {
-    try {
-      const response = await httpClient.get(`/gateway/api/ProxyCart`, {
-        withCredentials: true,
-      });
-      if (response.status === 200) {
-        console.log('Cart fetched successfully:', response.data);
+  const removeFromCart = (productId) => {
+    const updatedCart = cart.filter((item) => item.productId !== productId);
+    setCart(updatedCart);
+    Cookies.set('Cart', JSON.stringify(updatedCart), { expires: 7 });
+  };
 
-        // Ensure cart is an array
-        if (Array.isArray(response.data)) {
-          setCart(response.data);
-        } else {
-          setCart([]);
+  const removeByOne = (productId) => {
+    const updatedCart = cart
+      .map((item) => {
+        if (item.productId === productId) {
+          return {
+            ...item,
+            quantity: item.quantity - 1,
+          };
+        }
+        return item;
+      })
+      .filter((item) => item.quantity > 0);
+
+    setCart(updatedCart);
+    Cookies.set('Cart', JSON.stringify(updatedCart), { expires: 7 });
+  };
+
+  const addByOne = async (productId) => {
+    try {
+      const response = await httpClient.get(
+        `/gateway/api/ProxyProduct/${productId}`,
+      );
+
+      if (response.status === 200) {
+        const productData = response.data;
+        const availableQuantity =
+          productData.variants[0]?.inventory_quantity || 0;
+
+        // Find the current cart item
+        const cartItem = cart.find((item) => item.productId === productId);
+
+        if (!cartItem) {
+          console.error('Item not found in the cart');
+          return;
         }
 
-        return response.data;
-      } else {
-        console.error('Failed to fetch cart.');
-      }
-    } catch (err) {
-      console.error('Error fetching cart:', err);
-    }
-  };
+        // Check if adding one more exceeds the available quantity
+        if (cartItem.quantity + 1 > availableQuantity) {
+          alert('Sorry, no more stock available for this product.');
+          return;
+        }
 
-  const removeByOne = async (variantId) => {
-    try {
-      const response = await httpClient.post(
-        `/gateway/api/ProxyCart/removebyone/${variantId}`,
-        null,
-        { withCredentials: true },
-      );
-      if (response.status === 200) {
-        console.log('Product quantity reduced by one:', response.data);
-        setCart(response.data);
-      } else {
-        console.error('Failed to reduce product quantity.');
-      }
-    } catch (err) {
-      console.error('Error reducing quantity by one:', err);
-    }
-  };
+        // If stock is available, increase the quantity by one
+        const updatedCart = cart.map((item) => {
+          if (item.productId === productId) {
+            return {
+              ...item,
+              quantity: item.quantity + 1,
+            };
+          }
+          return item;
+        });
 
-  const addByOne = async (variantId) => {
-    try {
-      const response = await httpClient.post(
-        `/gateway/api/ProxyCart/addbyone/${variantId}`,
-        null,
-        { withCredentials: true },
-      );
-      if (response.status === 200) {
-        console.log('Product quantity increased:', response.data);
-        setCart(response.data);
+        // Update the state and the cookie
+        setCart(updatedCart);
+        Cookies.set('Cart', JSON.stringify(updatedCart), { expires: 7 });
       } else {
-        console.error('Failed to increase product quantity.');
+        console.error('Failed to fetch product details.');
       }
-    } catch (err) {
-      console.error('Error increasing quantity:', err);
-    }
-  };
-
-  const removeFromCart = async (variantId) => {
-    try {
-      const response = await httpClient.post(
-        `/gateway/api/ProxyCart/remove/${variantId}`,
-        null,
-        { withCredentials: true },
-      );
-      if (response.status === 200) {
-        console.log('Product removed from cart:', response.data);
-        setCart(response.data);
-      } else {
-        console.error('Failed to remove product from cart.');
-      }
-    } catch (err) {
-      console.error('Error removing product:', err);
+    } catch (error) {
+      console.error('Error fetching product details:', error.message);
     }
   };
 
   const handleCreateDraftOrder = async () => {
     try {
       // Fetch the cart data
-      const cartResponse = await fetchCart();
+      const cartResponse = cart;
       console.log('Cart Response:', cartResponse);
 
       // Ensure cart is an array
@@ -109,6 +103,8 @@ const CartPage = () => {
         variant_id: item.variantId, // Ensure we're using the correct property
         quantity: item.quantity,
       }));
+
+      console.log(lineItems);
 
       const draftOrderData = {
         line_items: lineItems,
@@ -148,7 +144,7 @@ const CartPage = () => {
         <div className="cart-container">
           <hr className="cart-divider" />
           {cart.map((item, index) => (
-            <React.Fragment key={item.variantId}>
+            <React.Fragment key={`${item.productId}-${index}`}>
               <div className="cart-item-card">
                 {/* Product Image */}
                 <img
@@ -161,10 +157,14 @@ const CartPage = () => {
 
                 {/* Product Info */}
                 <div className="cart-item-details">
-                  <h2>{item.productTitle}</h2>
+                  <h2>
+                    {Cookies.get('language') === 'fr'
+                      ? item.frenchProductTitle || item.productTitle
+                      : item.productTitle}
+                  </h2>
                   <button
                     className="remove-btn"
-                    onClick={() => removeFromCart(item.variantId)}
+                    onClick={() => removeFromCart(item.productId)}
                   >
                     {t('Remove')}
                   </button>

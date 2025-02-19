@@ -35,13 +35,13 @@ const Navbar = () => {
 
   const handleLogout = () => {
     try {
-      logout(); // Call logout from context
+      logout();
       setShowSuccess(true);
 
       const timer = setTimeout(() => {
         if (!modalClosed) {
           setShowSuccess(false);
-          navigate('/'); // Redirect to home after successful logout
+          navigate('/');
         }
       }, 3000);
 
@@ -207,81 +207,6 @@ const Navbar = () => {
                       </li>
                     </HoverScaleWrapper>
 
-              {isLoggedIn && (
-                <motion.li
-                  key={isOpen ? 'orders-open' : 'orders-closed'}
-                  className="nav-item"
-                  initial={{ opacity: 0, scale: 0.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.1 }}
-                  transition={{ delay: 0.5, duration: 0.7 }}
-                >
-                  <Link
-                    className="nav-link"
-                    aria-current="page"
-                    to="/admin/orders"
-                  >
-                    Orders
-                  </Link>
-                </motion.li>
-              )}
-
-              {isLoggedIn && (
-                <motion.li
-                  key={isOpen ? 'Emails-open' : 'Emails-closed'}
-                  className="nav-item"
-                  initial={{ opacity: 0, scale: 0.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.1 }}
-                  transition={{ delay: 0.5, duration: 0.7 }}
-                >
-                  <Link
-                    className="nav-link"
-                    aria-current="page"
-                    to="/admin/email/send"
-                  >
-                    Emails
-                  </Link>
-                </motion.li>
-              )}
-
-              {isLoggedIn && (
-                <motion.li
-                  key={isOpen ? 'appointments-open' : 'appointments-closed'}
-                  className="nav-item"
-                  initial={{ opacity: 0, scale: 0.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.1 }}
-                  transition={{ delay: 0.5, duration: 0.7 }}
-                >
-                  <Link
-                    className="nav-link"
-                    aria-current="page"
-                    to="/admin/appointments"
-                  >
-                    Appointments
-                  </Link>
-                </motion.li>
-              )}
-
-              {isLoggedIn && (
-                <motion.li
-                  key={isOpen ? 'promos-open' : 'promos-closed'}
-                  className="nav-item"
-                  initial={{ opacity: 0, scale: 0.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.1 }}
-                  transition={{ delay: 0.5, duration: 0.7 }}
-                >
-                  <Link
-                    className="nav-link"
-                    aria-current="page"
-                    to="/admin/promo/pricerules"
-                  >
-                    Promos
-                  </Link>
-                </motion.li>
-              )}
                     {isLoggedIn && (
                         <>
                           <HoverScaleWrapper>

@@ -122,7 +122,6 @@
 
 /* bestsellers section */
 .bestsellers-container {
-  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -133,126 +132,62 @@
 }
 
 .title-container {
-  font-family: 'Bodoni Moda', serif;
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  color: white;
+  font-size: 3rem;
+  margin-bottom: 1rem;
 }
 
-.carousel-container {
-  position: relative;
+/* Product Card Styling */
+.product-card {
   width: 100%;
-  max-width: 80%;
-  margin: 0 auto;
-  min-height: 10rem;
-  overflow: hidden;
-}
-
-.bestseller-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  height: 100%;
-  padding: 2rem;
-  color: white;
-  overflow: hidden;
-}
-
-.carousel-item {
-  display: flex !important;
-  height: 90%;
-}
-
-.react-multi-carousel-track {
-  display: flex !important;
-  height: 100%;
-}
-
-.bestseller-content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 10%;
-  padding: 2rem;
-  background-color: #222;
-  color: white;
-  border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  gap: 2rem;
-
-  margin-left: 7rem; /* IMPORTANT: HACK FIX FOR CENTERING. should be
-    fixed next sprint for the sake of responsiveness */
-}
-
-.bestseller-image {
-  width: 45%;
-  height: auto;
-  object-fit: cover;
+  max-width: 450px;
   border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
 }
 
-.bestseller-info {
-  width: 55%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.product-card:hover {
+  transform: scale(1.03);
+}
+
+.card-img-top {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.card-body {
   text-align: center;
-  gap: 0.5rem;
+  padding: 15px;
 }
 
-.bestseller-info h1 {
-  font-size: 4rem;
-  margin: 0;
-}
-
-.bestseller-info p {
-  font-size: 2rem;
-  margin: 0;
-  font-family: 'Bodoni Moda', serif;
-}
-
-.view-product-btn {
-  padding: 0.8rem 1.5rem;
-  background-color: #555;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.card-title {
   font-size: 1.2rem;
-  transition: background-color 0.3s ease;
-  font-family: 'Bodoni Moda', serif;
+  margin-bottom: 5px;
 }
 
-.view-product-btn:hover {
-  background-color: #777;
+.price {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
 }
 
-.bestseller-info .divider {
-  width: 25%;
-  height: 1px;
-  background-color: white;
-  margin: 1rem 0;
+.btn-block {
+  width: 100%;
 }
 
-@media screen and (max-width: 768px) {
-  .bestseller-content {
-    flex-direction: column;
-    gap: 1rem;
+/* Responsive */
+@media (max-width: 600px) {
+  .slick-slide {
+    padding: 5px;
   }
 
-  .bestseller-image {
-    width: 100%;
-    height: auto;
+  .product-card {
+    max-width: 100%;
   }
 
-  .bestseller-info {
-    width: 100%;
-    text-align: center;
+  .card-img-top {
+    height: 180px;
   }
 }
 

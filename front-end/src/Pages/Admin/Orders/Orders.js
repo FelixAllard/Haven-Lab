@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 
 const OrderPage = () => {
   const [orders, setOrders] = useState([]);
@@ -69,7 +69,7 @@ const OrderPage = () => {
   };
 
   const handleViewClick = (orderId) => {
-    navigate(`/orders/${orderId}`);
+    navigate(`/admin/orders/${orderId}`);
   };
 
   return (

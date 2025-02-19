@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import httpClient from '../../../AXIOS/AXIOS';
+import httpClient from '../../../../AXIOS/AXIOS';
 
 const TemplateList = ({
   templates,

@@ -3,7 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { useParams } from 'react-router-dom'; // Import useParams for route params
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './UpdatePriceRule.css';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 
 const UpdatePriceRule = () => {
   const { priceruleId } = useParams(); // Retrieve id from URL params
@@ -84,7 +84,7 @@ const UpdatePriceRule = () => {
       if (response.status === 200) {
         setShowSuccess(true);
         setTimeout(() => {
-          window.location.href = '/promo/pricerules'; // Redirect to list of price rules
+          window.location.href = '/admin/promo/pricerules'; // Redirect to list of price rules
         }, 2000);
       }
     } catch (error) {

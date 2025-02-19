@@ -161,7 +161,7 @@ const Navbar = () => {
                   exit={{ opacity: 0, scale: 0.1 }}
                   transition={{ delay: 0.5, duration: 0.7 }}
                 >
-                  <Link className="nav-link" aria-current="page" to="/orders">
+                  <Link className="nav-link" aria-current="page" to="/admin/orders">
                     Orders
                   </Link>
                 </motion.li>
@@ -198,7 +198,7 @@ const Navbar = () => {
                   <Link
                     className="nav-link"
                     aria-current="page"
-                    to="/appointments"
+                    to="/admin/appointments"
                   >
                     Appointments
                   </Link>
@@ -217,7 +217,7 @@ const Navbar = () => {
                   <Link
                     className="nav-link"
                     aria-current="page"
-                    to="/promo/pricerules"
+                    to="/admin/promo/pricerules"
                   >
                     Promos
                   </Link>

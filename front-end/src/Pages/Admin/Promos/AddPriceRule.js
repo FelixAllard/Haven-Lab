@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AddPriceRule.css';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 
 const AddPriceRule = () => {
   const [formData, setFormData] = useState({
@@ -58,7 +58,7 @@ const AddPriceRule = () => {
       if (response.status === 200) {
         setShowSuccess(true);
         setTimeout(() => {
-          window.location.href = '/promo/pricerules'; // Redirect to list of price rules
+          window.location.href = '/admin/promo/pricerules'; // Redirect to list of price rules
         }, 2000);
       }
     } catch (error) {

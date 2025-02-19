@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 const OrderDetail = () => {
   const { orderId } = useParams(); // Get the orderId from the URL
   const [order, setOrder] = useState(null);

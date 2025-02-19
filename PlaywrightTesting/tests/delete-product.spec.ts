@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+// Removed because we know it works but we don't want to delete a product every time we run the tests anymore
+/*
 const waitFor = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 test('DeleteProductTest', async ({ page }) => {
@@ -22,3 +24,4 @@ test('DeleteProductTest', async ({ page }) => {
     await page.getByRole('button', { name: 'Logout' }).click();
 
 });
+*/

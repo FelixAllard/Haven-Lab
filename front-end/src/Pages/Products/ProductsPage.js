@@ -23,7 +23,6 @@ const ProductPage = () => {
 
   const itemsPerPage = 6;
 
-
   const fetchProducts = async (params = '') => {
     try {
       setLoading(true);

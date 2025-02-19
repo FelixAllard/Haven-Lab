@@ -59,7 +59,6 @@ const AboutUs = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { t } = useTranslation('aboutus');
 
-
   const handleCloseModal = () => {
     setIsExpanded(false);
     setSelectedMember(null);

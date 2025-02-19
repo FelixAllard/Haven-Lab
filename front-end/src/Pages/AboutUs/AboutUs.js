@@ -59,10 +59,6 @@ const AboutUs = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { t } = useTranslation('aboutus');
 
-  const handleLearnMoreClick = (member) => {
-    setSelectedMember(member);
-    setIsExpanded(true);
-  };
 
   const handleCloseModal = () => {
     setIsExpanded(false);

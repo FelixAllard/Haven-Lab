@@ -23,8 +23,6 @@ const ProductPage = () => {
 
   const itemsPerPage = 6;
 
-  const { authToken } = useAuth();
-  const isLoggedIn = !!authToken;
 
   const fetchProducts = async (params = '') => {
     try {
@@ -73,7 +71,6 @@ const ProductPage = () => {
     }
   };
 
-  const totalPages = Math.ceil(products.length / itemsPerPage);
   const paginatedProducts = products.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,

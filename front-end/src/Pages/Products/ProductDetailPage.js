@@ -106,8 +106,6 @@ const ProductDetailsPage = () => {
       return;
     }
 
-    console.log('Quantity checked');
-
     // Get current cart from cookie
     const cart = JSON.parse(Cookies.get('Cart') || '[]');
 

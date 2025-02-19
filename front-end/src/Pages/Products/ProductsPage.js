@@ -8,7 +8,7 @@ import { useAuth } from '../../AXIOS/AuthentificationContext';
 import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
-import HoverScaleWrapper from "../../Shared/HoverScaleWrapper";
+import HoverScaleWrapper from '../../Shared/HoverScaleWrapper';
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -29,7 +29,9 @@ const ProductPage = () => {
   const fetchProducts = async (params = '') => {
     try {
       setLoading(true);
-      const response = await httpClient.get(`/gateway/api/ProxyProduct${params}`);
+      const response = await httpClient.get(
+        `/gateway/api/ProxyProduct${params}`,
+      );
       setProducts(response.data.items);
     } catch (err) {
       setError(err.message);
@@ -73,111 +75,129 @@ const ProductPage = () => {
 
   const totalPages = Math.ceil(products.length / itemsPerPage);
   const paginatedProducts = products.slice(
-      (currentPage - 1) * itemsPerPage,
-      currentPage * itemsPerPage
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
   );
 
   return (
-      <div className="products-page">
-        <div className="container mt-5">
-          <div className="row mt-3">
-            <div className="col-md-3">
-              <div className="filter-section p-4">
-                <h5>{t('Filter Products')}</h5>
-                <div className="form-group mb-3">
-                  <input
-                      type="number"
-                      className="form-control"
-                      placeholder={t('Minimum Price')}
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
-                  />
-                </div>
-                <div className="form-group mb-3">
-                  <input
-                      type="number"
-                      className="form-control"
-                      placeholder={t('Maximum Price')}
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
-                  />
-                </div>
-                <div className="form-check mb-3">
-                  <input
-                      type="checkbox"
-                      className="form-check-input"
-                      checked={available}
-                      onChange={(e) => setAvailable(e.target.checked)}
-                  />
-                  <label className="form-check-label">{t('Available')}</label>
-                </div>
-                <div className="d-flex justify-content-between w-100">
-                  <button className="btn btn-secondary w-48" onClick={handleSearch}>
+    <div className="products-page">
+      <div className="container mt-5">
+        <div className="row mt-3">
+          <div className="col-md-3">
+            <div className="filter-section p-4">
+              <h5>{t('Filter Products')}</h5>
+              <div className="form-group mb-3">
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder={t('Minimum Price')}
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+              </div>
+              <div className="form-group mb-3">
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder={t('Maximum Price')}
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+              <div className="form-check mb-3">
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={available}
+                  onChange={(e) => setAvailable(e.target.checked)}
+                />
+                <label className="form-check-label">{t('Available')}</label>
+              </div>
+              <div className="d-flex justify-content-between w-100">
+                <HoverScaleWrapper>
+                  <button
+                    className="btn btn-secondary w-48"
+                    onClick={handleSearch}
+                  >
                     {t('Apply Filter')}
                   </button>
-                  <button className="btn btn-outline-danger w-48" onClick={handleClearFilters}>
+                </HoverScaleWrapper>
+                <HoverScaleWrapper>
+                  <button
+                    className="btn btn-outline-danger w-48"
+                    onClick={handleClearFilters}
+                  >
                     {t('Clear Filters')}
                   </button>
-                </div>
+                </HoverScaleWrapper>
               </div>
             </div>
+          </div>
 
-            <div className="col-md-9">
-              <div className="search-bar-container">
-                <input
-                    type="text"
-                    className="form-control search-bar"
-                    placeholder={t('Search')}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                />
-                <button className="search-icon-button" onClick={handleSearch}>
-                  <FaSearch/>
-                </button>
-              </div>
-              {loading ? (
-                  <div className="text-center">Loading...</div>
-              ) : error ? (
-                  <div className="alert alert-danger" role="alert">
-                    Error: {error}
-                  </div>
-              ) : (
-                  <>
-                    <div className="row">
-                      {paginatedProducts.map((product, index) => (
-                          <motion.div
-                              className="col-md-4 mb-4"
-                              key={product.id}
-                              initial={{opacity: 0, y: 50}}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.5, delay: index * 0.1 }}
-                          >
-                            <HoverScaleWrapper>
-                              <div className="card product-card">
-                                <img
-                                    src={product.images[0]?.src || require('../../Shared/imageNotFound.jpg')}
-                                    className="card-img-top"
-                                    alt={product.title}
-                                />
-                                <div className="card-body">
-                                  <h5 className="card-title">{product.title}</h5>
-                                  <p className="price">${product.variants[0]?.price}</p>
-                                  <Link to={`/product/${product.id}`} className="btn btn-secondary btn-block">
-                                    {t('View Product')}
-                                  </Link>
-                                </div>
-                              </div>
-                            </HoverScaleWrapper>
-                          </motion.div>
-                      ))}
-                    </div>
-                  </>
-              )}
+          <div className="col-md-9">
+            <div className="search-bar-container">
+              <input
+                type="text"
+                className="form-control search-bar"
+                placeholder={t('Search')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+              <button className="search-icon-button" onClick={handleSearch}>
+                <FaSearch />
+              </button>
             </div>
+            {loading ? (
+              <div className="text-center">Loading...</div>
+            ) : error ? (
+              <div className="alert alert-danger" role="alert">
+                Error: {error}
+              </div>
+            ) : (
+              <>
+                <div className="row">
+                  {paginatedProducts.map((product, index) => (
+                    <motion.div
+                      className="col-md-4 mb-4"
+                      key={product.id}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <HoverScaleWrapper>
+                        <div className="card product-card">
+                          <img
+                            src={
+                              product.images[0]?.src ||
+                              require('../../Shared/imageNotFound.jpg')
+                            }
+                            className="card-img-top"
+                            alt={product.title}
+                          />
+                          <div className="card-body">
+                            <h5 className="card-title">{product.title}</h5>
+                            <p className="price">
+                              ${product.variants[0]?.price}
+                            </p>
+                            <Link
+                              to={`/product/${product.id}`}
+                              className="btn btn-secondary btn-block"
+                            >
+                              {t('View Product')}
+                            </Link>
+                          </div>
+                        </div>
+                      </HoverScaleWrapper>
+                    </motion.div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
+    </div>
   );
 };
 

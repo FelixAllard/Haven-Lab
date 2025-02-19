@@ -146,6 +146,12 @@
   transition: transform 0.3s ease-in-out;
 }
 
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .product-card:hover {
   transform: scale(1.03);
 }

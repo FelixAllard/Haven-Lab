@@ -92,7 +92,7 @@ const AboutUs = () => {
 
         <Row>
           {teamMembers.map((member, index) => (
-              <HoverScaleWrapper>
+              <HoverScaleWrapper className="p-3">
                 <Card className="bg-dark position-relative"> {/* Ensures overlay positioning */}
                   <Card.Img
                       src={member.imageLink}

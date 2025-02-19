@@ -5,6 +5,7 @@ import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import Cookies from 'js-cookie';
 import { useTranslation } from 'react-i18next';
+import HoverScaleWrapper from '../../Shared/HoverScaleWrapper';
 
 const CartPage = () => {
   const [cart, setCart] = useState([]);
@@ -171,21 +172,26 @@ const CartPage = () => {
 
                 {/* Quantity Controls */}
                 <div className="cart-item-quantity">
-                  <button
-                    className="quantity-btn-left"
-                    onClick={() => removeByOne(item.productId)}
-                  >
-                    {' '}
-                    -
-                  </button>
+                  <HoverScaleWrapper>
+                    <button
+                      className="quantity-btn-left"
+                      onClick={() => removeByOne(item.variantId)}
+                    >
+                      {' '}
+                      -
+                    </button>
+                  </HoverScaleWrapper>
+
                   <span className="quantity">{item.quantity}</span>
-                  <button
-                    className="quantity-btn-right"
-                    onClick={() => addByOne(item.productId)}
-                  >
-                    {' '}
-                    +
-                  </button>
+                  <HoverScaleWrapper>
+                    <button
+                      className="quantity-btn-right"
+                      onClick={() => addByOne(item.variantId)}
+                    >
+                      {' '}
+                      +
+                    </button>
+                  </HoverScaleWrapper>
                 </div>
 
                 {/* Price */}
@@ -214,7 +220,7 @@ const CartPage = () => {
             onClick={handleCreateDraftOrder}
             className="checkout-btn justify-content-end"
           >
-            {t('Checkout')}
+            <HoverScaleWrapper>{t('Checkout')}</HoverScaleWrapper>
           </button>
         </div>
       )}

@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ProductsPage.css';
 import { FaSearch } from 'react-icons/fa';
-import { useAuth } from '../../AXIOS/AuthentificationContext';
 import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
+import HoverScaleWrapper from '../../Shared/HoverScaleWrapper';
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -21,9 +21,6 @@ const ProductPage = () => {
   const { t } = useTranslation('products');
 
   const itemsPerPage = 6;
-
-  const { authToken } = useAuth();
-  const isLoggedIn = !!authToken;
 
   const fetchProducts = async (params = '') => {
     try {
@@ -54,7 +51,16 @@ const ProductPage = () => {
       query = query.slice(0, -1);
     }
     fetchProducts(query);
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setMinPrice('');
+    setMaxPrice('');
+    setAvailable(false);
+    fetchProducts();
+    setCurrentPage(1);
   };
 
   const handleKeyPress = (event) => {
@@ -63,8 +69,6 @@ const ProductPage = () => {
     }
   };
 
-  // Pagination Logic
-  const totalPages = Math.ceil(products.length / itemsPerPage);
   const paginatedProducts = products.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
@@ -104,24 +108,27 @@ const ProductPage = () => {
                 />
                 <label className="form-check-label">{t('Available')}</label>
               </div>
-              <button
-                className="btn btn-secondary btn-block"
-                onClick={handleSearch}
-              >
-                {t('Apply Filter')}
-              </button>
+              <div className="d-flex justify-content-between w-100">
+                <HoverScaleWrapper>
+                  <button
+                    className="btn btn-secondary w-48"
+                    onClick={handleSearch}
+                  >
+                    {t('Apply Filter')}
+                  </button>
+                </HoverScaleWrapper>
+                <HoverScaleWrapper>
+                  <button
+                    className="btn btn-outline-danger w-48"
+                    onClick={handleClearFilters}
+                  >
+                    {t('Clear Filters')}
+                  </button>
+                </HoverScaleWrapper>
+              </div>
             </div>
-            {isLoggedIn && (
-              <button className="btn btn-success mb-3 mt-4">
-                <Link
-                  to={`/admin/product/create`}
-                  style={{ color: 'white', textDecoration: 'none' }}
-                >
-                  Add Product
-                </Link>
-              </button>
-            )}
           </div>
+
           <div className="col-md-9">
             <div className="search-bar-container">
               <input
@@ -136,7 +143,6 @@ const ProductPage = () => {
                 <FaSearch />
               </button>
             </div>
-
             {loading ? (
               <div className="text-center">Loading...</div>
             ) : error ? (
@@ -154,59 +160,33 @@ const ProductPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                     >
-                      <div className="card product-card">
-                        <img
-                          src={
-                            product.images[0]?.src ||
-                            require('../../Shared/imageNotFound.jpg')
-                          }
-                          className="card-img-top"
-                          alt={product.title}
-                        />
-                        <div className="card-body">
-                          <h5 className="card-title">{product.title}</h5>
-                          <p className="price">${product.variants[0]?.price}</p>
-                          <Link
-                            to={`/product/${product.id}`}
-                            className="btn btn-secondary btn-block"
-                          >
-                            {t('View Product')}
-                          </Link>
+                      <HoverScaleWrapper>
+                        <div className="card product-card">
+                          <img
+                            src={
+                              product.images[0]?.src ||
+                              require('../../Shared/imageNotFound.jpg')
+                            }
+                            className="card-img-top"
+                            alt={product.title}
+                          />
+                          <div className="card-body">
+                            <h5 className="card-title">{product.title}</h5>
+                            <p className="price">
+                              ${product.variants[0]?.price}
+                            </p>
+                            <Link
+                              to={`/product/${product.id}`}
+                              className="btn btn-secondary btn-block"
+                            >
+                              {t('View Product')}
+                            </Link>
+                          </div>
                         </div>
-                      </div>
+                      </HoverScaleWrapper>
                     </motion.div>
                   ))}
                 </div>
-
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                  <div className="pagination d-flex justify-content-center mt-4">
-                    <button
-                      className="btn btn-outline-secondary mx-1"
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                    >
-                      {t('Previous')}
-                    </button>
-                    {[...Array(totalPages)].map((_, i) => (
-                      <button
-                        key={i}
-                        className={`btn mx-1 ${currentPage === i + 1 ? 'btn-secondary' : 'btn-outline-secondary'}`}
-                        onClick={() => setCurrentPage(i + 1)}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                    <button
-                      className="btn btn-outline-secondary mx-1"
-                      disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                    >
-                      {t('Next')}
-                    </button>
-                  </div>
-                )}
-                <div className="mt-5"></div>
               </>
             )}
           </div>

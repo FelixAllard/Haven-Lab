@@ -21,6 +21,7 @@ public class ProxyEmailApiController : ControllerBase
     [RequireAuth]
     public async Task<IActionResult> SendSingleEmailWithTemplate([FromBody]DirectEmailModel directEmailModel)
     {
+        Console.Write("Sending email...");
         var response = serviceEmailApiController.PostEmail(directEmailModel);
         
         

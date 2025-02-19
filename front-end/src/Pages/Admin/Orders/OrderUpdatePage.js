@@ -54,7 +54,6 @@ const OrderUpdatePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(order);
       const response = await httpClient.put(
         `/gateway/api/ProxyOrder/${orderId}`,
         order,
@@ -102,17 +101,9 @@ const OrderUpdatePage = () => {
   return (
     <div className="container mt-4">
       <h1 className="mb-4">Update Order</h1>
-      <h4>
-        As being a very primitive version, this page shows the update
-        functionnality. Make sure when you update the fields, write something
-        CORRECT, for example, country can be Canada, China, United-States, etc.
-        Do not write something "Canadaaa"! Same for the other fields. Otherwise,
-        it will show error message, since Shopify has a strict limitation for
-        input on its side. A bug story should be added for the page to implement
-        PRETTY error handling! So that messages are visible for notifying and
-        guiding users. ---Regine
-      </h4>
+
       <form onSubmit={handleSubmit}>
+        {/* Note and Tags */}
         <div className="mb-3">
           <label htmlFor="note" className="form-label">
             Note
@@ -124,10 +115,12 @@ const OrderUpdatePage = () => {
             value={order.note || ''}
             onChange={handleChange}
             maxLength="500"
-            required // Required field
+            required
+            placeholder="Add any notes about the order."
           />
           <small>Max 500 characters</small>
         </div>
+
         <div className="mb-3">
           <label className="form-label">Accepts Marketing</label>
           <div className="form-check">
@@ -147,6 +140,7 @@ const OrderUpdatePage = () => {
             </label>
           </div>
         </div>
+
         <div className="mb-3">
           <label htmlFor="tags" className="form-label">
             Tags
@@ -159,169 +153,224 @@ const OrderUpdatePage = () => {
             value={order.tags || ''}
             onChange={handleChange}
             maxLength="100"
-            required // Required field
+            required
+            placeholder="Enter relevant tags (e.g., 'VIP', 'Urgent')."
           />
           <small>Max 100 characters</small>
         </div>
-        <h3>Shipping Information</h3>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.name" className="form-label">
-            Name
-          </label>
-          <input
-            type="text"
-            id="shipping_address.name"
-            name="shipping_address.name"
-            className="form-control"
-            value={order.shipping_address.name || ''}
-            onChange={handleChange}
-            maxLength="150"
-            required // Required field
-          />
-          <small>Max 150 characters</small>
+
+        {/* Shipping Information */}
+        <h3 className="mt-4">Shipping Information</h3>
+
+        <div className="row">
+          {/* Name */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.name" className="form-label">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="shipping_address.name"
+                name="shipping_address.name"
+                className="form-control"
+                value={order.shipping_address.name || ''}
+                onChange={handleChange}
+                maxLength="150"
+                required
+                placeholder="Enter recipient's full name."
+              />
+              <small>Max 150 characters</small>
+            </div>
+          </div>
+
+          {/* Address 1 */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.address1" className="form-label">
+                Address 1
+              </label>
+              <input
+                type="text"
+                id="shipping_address.address1"
+                name="shipping_address.address1"
+                className="form-control"
+                value={order.shipping_address.address1 || ''}
+                onChange={handleChange}
+                maxLength="200"
+                required
+                placeholder="Street address, P.O. box, company name, etc."
+              />
+              <small>Max 200 characters</small>
+            </div>
+          </div>
+
+          {/* Address 2 */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.address2" className="form-label">
+                Address 2 (Optional)
+              </label>
+              <input
+                type="text"
+                id="shipping_address.address2"
+                name="shipping_address.address2"
+                className="form-control"
+                value={order.shipping_address.address2 || ''}
+                onChange={handleChange}
+                maxLength="200"
+                placeholder="Apartment, suite, unit, building, floor, etc."
+              />
+              <small>Max 200 characters</small>
+            </div>
+          </div>
+
+          {/* City */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.city" className="form-label">
+                City
+              </label>
+              <input
+                type="text"
+                id="shipping_address.city"
+                name="shipping_address.city"
+                className="form-control"
+                value={order.shipping_address.city || ''}
+                onChange={handleChange}
+                maxLength="100"
+                required
+                placeholder="Enter city."
+              />
+              <small>Max 100 characters</small>
+            </div>
+          </div>
+
+          {/* Zip */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.zip" className="form-label">
+                Zip Code
+              </label>
+              <input
+                type="text"
+                id="shipping_address.zip"
+                name="shipping_address.zip"
+                className="form-control"
+                value={order.shipping_address.zip || ''}
+                onChange={handleChange}
+                maxLength="15"
+                required
+                placeholder="Enter zip code."
+              />
+              <small>Max 15 characters</small>
+            </div>
+          </div>
+
+          {/* Province */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.province" className="form-label">
+                Province
+              </label>
+              <input
+                type="text"
+                id="shipping_address.province"
+                name="shipping_address.province"
+                className="form-control"
+                value={order.shipping_address.province || ''}
+                onChange={handleChange}
+                maxLength="100"
+                required
+                placeholder="Enter province or state."
+              />
+              <small>Max 100 characters</small>
+            </div>
+          </div>
+
+          {/* Country */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.country" className="form-label">
+                Country
+              </label>
+              <input
+                type="text"
+                id="shipping_address.country"
+                name="shipping_address.country"
+                className="form-control"
+                value={order.shipping_address.country || ''}
+                onChange={handleChange}
+                maxLength="100"
+                required
+                placeholder="Enter country."
+              />
+              <small>Max 100 characters</small>
+            </div>
+          </div>
+
+          {/* Phone */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.phone" className="form-label">
+                Shipping Phone
+              </label>
+              <input
+                type="text"
+                id="shipping_address.phone"
+                name="shipping_address.phone"
+                className="form-control"
+                value={order.shipping_address.phone || ''}
+                onChange={handleChange}
+                maxLength="15"
+                required
+                placeholder="Enter phone number."
+              />
+              <small>Max 15 characters</small>
+            </div>
+          </div>
+
+          {/* Company */}
+          <div className="col-md-6">
+            <div className="mb-3">
+              <label htmlFor="shipping_address.company" className="form-label">
+                Company (Optional)
+              </label>
+              <input
+                type="text"
+                id="shipping_address.company"
+                name="shipping_address.company"
+                className="form-control"
+                value={order.shipping_address.company || ''}
+                onChange={handleChange}
+                maxLength="100"
+                placeholder="Enter company name."
+              />
+              <small>Max 100 characters</small>
+            </div>
+          </div>
         </div>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.address1" className="form-label">
-            Address 1
-          </label>
-          <input
-            type="text"
-            id="shipping_address.address1"
-            name="shipping_address.address1"
-            className="form-control"
-            value={order.shipping_address.address1 || ''}
-            onChange={handleChange}
-            maxLength="200"
-            required // Required field
-          />
-          <small>Max 200 characters</small>
+
+        {/* Action Buttons */}
+        <div className="d-flex justify-content-between mt-4">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => navigate(`/admin/orders/${orderId}`)}
+          >
+            Cancel
+          </button>
+          <button type="submit" className="btn btn-primary">
+            Update Order
+          </button>
         </div>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.address2" className="form-label">
-            Address 2
-          </label>
-          <input
-            type="text"
-            id="shipping_address.address2"
-            name="shipping_address.address2"
-            className="form-control"
-            value={order.shipping_address.address2 || ''}
-            onChange={handleChange}
-            maxLength="200"
-            required // Required field
-          />
-          <small>Max 200 characters</small>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.city" className="form-label">
-            City
-          </label>
-          <input
-            type="text"
-            id="shipping_address.city"
-            name="shipping_address.city"
-            className="form-control"
-            value={order.shipping_address.city || ''}
-            onChange={handleChange}
-            maxLength="100"
-            required // Required field
-          />
-          <small>Max 100 characters</small>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.zip" className="form-label">
-            Zip
-          </label>
-          <input
-            type="text"
-            id="shipping_address.zip"
-            name="shipping_address.zip"
-            className="form-control"
-            value={order.shipping_address.zip || ''}
-            onChange={handleChange}
-            maxLength="15"
-            required // Required field
-          />
-          <small>Max 15 characters</small>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.province" className="form-label">
-            Province
-          </label>
-          <input
-            type="text"
-            id="shipping_address.province"
-            name="shipping_address.province"
-            className="form-control"
-            value={order.shipping_address.province || ''}
-            onChange={handleChange}
-            maxLength="100"
-            required // Required field
-          />
-          <small>Max 100 characters</small>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.country" className="form-label">
-            Country
-          </label>
-          <input
-            type="text"
-            id="shipping_address.country"
-            name="shipping_address.country"
-            className="form-control"
-            value={order.shipping_address.country || ''}
-            onChange={handleChange}
-            maxLength="100"
-            required // Required field
-          />
-          <small>Max 100 characters</small>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.phone" className="form-label">
-            Shipping Phone
-          </label>
-          <input
-            type="text"
-            id="shipping_address.phone"
-            name="shipping_address.phone"
-            className="form-control"
-            value={order.shipping_address.phone || ''}
-            onChange={handleChange}
-            maxLength="15"
-            required // Required field
-          />
-          <small>Max 15 characters</small>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="shipping_address.company" className="form-label">
-            Company
-          </label>
-          <input
-            type="text"
-            id="shipping_address.company"
-            name="shipping_address.company"
-            className="form-control"
-            value={order.shipping_address.company || ''}
-            onChange={handleChange}
-            maxLength="100"
-          />
-          <small>Max 100 characters</small>
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Update Order
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary ms-3"
-          onClick={() => navigate(`/orders/${orderId}`)}
-        >
-          Cancel
-        </button>
       </form>
-      <br />
+
+      {/* Success/Error Message */}
       {successMessage && (
-        <div className="alert alert-success">{successMessage}</div>
+        <div className="alert alert-success mt-3">{successMessage}</div>
       )}
+      {error && <div className="alert alert-danger mt-3">{error}</div>}
     </div>
   );
 };

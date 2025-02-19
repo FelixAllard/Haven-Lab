@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
+import HoverScaleWrapper from '../../Shared/HoverScaleWrapper';
 
 const Home = () => {
   const [bestsellers, setBestsellers] = useState([]);
@@ -203,9 +204,11 @@ const Home = () => {
             </div>
           </div>
         )}
-        <button className="view-all-btn" onClick={handleMoreProducts}>
-          {t('View All')}
-        </button>
+        <HoverScaleWrapper>
+          <button className="view-all-btn" onClick={handleMoreProducts}>
+            {t('View All')}
+          </button>
+        </HoverScaleWrapper>
       </div>
 
       {/* Newsletter Section */}

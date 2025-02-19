@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Spinner, Alert, Container } from 'react-bootstrap';
-import TemplateList from './TemplateList'; // Import TemplateList
+import { Spinner, Alert, Container, Modal, Button } from 'react-bootstrap';
+import TemplateList from './TemplateList';
 import TemplateActions from './TemplateActions';
-import { Link } from 'react-router-dom'; // Import TemplateActions
+import { Link } from 'react-router-dom';
 import httpClient from '../../../../AXIOS/AXIOS';
 
 const TemplateManager = () => {
@@ -10,6 +10,8 @@ const TemplateManager = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [templateDetails, setTemplateDetails] = useState(null);
 
   const handleDelete = () => {
     if (selectedTemplate) {
@@ -37,10 +39,29 @@ const TemplateManager = () => {
       httpClient
         .get(`/gateway/api/ProxyTemplate/${selectedTemplate}`)
         .then((response) => {
-          alert(`Template details: ${JSON.stringify(response.data)}`);
+          setTemplateDetails(response.data);
+          setShowModal(true);
         })
         .catch(() => alert('Failed to fetch template details'));
     }
+  };
+
+  const getEmailContent = (htmlContent) => {
+    // Use a regular expression to extract the <style> tags and the content inside them
+    const styleMatch = htmlContent.match(/<style[^>]*>([\s\S]*?)<\/style>/g);
+
+    // Extract the styles and the content
+    const styles = styleMatch ? styleMatch.join('') : '';
+    const contentWithoutStyles = htmlContent.replace(
+      /<style[^>]*>[\s\S]*?<\/style>/g,
+      '',
+    );
+
+    // Wrap the content with its styles
+    return `
+      <style>${styles}</style>
+      ${contentWithoutStyles}
+    `;
   };
 
   return (
@@ -78,6 +99,33 @@ const TemplateManager = () => {
       <Link className="btn btn-primary" to="/admin/email/sent">
         <i className="fas fa-plus me-2"></i>View Sent Emails
       </Link>
+
+      {/* Template Details Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title style={{ color: 'black' }}>
+            {templateDetails?.templateName || 'Template Details'}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-bg-dark">
+          {templateDetails?.emailTemplate?.htmlFormat ? (
+            <div
+              dangerouslySetInnerHTML={{
+                __html: getEmailContent(
+                  templateDetails.emailTemplate.htmlFormat,
+                ),
+              }}
+            />
+          ) : (
+            <p>No HTML content available.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

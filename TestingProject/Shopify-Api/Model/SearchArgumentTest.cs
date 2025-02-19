@@ -12,8 +12,8 @@ public class SearchArgumentTest
 
         // Assert
         Assert.That(searchArgs.Name, Is.EqualTo(string.Empty));
-        Assert.That(searchArgs.MinimumPrice, Is.EqualTo(long.MinValue));
-        Assert.That(searchArgs.MaximumPrice, Is.EqualTo(long.MaxValue));
+        Assert.That(searchArgs.MinimumPrice, Is.EqualTo(decimal.MinValue));
+        Assert.That(searchArgs.MaximumPrice, Is.EqualTo(decimal.MaxValue));
         Assert.That(searchArgs.Available, Is.False);
     }
 

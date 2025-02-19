@@ -3,8 +3,8 @@ namespace Api_Gateway.Models;
 public class SearchArguments
 {
     public string Name { get; set; } = string.Empty;
-    public long MinimumPrice { get; set; } = long.MinValue;
-    public long MaximumPrice { get; set; } = long.MaxValue;
+    public decimal MinimumPrice { get; set; } = decimal.MinValue;
+    public decimal MaximumPrice { get; set; } = decimal.MaxValue;
     public bool Available { get; set; } = false;
     
     public static string BuildQueryString(SearchArguments searchArguments)

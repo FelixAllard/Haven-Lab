@@ -5,8 +5,6 @@ import Logo from '../../Shared/Logo.svg';
 import Arrow from './Assets/arrow.png';
 import './Home.css';
 import { motion } from 'motion/react';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
 import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';

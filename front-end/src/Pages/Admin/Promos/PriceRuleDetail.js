@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 
 const PriceRuleDetail = () => {
   const { priceruleId } = useParams();
@@ -101,7 +101,9 @@ const PriceRuleDetail = () => {
 
       <button
         className="btn btn-primary mt-3 mb-3"
-        onClick={() => navigate(`/promo/pricerules/update/${priceRule.id}`)}
+        onClick={() =>
+          navigate(`/admin/promo/pricerules/update/${priceRule.id}`)
+        }
       >
         Edit Price Rule
       </button>

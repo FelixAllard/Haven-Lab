@@ -115,6 +115,39 @@ public class ProxyProductController : ControllerBase
         }
     }
     
+    public class ImageUploadRequest
+    {
+        public string ImageData { get; set; }
+    }
+
+    [HttpPost("upload-image")]
+    [RequireAuth]
+    public async Task<IActionResult> PutProductImage([FromBody] ImageUploadRequest request)
+    {
+        try
+        {
+            // Convert base64 string to byte array
+            byte[] imageBytes = Convert.FromBase64String(request.ImageData);
+            var response = await _serviceProductController.UploadImageToShopifyAsync(imageBytes);
+        
+            if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+            {
+                return StatusCode(503, new { message = "Service is currently unavailable, please try again later." });
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return StatusCode((int)response.StatusCode, content);
+        }
+        catch (FormatException ex)
+        {
+            return BadRequest(new { message = "Invalid base64 image data." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred", details = ex.Message });
+        }
+    }
+    
     [HttpDelete("{id}")]
     [RequireAuth]
     public async Task<IActionResult> DeleteProduct([FromRoute]long id)

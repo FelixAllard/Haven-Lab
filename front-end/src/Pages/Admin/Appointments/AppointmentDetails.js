@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useParams, useNavigate } from 'react-router-dom';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 const AppointmentDetail = () => {
   const { appointmentId } = useParams(); // Get the appointmentId from the URL
   const [appointment, setAppointment] = useState(null);
@@ -47,7 +47,7 @@ const AppointmentDetail = () => {
 
       if (response.status === 204) {
         // Redirect to appointments list after deleting
-        navigate('/appointments');
+        navigate('/admin/appointments');
       }
     } catch (err) {
       const errorMessage =
@@ -59,7 +59,7 @@ const AppointmentDetail = () => {
 
   // Handle update navigation
   const handleUpdate = () => {
-    navigate(`/appointments/update/${appointmentId}`);
+    navigate(`/admin/appointments/update/${appointmentId}`);
   };
 
   // Render loading or error states
@@ -107,7 +107,7 @@ const AppointmentDetail = () => {
 
             <button
               className="btn btn-secondary mt-3"
-              onClick={() => navigate('/appointments')}
+              onClick={() => navigate('/admin/appointments')}
             >
               Back
             </button>

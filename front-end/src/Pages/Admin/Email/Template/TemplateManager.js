@@ -3,7 +3,7 @@ import { Spinner, Alert, Container } from 'react-bootstrap';
 import TemplateList from './TemplateList'; // Import TemplateList
 import TemplateActions from './TemplateActions';
 import { Link } from 'react-router-dom'; // Import TemplateActions
-import httpClient from '../../../AXIOS/AXIOS';
+import httpClient from '../../../../AXIOS/AXIOS';
 
 const TemplateManager = () => {
   const [templates, setTemplates] = useState([]);

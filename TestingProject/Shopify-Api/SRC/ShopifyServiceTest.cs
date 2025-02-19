@@ -18,6 +18,7 @@ namespace TestingProject.Shopify_Api.SRC
         private Mock<IProductServiceFactory> _mockProductServiceFactory;
         private Mock<IProductService> _mockProductService;
         private Mock<IMetaFieldServiceFactory> _mockMetaFieldServiceFactory;
+        private Mock<IHttpClientFactory> _mockHttpClientFactory;
         private Mock<IMetaFieldService> _mockMetaFieldService;
         private ShopifyRestApiCredentials _falseCredentials;
         private ProductValidator _productValidator;
@@ -29,6 +30,7 @@ namespace TestingProject.Shopify_Api.SRC
             _mockProductService = new Mock<IProductService>();
             _mockMetaFieldServiceFactory = new Mock<IMetaFieldServiceFactory>();
             _mockMetaFieldService = new Mock<IMetaFieldService>();
+            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
 
             _falseCredentials = new ShopifyRestApiCredentials("NotARealURL", "NotARealToken");
             _productValidator = new ProductValidator();
@@ -45,7 +47,8 @@ namespace TestingProject.Shopify_Api.SRC
                 _mockProductServiceFactory.Object,
                 _falseCredentials,
                 _productValidator,
-                _mockMetaFieldServiceFactory.Object
+                _mockMetaFieldServiceFactory.Object,
+                _mockHttpClientFactory.Object
             );
         }
         

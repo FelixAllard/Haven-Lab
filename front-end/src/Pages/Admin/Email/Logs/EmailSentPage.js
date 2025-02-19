@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Table } from 'react-bootstrap';
-import httpClient from '../../../AXIOS/AXIOS';
+import httpClient from '../../../../AXIOS/AXIOS';
 const EmailLogs = () => {
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);

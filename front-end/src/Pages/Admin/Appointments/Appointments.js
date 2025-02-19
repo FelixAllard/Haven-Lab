@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Appointments.css';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -27,7 +27,7 @@ const Appointments = () => {
       setLoading(true);
       setError(null); // Clear any previous errors
       const response = await httpClient.get(
-        `/gateway/api/ProxyAppointment/all${query}`,
+        `/gateway/api/ProxyAppointment/appointments${query}`,
       );
 
       // Sort appointments by appointmentDate (earliest to oldest)
@@ -133,11 +133,11 @@ const Appointments = () => {
   const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleViewClick = (appointmentId) => {
-    navigate(`/appointments/${appointmentId}`);
+    navigate(`/admin/appointments/${appointmentId}`);
   };
 
   const handleCreateClick = () => {
-    navigate('/appointments/create');
+    navigate('/admin/appointments/create');
   };
 
   return (

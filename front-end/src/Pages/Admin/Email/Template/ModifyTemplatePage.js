@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useParams } from 'react-router-dom';
-import httpClient from '../../../AXIOS/AXIOS';
+import httpClient from '../../../../AXIOS/AXIOS';
 import { TbHttpPatch } from 'react-icons/tb';
 
 // EditTemplatePage Component

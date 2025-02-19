@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 
 const AppointmentCreate = () => {
   const [appointment, setAppointment] = useState({
@@ -30,7 +30,7 @@ const AppointmentCreate = () => {
         appointmentToCreate,
       );
       if (response.status === 201) {
-        navigate('/appointments'); // Redirect to appointments list after successful creation
+        navigate('/admin/appointments'); // Redirect to appointments list after successful creation
       }
     } catch (err) {
       // Check if the error is from a response with a message (i.e., backend validation error)
@@ -45,7 +45,7 @@ const AppointmentCreate = () => {
   };
 
   const handleCancel = () => {
-    navigate('/appointments'); // Navigate back to appointments list
+    navigate('/admin/appointments'); // Navigate back to appointments list
   };
 
   return (

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import httpClient from '../../AXIOS/AXIOS';
+import httpClient from '../../../AXIOS/AXIOS';
 
 const PriceRules = () => {
   const [priceRules, setPriceRules] = useState([]);
@@ -63,7 +63,7 @@ const PriceRules = () => {
 
       <button
         className="btn btn-primary mt-3 mb-3"
-        onClick={() => navigate(`/promo/pricerules/create`)}
+        onClick={() => navigate(`/admin/promo/pricerules/create`)}
       >
         Create Price Rule
       </button>
@@ -105,7 +105,9 @@ const PriceRules = () => {
                     </p>
                     <button
                       className="btn btn-primary mt-3"
-                      onClick={() => navigate(`/promo/pricerules/${rule.id}`)}
+                      onClick={() =>
+                        navigate(`/admin/promo/pricerules/${rule.id}`)
+                      }
                     >
                       View Promo
                     </button>

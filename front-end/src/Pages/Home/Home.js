@@ -9,6 +9,7 @@ import 'react-multi-carousel/lib/styles.css';
 import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
+import HoverScaleWrapper from "../../Shared/HoverScaleWrapper";
 
 const Home = () => {
   const [bestsellers, setBestsellers] = useState([]);
@@ -215,14 +216,17 @@ const Home = () => {
             ))}
           </Carousel>
         )}
-        <button className="view-all-btn" onClick={handleMoreProducts}>
-          {t('View All')}
-        </button>
+        <HoverScaleWrapper>
+          <button className="view-all-btn" onClick={handleMoreProducts}>
+            {t('View All')}
+          </button>
+        </HoverScaleWrapper>
+
       </div>
 
       {/* Newsletter Section */}
       <div className="newsletter-container">
-        <h1 className="newsletter-title">{t('Subscribe')}</h1>
+      <h1 className="newsletter-title">{t('Subscribe')}</h1>
         <p className="newsletter-description">
           {t('Subscribe P1')} <br />
           Sign up for our newsletter!

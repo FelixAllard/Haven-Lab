@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import './Footer.css'; // For custom styles
 import '../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
+const phoneenv = process.env.HAVEN_LABS_PHONE_NUMBER;
+const emailenv = process.env.HAVEN_LABS_EMAIL;
 
 const Footer = () => {
   // const [showFooter, setShowFooter] = useState(false);

@@ -8,6 +8,7 @@ import { useAuth } from '../../AXIOS/AuthentificationContext';
 import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
+import HoverScaleWrapper from "../../Shared/HoverScaleWrapper";
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -147,6 +148,7 @@ const ProductPage = () => {
               <>
                 <div className="row">
                   {paginatedProducts.map((product, index) => (
+
                     <motion.div
                       className="col-md-4 mb-4"
                       key={product.id}
@@ -154,47 +156,50 @@ const ProductPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                     >
-                      <div className="card product-card">
-                        <img
-                          src={
-                            product.images[0]?.src ||
-                            require('../../Shared/imageNotFound.jpg')
-                          }
-                          className="card-img-top"
-                          alt={product.title}
-                        />
-                        <div className="card-body">
-                          <h5 className="card-title">{product.title}</h5>
-                          <p className="price">${product.variants[0]?.price}</p>
-                          <Link
-                            to={`/product/${product.id}`}
-                            className="btn btn-secondary btn-block"
-                          >
-                            {t('View Product')}
-                          </Link>
+                      <HoverScaleWrapper>
+                        <div className="card product-card">
+                          <img
+                              src={
+                                  product.images[0]?.src ||
+                                  require('../../Shared/imageNotFound.jpg')
+                              }
+                              className="card-img-top"
+                              alt={product.title}
+                          />
+                          <div className="card-body">
+                            <h5 className="card-title">{product.title}</h5>
+                            <p className="price">${product.variants[0]?.price}</p>
+                            <Link
+                                to={`/product/${product.id}`}
+                                className="btn btn-secondary btn-block"
+                            >
+                              {t('View Product')}
+                            </Link>
+                          </div>
                         </div>
-                      </div>
+                      </HoverScaleWrapper>
+
                     </motion.div>
                   ))}
                 </div>
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="pagination d-flex justify-content-center mt-4">
-                    <button
-                      className="btn btn-outline-secondary mx-1"
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                    >
-                      {t('Previous')}
-                    </button>
-                    {[...Array(totalPages)].map((_, i) => (
+                    <div className="pagination d-flex justify-content-center mt-4">
                       <button
-                        key={i}
-                        className={`btn mx-1 ${currentPage === i + 1 ? 'btn-secondary' : 'btn-outline-secondary'}`}
-                        onClick={() => setCurrentPage(i + 1)}
+                          className="btn btn-outline-secondary mx-1"
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage(currentPage - 1)}
                       >
-                        {i + 1}
+                        {t('Previous')}
+                      </button>
+                      {[...Array(totalPages)].map((_, i) => (
+                          <button
+                              key={i}
+                              className={`btn mx-1 ${currentPage === i + 1 ? 'btn-secondary' : 'btn-outline-secondary'}`}
+                              onClick={() => setCurrentPage(i + 1)}
+                          >
+                          {i + 1}
                       </button>
                     ))}
                     <button

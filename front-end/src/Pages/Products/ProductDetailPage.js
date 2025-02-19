@@ -50,19 +50,14 @@ const ProductDetailsPage = () => {
     };
 
     const fetchTranslatedProduct = async () => {
-      if (language === 'fr') {
-        try {
-          console.log(
-            `Fetching translation for Product ID: ${productId} in French`,
-          );
-          const response = await httpClient.get(
-            `/gateway/api/ProxyProduct/${productId}/translation?lang=fr`,
-          );
-          console.log('Translation Response:', response.data);
-          setTranslatedProduct(response.data);
-        } catch (err) {
-          console.warn('Translation not found. Using default English.');
-        }
+      try {
+        const response = await httpClient.get(
+          `/gateway/api/ProxyProduct/${productId}/translation?lang=fr`,
+        );
+
+        setTranslatedProduct(response.data);
+      } catch (err) {
+        console.warn('Translation not found.');
       }
     };
 
@@ -104,30 +99,41 @@ const ProductDetailsPage = () => {
     }
   };
 
-  const addToCart = async () => {
-    try {
-      console.log('Adding product to cart...');
-      const response = await httpClient.post(
-        `/gateway/api/ProxyCart/add/${productId}`,
-        null,
-        { withCredentials: true },
-      );
-      if (response.status === 200) {
-        const updatedCartResponse = await httpClient.get(
-          `/gateway/api/ProxyCart`,
-          null,
-          { withCredentials: true },
-        );
-        if (updatedCartResponse.status === 200) {
-          console.log('Updated cart:', updatedCartResponse.data);
-        }
-      } else {
-        setToastMessage('Failed to add product to cart.');
-      }
-    } catch (err) {
-      console.error('Error adding product to cart:', err);
-      setToastMessage('Error: ' + err.message);
+  const addToCart = () => {
+    // Check if quantity is valid
+    if (product && product.variants[0]?.inventory_quantity <= 0) {
+      alert('Out of stock!');
+      return;
     }
+
+    console.log('Quantity checked');
+
+    // Get current cart from cookie
+    const cart = JSON.parse(Cookies.get('Cart') || '[]');
+
+    // Check if product already exists in the cart
+    const existingProductIndex = cart.findIndex(
+      (item) => item.productId === product.id,
+    );
+
+    if (existingProductIndex !== -1) {
+      // If the product exists, update the quantity
+      cart[existingProductIndex].quantity += 1;
+    } else {
+      // If the product is not in the cart, add it as a new item
+      cart.push({
+        productId: product.id,
+        variantId: product.variants[0].id,
+        imageSrc: product.images[0]?.src || '',
+        price: product.variants[0]?.price || '0',
+        productTitle: product.title,
+        frenchProductTitle: translatedProduct?.title || product.title,
+        quantity: 1,
+      });
+    }
+
+    // Save the updated cart back to the cookie
+    Cookies.set('Cart', JSON.stringify(cart), { expires: 7 });
   };
 
   // Render loading or error states

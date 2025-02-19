@@ -60,6 +60,7 @@ const ProductForm = () => {
     admin_graphql_api_id: null,
   });
 
+  const [imageFile, setImageFile] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -113,20 +114,52 @@ const ProductForm = () => {
     setFrTranslation({ ...frTranslation, [name]: value });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImageFile(file);
+
+    // Convert image to base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImageBase64(reader.result); // store base64 image
+    };
+    reader.readAsDataURL(file);
+  };
+  const [imageBase64, setImageBase64] = useState(''); // Base64 encoded image
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let formDataToSubmit = { ...formData };
 
     try {
-      //create product
+      if (imageFile) {
+        const base64Image = imageBase64.split(',')[1];
+
+        // Send as { ImageData: base64Image }
+        const imageResponse = await httpClient.post(
+          '/gateway/api/ProxyProduct/upload-image',
+          {
+            ImageData: base64Image, // Match the backend's property name
+          },
+        );
+
+        if (imageResponse.status === 200) {
+          formDataToSubmit.images = [{ src: imageResponse.data.imageUrl }];
+        } else {
+          throw new Error('Error uploading image');
+        }
+      }
+
+      // Proceed with creating the product after image upload
       const response = await httpClient.post(
         `/gateway/api/ProxyProduct`,
-        formData,
+        formDataToSubmit,
       );
 
       if (response.status === 200) {
         const productId = response.data.id;
 
-        //save french translations in metafields
+        // Save French translations in metafields
         const translationData = {
           locale: 'fr',
           title: frTranslation.fr_title,
@@ -239,6 +272,15 @@ const ProductForm = () => {
             onChange={handleFrChange}
             rows={4}
             required
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Product Image</Form.Label>
+          <Form.Control
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
           />
         </Form.Group>
 

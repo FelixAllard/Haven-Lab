@@ -63,6 +63,8 @@ const ProductForm = () => {
     admin_graphql_api_id: null,
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imageBase64, setImageBase64] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -95,8 +97,6 @@ const ProductForm = () => {
           const response = await httpClient.get(
             `/gateway/api/ProxyProduct/${productId}/translation?lang=fr`,
           );
-
-          console.log('Translation Response:', response.data);
 
           if (response.status === 200 && response.data) {
             setFrTranslation({
@@ -158,16 +158,44 @@ const ProductForm = () => {
     setFrTranslation({ ...frTranslation, [name]: value });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImageBase64(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let formDataToSubmit = { ...formData };
+
     try {
-      if (!formData.id) {
-        throw new Error('Product ID is required for updating.');
+      if (!formData.id) throw new Error('Product ID is required.');
+
+      if (imageFile) {
+        const base64Image = imageBase64.split(',')[1];
+
+        const imageResponse = await httpClient.post(
+          '/gateway/api/ProxyProduct/upload-image',
+          {
+            ImageData: base64Image,
+          },
+        );
+
+        if (imageResponse.status === 200) {
+          formDataToSubmit.images = [{ src: imageResponse.data.imageUrl }];
+        } else {
+          throw new Error('Error uploading image');
+        }
       }
 
       const response = await httpClient.put(
         `/gateway/api/ProxyProduct/${formData.id}`,
-        formData,
+        formDataToSubmit,
       );
 
       if (response.status === 200) {
@@ -183,15 +211,10 @@ const ProductForm = () => {
         );
 
         setShowSuccess(true);
-        setTimeout(() => {
-          window.location.href = '/products';
-        }, 2000);
       }
     } catch (error) {
       setShowError(true);
-      setErrorMessage(
-        error.response?.data?.message || 'An error occurred. Please try again.',
-      );
+      setErrorMessage(error.response?.data?.message || 'An error occurred.');
     }
   };
 
@@ -284,6 +307,18 @@ const ProductForm = () => {
             rows={4}
             required
           />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Product Image</Form.Label>
+          <Form.Control
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          {formData.images.length > 0 && (
+            <img src={formData.images[0].src} alt="Product" width="150" />
+          )}
         </Form.Group>
 
         <Form.Group className="mb-3">

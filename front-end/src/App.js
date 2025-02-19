@@ -10,27 +10,27 @@ import Navbar from './NavBar/Navbar';
 import Footer from './Footer/Footer';
 import AboutUs from './Pages/AboutUs/AboutUs';
 import Products from './Pages/Products/ProductsPage';
-import Orders from './Pages/Orders/Orders.js';
-import OrderDetail from './Pages/Orders/OrderDetail';
+import Orders from './Pages/Admin/Orders/Orders.js';
+import OrderDetail from './Pages/Admin/Orders/OrderDetail.js';
 import ProductDetailsPage from './Pages/Products/ProductDetailPage';
 import AddProductPage from './Pages/Admin/Product/AddProductPage';
 import ProductUpdatePage from './Pages/Admin/Product/UpdateProductPage.js';
 import Cart from './Pages/Cart/Cart.js';
 import OwnerLogin from './Pages/Admin/Authentification/OwnerLogin.js';
-import OrderUpdatePage from './Pages/Orders/OrderUpdatePage.js';
+import OrderUpdatePage from './Pages/Admin/Orders/OrderUpdatePage.js';
 import ProtectedRoute from './AXIOS/ProtectedRoute.js';
-import Appointments from './Pages/Appointments/Appointments.js';
-import AppointmentDetails from './Pages/Appointments/AppointmentDetails.js';
-import AppointmentUpdate from './Pages/Appointments/AppointmentUpdate.js';
-import AppointmentCreate from './Pages/Appointments/AppointmentCreate.js';
-import PriceRules from './Pages/Promos/PriceRules';
-import PriceRuleDetail from './Pages/Promos/PriceRuleDetail.js';
-import { EmailPage } from './Pages/Email/EmailPage';
-import AddTemplatePage from './Pages/Email/Template/AddTemplatePage';
-import ModifyTemplatePage from './Pages/Email/Template/ModifyTemplatePage';
-import EmailSentPage from './Pages/Email/Logs/EmailSentPage';
-import AddPriceRule from './Pages/Promos/AddPriceRule.js';
-import UpdatePriceRule from './Pages/Promos/UpdatePriceRule';
+import Appointments from './Pages/Admin/Appointments/Appointments.js';
+import AppointmentDetails from './Pages/Admin/Appointments/AppointmentDetails.js';
+import AppointmentUpdate from './Pages/Admin/Appointments/AppointmentUpdate.js';
+import AppointmentCreate from './Pages/Admin/Appointments/AppointmentCreate.js';
+import PriceRules from './Pages/Admin/Promos/PriceRules.js';
+import PriceRuleDetail from './Pages/Admin/Promos/PriceRuleDetail.js';
+import { EmailPage } from './Pages/Admin/Email/EmailPage.js';
+import AddTemplatePage from './Pages/Admin/Email/Template/AddTemplatePage.js';
+import ModifyTemplatePage from './Pages/Admin/Email/Template/ModifyTemplatePage.js';
+import EmailSentPage from './Pages/Admin/Email/Logs/EmailSentPage.js';
+import AddPriceRule from './Pages/Admin/Promos/AddPriceRule.js';
+import UpdatePriceRule from './Pages/Admin/Promos/UpdatePriceRule.js';
 
 function App() {
   return (
@@ -101,7 +101,7 @@ function App() {
               />
               {/* Orders */}
               <Route
-                path="/orders"
+                path="/admin/orders"
                 element={
                   <ProtectedRoute>
                     <Orders />
@@ -109,7 +109,7 @@ function App() {
                 }
               />
               <Route
-                path="/orders/:orderId"
+                path="/admin/orders/:orderId"
                 element={
                   <ProtectedRoute>
                     <OrderDetail />
@@ -126,7 +126,7 @@ function App() {
               />
               {/* Appointments */}
               <Route
-                path="/appointments"
+                path="/admin/appointments"
                 element={
                   <ProtectedRoute>
                     <Appointments />
@@ -134,7 +134,7 @@ function App() {
                 }
               />
               <Route
-                path="/appointments/:appointmentId"
+                path="/admin/appointments/:appointmentId"
                 element={
                   <ProtectedRoute>
                     <AppointmentDetails />
@@ -142,7 +142,7 @@ function App() {
                 }
               />
               <Route
-                path="/appointments/update/:appointmentId"
+                path="/admin/appointments/update/:appointmentId"
                 element={
                   <ProtectedRoute>
                     <AppointmentUpdate />
@@ -150,7 +150,7 @@ function App() {
                 }
               />
               <Route
-                path="/appointments/create"
+                path="/admin/appointments/create"
                 element={
                   <ProtectedRoute>
                     <AppointmentCreate />
@@ -159,7 +159,7 @@ function App() {
               />
               {/* Promo */}
               <Route
-                path="/promo/pricerules"
+                path="/admin/promo/pricerules"
                 element={
                   <ProtectedRoute>
                     <PriceRules />
@@ -167,7 +167,7 @@ function App() {
                 }
               />
               <Route
-                path="/promo/pricerules/:priceruleId"
+                path="/admin/promo/pricerules/:priceruleId"
                 element={
                   <ProtectedRoute>
                     <PriceRuleDetail />
@@ -176,7 +176,7 @@ function App() {
               />
 
               <Route
-                path="/promo/pricerules/create"
+                path="/admin/promo/pricerules/create"
                 element={
                   <ProtectedRoute>
                     <AddPriceRule />
@@ -185,7 +185,7 @@ function App() {
               />
 
               <Route
-                path="/promo/pricerules/update/:priceruleId"
+                path="/admin/promo/pricerules/update/:priceruleId"
                 element={
                   <ProtectedRoute>
                     <UpdatePriceRule />

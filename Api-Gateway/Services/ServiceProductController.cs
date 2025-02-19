@@ -279,4 +279,61 @@ public class ServiceProductController
         }
     }
     
+public async Task<HttpResponseMessage> UploadImageToShopifyAsync(byte[] imageData)
+{
+    try
+    {
+        var base64Image = Convert.ToBase64String(imageData);
+        
+        var requestUrl = $"{BASE_URL}/api/Products/upload-image";
+
+        // Create the HTTP client
+        var client = _httpClientFactory.CreateClient();
+
+        // Create the content for the POST request with the base64-encoded image data
+        var jsonContent = new StringContent($"\"{base64Image}\"", Encoding.UTF8, "application/json-patch+json");
+
+        // Send the image upload request to the backend
+        var response = await client.PostAsync(requestUrl, jsonContent);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Read and return the response content (image URL or relevant response data)
+            var imageUrl = await response.Content.ReadAsStringAsync();
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(imageUrl)
+            };
+        }
+        else
+        {
+            // Return an error response if the upload fails
+            return new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent($"Error uploading image: {response.ReasonPhrase}")
+            };
+        }
+    }
+    catch (HttpRequestException ex)
+    {
+        // Return an error response if there's a problem with the request (network issues, etc.)
+        return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+        {
+            Content = new StringContent($"Error: {ex.Message}")
+        };
+    }
+    catch (Exception ex)
+    {
+        // Return an internal server error response for other exceptions
+        return new HttpResponseMessage(HttpStatusCode.InternalServerError)
+        {
+            Content = new StringContent($"Error: {ex.Message}")
+        };
+    }
+}
+
+
+
+    
 }

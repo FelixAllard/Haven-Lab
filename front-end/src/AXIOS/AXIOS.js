@@ -12,7 +12,6 @@ const httpClient = axios.create({
 
 var token = localStorage.getItem('authToken');
 if (token) {
-  console.log('Bearer ' + token);
   httpClient.defaults.headers['Authorization'] = `Bearer ${token}`;
 } else {
   // Remove the Authorization header if no token

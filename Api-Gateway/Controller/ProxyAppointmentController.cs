@@ -18,7 +18,7 @@ namespace Api_Gateway.Controller
         }
 
         // GET: gateway/api/ProxyAppointment/all
-        [HttpGet("all")]
+        [HttpGet("appointments")]
         [RequireAuth]
         public async Task<IActionResult> GetAllAppointments([FromQuery] AppointmentSearchArguments searchArguments)
         {

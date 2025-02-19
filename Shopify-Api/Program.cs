@@ -38,7 +38,7 @@ builder.Services.AddTransient<ProductValidator>(); // Makes that an instance of 
 //---
     
 builder.Services.AddShopifySharp<LeakyBucketExecutionPolicy>();
-
+builder.Services.AddHttpClient();
 
 //Allows Docker to connect to it directly
 builder.WebHost.ConfigureKestrel(serverOptions =>

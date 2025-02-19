@@ -101,7 +101,9 @@ const PriceRuleDetail = () => {
 
       <button
         className="btn btn-primary mt-3 mb-3"
-        onClick={() => navigate(`/admin/promo/pricerules/update/${priceRule.id}`)}
+        onClick={() =>
+          navigate(`/admin/promo/pricerules/update/${priceRule.id}`)
+        }
       >
         Edit Price Rule
       </button>

@@ -28,8 +28,9 @@ const OwnerLogin = () => {
 
       if (error.response) {
         setError(
-          error.response.data?.message.replace(/\{ Error =\s*/, '').replace(/\}$/, '') ||
-          'An error occurred. Please try again.'
+          error.response.data?.message
+            .replace(/\{ Error =\s*/, '')
+            .replace(/\}$/, '') || 'An error occurred. Please try again.',
         );
       } else {
         setError('An error occurred while logging in. Please try again.');

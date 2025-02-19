@@ -105,7 +105,9 @@ const PriceRules = () => {
                     </p>
                     <button
                       className="btn btn-primary mt-3"
-                      onClick={() => navigate(`/admin/promo/pricerules/${rule.id}`)}
+                      onClick={() =>
+                        navigate(`/admin/promo/pricerules/${rule.id}`)
+                      }
                     >
                       View Promo
                     </button>

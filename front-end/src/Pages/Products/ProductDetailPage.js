@@ -132,6 +132,7 @@ const ProductDetailsPage = () => {
 
     // Save the updated cart back to the cookie
     Cookies.set('Cart', JSON.stringify(cart), { expires: 7 });
+    alert('Item added to cart!');
   };
 
   // Render loading or error states
@@ -301,7 +302,7 @@ const ProductDetailsPage = () => {
                 transition={{ duration: 0.2 }}
                 onClick={addToCart}
               >
-                Add to Cart
+                {t('Add to Cart')}
               </motion.button>
             )}
 

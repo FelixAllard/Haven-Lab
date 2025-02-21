@@ -175,7 +175,7 @@ const CartPage = () => {
                   <HoverScaleWrapper>
                     <button
                       className="quantity-btn-left"
-                      onClick={() => removeByOne(item.variantId)}
+                      onClick={() => removeByOne(item.productId)}
                     >
                       {' '}
                       -
@@ -186,7 +186,7 @@ const CartPage = () => {
                   <HoverScaleWrapper>
                     <button
                       className="quantity-btn-right"
-                      onClick={() => addByOne(item.variantId)}
+                      onClick={() => addByOne(item.productId)}
                     >
                       {' '}
                       +

@@ -18,7 +18,7 @@ const LanguageToggle = () => {
     const newLanguage = language === 'en' ? 'fr' : 'en';
     Cookies.set('language', newLanguage, { expires: 365 });
     setLanguage(newLanguage);
-    window.location.reload();
+    i18n.changeLanguage(newLanguage);
   };
 
   return (

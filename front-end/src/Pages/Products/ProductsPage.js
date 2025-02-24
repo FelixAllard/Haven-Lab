@@ -8,6 +8,7 @@ import httpClient from '../../AXIOS/AXIOS';
 import '../../Languages/i18n.js';
 import { useTranslation } from 'react-i18next';
 import HoverScaleWrapper from '../../Shared/HoverScaleWrapper';
+import {useAuth} from "../../AXIOS/AuthentificationContext";
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -19,6 +20,9 @@ const ProductPage = () => {
   const [available, setAvailable] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const { t } = useTranslation('products');
+
+  const { authToken } = useAuth();
+  const isLoggedIn = !!authToken;
 
   const itemsPerPage = 6;
 
@@ -108,45 +112,61 @@ const ProductPage = () => {
                 />
                 <label className="form-check-label">{t('Available')}</label>
               </div>
-              <div className="d-flex justify-content-between w-100">
-                <HoverScaleWrapper>
-                  <button
-                    className="btn btn-secondary w-48"
-                    onClick={handleSearch}
-                  >
-                    {t('Apply Filter')}
-                  </button>
-                </HoverScaleWrapper>
-                <HoverScaleWrapper>
-                  <button
-                    className="btn btn-outline-danger w-48"
-                    onClick={handleClearFilters}
-                  >
-                    {t('Clear Filters')}
-                  </button>
-                </HoverScaleWrapper>
+              <div className="d-flex flex-column w-100">
+                <div className="d-flex justify-content-between w-100 mb-2">
+                  <HoverScaleWrapper>
+                    <button
+                        className="btn btn-secondary w-48"
+                        onClick={handleSearch}
+                    >
+                      {t('Apply Filter')}
+                    </button>
+                  </HoverScaleWrapper>
+                  <HoverScaleWrapper>
+                    <button
+                        className="btn btn-outline-danger w-48"
+                        onClick={handleClearFilters}
+                    >
+                      {t('Clear Filters')}
+                    </button>
+                  </HoverScaleWrapper>
+                </div>
+
+                {isLoggedIn &&
+                    (
+                    <HoverScaleWrapper>
+                      <Link
+                          to={`/admin/product/create`}
+                          className="btn btn-success w-100"
+                      >
+                        Add Product
+                      </Link>
+                    </HoverScaleWrapper>
+                  )
+                }
               </div>
+
             </div>
           </div>
 
           <div className="col-md-9">
             <div className="search-bar-container">
               <input
-                type="text"
-                className="form-control search-bar"
-                placeholder={t('Search')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleKeyPress}
+                  type="text"
+                  className="form-control search-bar"
+                  placeholder={t('Search')}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={handleKeyPress}
               />
               <button className="search-icon-button" onClick={handleSearch}>
-                <FaSearch />
+                <FaSearch/>
               </button>
             </div>
             {loading ? (
-              <div className="text-center">Loading...</div>
+                <div className="text-center">Loading...</div>
             ) : error ? (
-              <div className="alert alert-danger" role="alert">
+                <div className="alert alert-danger" role="alert">
                 Error: {error}
               </div>
             ) : (
